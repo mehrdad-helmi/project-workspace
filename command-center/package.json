@@ -6,6 +6,7 @@
 		"dev": "bun run scripts/dev.ts",
 		"build": "vite build",
 		"start": "bun run server/index.ts",
+		"start:caddy": "caddy start --config Caddyfile && bun run start",
 		"setup": "bun run server/setup.ts",
 		"cc": "bun run server/cli.ts",
 		"typecheck": "tsc --noEmit",

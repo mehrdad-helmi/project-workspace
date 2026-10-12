@@ -18,6 +18,7 @@ export const config = {
 		[
 			'localhost',
 			'127.0.0.1',
+			'planicam.redhat.io',
 			hostname(),
 			...Object.values(networkInterfaces()).flatMap(
 				(items) =>

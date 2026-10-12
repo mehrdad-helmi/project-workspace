@@ -17,6 +17,8 @@ bun run start
 
 Open [localhost:7200](http://localhost:7200). Other devices can use `http://<host-LAN-IP>:7200` while this host runs. The default allowlist includes the host's current IPv4 addresses and computer name. Firewall rules are left under your control. HTTP is the explicitly selected trusted-LAN mode; it does not encrypt network traffic.
 
+Optional personal shortcut: with Caddy installed and `127.0.0.1 planicam.redhat.io` in your hosts file, `bun run start:caddy` runs `caddy start --config Caddyfile && bun run start` for [planicam.redhat.io](http://planicam.redhat.io). Caddy stays in the background when Bun stops; use `caddy stop` to stop it. Normal `bun run start` requires only Bun.
+
 For development, `bun run dev` runs Vite internally on loopback port 7201 and the application/API on port 7200. Production uses only port 7200. Restart the development command after server changes if the Bun watch process reports a port still in use.
 
 ## Configuration
@@ -25,14 +27,16 @@ For development, `bun run dev` runs Vite internally on loopback port 7201 and th
 
 Optional environment variables:
 
-| Variable           | Default                                             | Purpose                                                   |
-| ------------------ | --------------------------------------------------- | --------------------------------------------------------- |
-| `CC_PORT`          | `7200`                                              | Public application port                                   |
-| `CC_HOST`          | `0.0.0.0`                                           | Bind address; use `127.0.0.1` for host-only access        |
-| `CC_DATA_DIR`      | `command-center/data`                               | Absolute or working-directory-relative local storage path |
-| `CC_ALLOWED_HOSTS` | localhost, loopback, host name, host IPv4 addresses | Comma-separated accepted hostnames/IPs, without ports     |
+| Variable           | Default                                             | Purpose                                                        |
+| ------------------ | --------------------------------------------------- | -------------------------------------------------------------- |
+| `CC_PORT`          | `7200`                                              | Bun application port; Caddy uses the same environment variable |
+| `CC_HOST`          | `0.0.0.0`                                           | Bind address; use `127.0.0.1` for host-only access             |
+| `CC_DATA_DIR`      | `command-center/data`                               | Absolute or working-directory-relative local storage path      |
+| `CC_ALLOWED_HOSTS` | localhost, loopback, host name, host IPv4 addresses | Comma-separated accepted hostnames/IPs, without ports          |
 
 Set environment variables before starting the server, setup, or CLI. If the host's IP changes while running, restart the server or configure an explicit stable hostname.
+
+The default allowlist also includes `planicam.redhat.io`. Hostnames must match exactly: allowing `redhat.io` does not allow its subdomains. Restart the server after changing `config.ts` or environment variables. `CC_ALLOWED_HOSTS`, when set, replaces the entire default allowlist; include `localhost,127.0.0.1,planicam.redhat.io` and any LAN addresses you use.
 
 ## Everyday use
 
