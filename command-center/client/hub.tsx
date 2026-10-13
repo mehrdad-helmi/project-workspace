@@ -66,29 +66,25 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 					WORKSPACE CONNECTED
 				</span>
 				<span>{files.length} DOCUMENTS</span>
-				<span>{data.workstreams.length} WORKSTREAMS</span>
+				<span>{data.jobs.length} JOBS</span>
 				<span>{unfinished.length} OPEN TASKS</span>
 				<span>{data.tasks.length - unfinished.length} COMPLETED</span>
 			</div>
 			<div className="hub-grid">
 				<div className="hub-left">
 					<Panel
-						title="Workstreams"
+						title="Jobs"
 						actions={
-							<GuardLink to="/workstreams" aria-label="Open Workstreams">
+							<GuardLink to="/jobs" aria-label="Open Jobs">
 								<ArrowUpRight size={16} />
 							</GuardLink>
 						}
 					>
-						{data.workstreams.length ? (
-							data.workstreams.map((item) => {
+						{data.jobs.length ? (
+							data.jobs.map((item) => {
 								const count = progress(data, item.id);
 								return (
-									<GuardLink
-										key={item.id}
-										className="workstream-summary"
-										to={`/workstreams?workstream=${item.id}`}
-									>
+									<GuardLink key={item.id} className="job-summary" to={`/jobs?job=${item.id}`}>
 										<div>
 											<strong>{item.title}</strong>
 											<ArrowRight size={14} />
@@ -108,13 +104,13 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 						) : (
 							<Empty
 								action={
-									<GuardLink className="button" to="/workstreams">
+									<GuardLink className="button" to="/jobs">
 										<Plus size={15} />
-										Create Workstream
+										Create Job
 									</GuardLink>
 								}
 							>
-								Organize your first Workstream.
+								Organize your first Job.
 							</Empty>
 						)}
 					</Panel>
@@ -152,17 +148,14 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 						{unfinished.length ? (
 							<div className="action-list">
 								{unfinished.slice(0, 10).map((task) => (
-									<GuardLink
-										key={task.id}
-										to={`/workstreams?workstream=${task.workstreamId}&task=${task.id}`}
-									>
+									<GuardLink key={task.id} to={`/jobs?job=${task.jobId}&task=${task.id}`}>
 										<span
 											className={`task-indicator ${active.has(task.sectionId) ? 'active' : ''}`}
 										/>
 										<div>
 											<strong>{task.title}</strong>
 											<small>
-												{data.workstreams.find((item) => item.id === task.workstreamId)?.title} /{' '}
+												{data.jobs.find((item) => item.id === task.jobId)?.title} /{' '}
 												{data.sections.find((item) => item.id === task.sectionId)?.title}
 												{task.parentId && ' · Subtask'}
 											</small>
@@ -183,7 +176,7 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 						) : (
 							<Empty
 								action={
-									<GuardLink className="button" to="/workstreams">
+									<GuardLink className="button" to="/jobs">
 										Open task board
 									</GuardLink>
 								}

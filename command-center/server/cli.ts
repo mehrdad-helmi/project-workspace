@@ -6,7 +6,7 @@ const args = process.argv.slice(2).filter((arg) => arg !== '--');
 const usage = `Command Center CLI (JSON output)
 cc board | documents [source] | folders | events | schema | trash | search <query>
 cc read <source> <path>
-cc create <workstreams|sections|tasks|events> <JSON-or-@file>
+cc create <jobs|sections|tasks|events> <JSON-or-@file>
 cc update <collection> <id> <JSON-or-@file>
 cc move-task <id> <JSON-or-@file>
 cc delete <collection> <id> <revision>
@@ -14,7 +14,7 @@ cc save <JSON-or-@file>                 (document source,path,content,hash + met
 cc move-document <JSON-or-@file>        (source,path,to,hash)
 cc delete-document <JSON-or-@file>      (source,path,hash)
 cc folder <JSON-or-@file>               (action,path,to?)
-cc reorder <JSON-or-@file>              (kind,ids,revisions,workstreamId?)
+cc reorder <JSON-or-@file>              (kind,ids,revisions,jobId?)
 cc attach <source> <document-path> <local-file>
 cc restore-item <trash-id>
 cc backup <local-zip-path> | restore-backup <local-zip-path>

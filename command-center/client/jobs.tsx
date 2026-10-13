@@ -28,13 +28,7 @@ import {
 	Check,
 	ArrowRight,
 } from 'lucide-react';
-import {
-	progress,
-	type Board,
-	type Section,
-	type Task,
-	type Workstream,
-} from '../shared/contracts';
+import { progress, type Board, type Section, type Task, type Job } from '../shared/contracts';
 import { useBoard, useRefresh, write } from './api';
 import {
 	Empty,
@@ -50,13 +44,13 @@ import {
 } from './ui';
 import { Markdown } from './markdown';
 
-export function WorkstreamsPage() {
+export function JobsPage() {
 	const query = useBoard();
 	const refresh = useRefresh();
 	const [params, setParams] = useSearchParams();
-	const selected = params.get('workstream');
-	const [newWorkstream, setNewWorkstream] = useState(false);
-	const [editWorkstream, setEditWorkstream] = useState<Workstream | null>(null);
+	const selected = params.get('job');
+	const [newJob, setNewJob] = useState(false);
+	const [editJob, setEditJob] = useState<Job | null>(null);
 	const [newSection, setNewSection] = useState(false);
 	const [editSection, setEditSection] = useState<Section | null>(null);
 	const [newTask, setNewTask] = useState<{ sectionId: string; parentId: string | null } | null>(
@@ -71,21 +65,18 @@ export function WorkstreamsPage() {
 		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 	useEffect(() => {
-		if (
-			query.data?.workstreams.length &&
-			!query.data.workstreams.some((item) => item.id === selected)
-		)
-			setParams({ workstream: query.data.workstreams[0].id });
-	}, [query.data?.workstreams, selected]);
+		if (query.data?.jobs.length && !query.data.jobs.some((item) => item.id === selected))
+			setParams({ job: query.data.jobs[0].id });
+	}, [query.data?.jobs, selected]);
 	if (query.isPending) return <Loading />;
 	if (query.error) return <ErrorBox error={query.error} />;
 	const board = query.data!;
-	const workstream = board.workstreams.find((item) => item.id === selected);
-	const sections = board.sections.filter((section) => section.workstreamId === selected);
-	const tasks = board.tasks.filter((task) => task.workstreamId === selected);
+	const job = board.jobs.find((item) => item.id === selected);
+	const sections = board.sections.filter((section) => section.jobId === selected);
+	const tasks = board.tasks.filter((task) => task.jobId === selected);
 	const task = board.tasks.find((task) => task.id === params.get('task'));
 	const tags = [...new Set(tasks.flatMap((task) => task.tags))].sort();
-	const openTask = (id: string) => setParams({ workstream: selected!, task: id });
+	const openTask = (id: string) => setParams({ job: selected!, task: id });
 	const drag = (event: DragEndEvent) => {
 		if (!event.over) return;
 		const active = String(event.active.id),
@@ -110,7 +101,7 @@ export function WorkstreamsPage() {
 						revisions: Object.fromEntries(
 							sections.map((section) => [section.id, section.revision]),
 						),
-						workstreamId: selected,
+						jobId: selected,
 					}),
 				() => void refresh(),
 			);
@@ -135,20 +126,20 @@ export function WorkstreamsPage() {
 		<div>
 			<div className="view-heading">
 				<div>
-					<h1>Workstreams</h1>
+					<h1>Jobs</h1>
 					<p className="muted">Organize the work. Keep the next action visible.</p>
 				</div>
-				<button className="primary" onClick={() => setNewWorkstream(true)}>
+				<button className="primary" onClick={() => setNewJob(true)}>
 					<Plus size={16} />
-					New Workstream
+					New Job
 				</button>
 			</div>
-			<div className="workstream-tabs">
-				{board.workstreams.map((item, index) => {
+			<div className="job-tabs">
+				{board.jobs.map((item, index) => {
 					const count = progress(board, item.id);
 					return (
 						<div className={item.id === selected ? 'active' : ''} key={item.id}>
-							<button onClick={() => setParams({ workstream: item.id })}>
+							<button onClick={() => setParams({ job: item.id })}>
 								<strong>{item.title}</strong>
 								<span className="mono">
 									{count.remaining}/{count.total} remaining
@@ -158,21 +149,21 @@ export function WorkstreamsPage() {
 								</span>
 							</button>
 							<button
-								title="Move Workstream left"
+								title="Move Job left"
 								aria-label={`Move ${item.title} left`}
 								disabled={index === 0 || action.busy}
 								onClick={() =>
 									void action.run(
 										() =>
 											write('reorder', 'POST', {
-												kind: 'workstreams',
+												kind: 'jobs',
 												ids: arrayMove(
-													board.workstreams.map((item) => item.id),
+													board.jobs.map((item) => item.id),
 													index,
 													index - 1,
 												),
 												revisions: Object.fromEntries(
-													board.workstreams.map((item) => [item.id, item.revision]),
+													board.jobs.map((item) => [item.id, item.revision]),
 												),
 											}),
 										() => void refresh(),
@@ -185,12 +176,12 @@ export function WorkstreamsPage() {
 					);
 				})}
 			</div>
-			{workstream ? (
+			{job ? (
 				<>
 					<div className="board-toolbar">
 						<div>
-							<h2>{workstream.title}</h2>
-							{workstream.description && <p className="muted">{workstream.description}</p>}
+							<h2>{job.title}</h2>
+							{job.description && <p className="muted">{job.description}</p>}
 						</div>
 						<div className="toolbar">
 							<input
@@ -213,23 +204,19 @@ export function WorkstreamsPage() {
 								<Plus size={16} />
 								Section
 							</button>
-							<button aria-label="Edit Workstream" onClick={() => setEditWorkstream(workstream)}>
+							<button aria-label="Edit Job" onClick={() => setEditJob(job)}>
 								<Pencil size={16} />
 							</button>
 							<button
-								aria-label="Delete Workstream"
+								aria-label="Delete Job"
 								onClick={async () => {
 									if (
 										await confirm(
-											`Move “${workstream.title}”, its ${sections.length} sections and ${tasks.length} tasks to recovery?`,
+											`Move “${job.title}”, its ${sections.length} sections and ${tasks.length} tasks to recovery?`,
 										)
 									)
 										void action.run(
-											() =>
-												write(
-													`workstreams/${workstream.id}?revision=${workstream.revision}`,
-													'DELETE',
-												),
+											() => write(`jobs/${job.id}?revision=${job.revision}`, 'DELETE'),
 											() => void refresh(),
 										);
 								}}
@@ -269,30 +256,30 @@ export function WorkstreamsPage() {
 			) : (
 				<Empty
 					action={
-						<button className="primary" onClick={() => setNewWorkstream(true)}>
-							Create your first Workstream
+						<button className="primary" onClick={() => setNewJob(true)}>
+							Create your first Job
 						</button>
 					}
 				>
 					A clear place for each part of Planicam.
 				</Empty>
 			)}
-			{newWorkstream && (
-				<WorkstreamForm
-					onClose={() => setNewWorkstream(false)}
+			{newJob && (
+				<JobForm
+					onClose={() => setNewJob(false)}
 					onSaved={async (item) => {
-						setNewWorkstream(false);
+						setNewJob(false);
 						await refresh();
-						setParams({ workstream: item.id });
+						setParams({ job: item.id });
 					}}
 				/>
 			)}
-			{editWorkstream && (
-				<WorkstreamForm
-					item={editWorkstream}
-					onClose={() => setEditWorkstream(null)}
+			{editJob && (
+				<JobForm
+					item={editJob}
+					onClose={() => setEditJob(null)}
 					onSaved={() => {
-						setEditWorkstream(null);
+						setEditJob(null);
 						void refresh();
 					}}
 				/>
@@ -302,7 +289,7 @@ export function WorkstreamsPage() {
 					title="New section"
 					onClose={() => setNewSection(false)}
 					onSubmit={async (title) => {
-						await write('sections', 'POST', { title, workstreamId: selected });
+						await write('sections', 'POST', { title, jobId: selected });
 						await refresh();
 					}}
 				/>
@@ -327,24 +314,23 @@ export function WorkstreamsPage() {
 					board={board}
 					onClose={() => {
 						setNewTask(null);
-						setParams({ workstream: selected! });
+						setParams({ job: selected! });
 					}}
 					onSaved={() => {
 						setNewTask(null);
-						setParams({ workstream: selected! });
+						setParams({ job: selected! });
 						void refresh();
 					}}
 					onOpen={openTask}
 					onSubtask={(parent) => {
-						setParams({ workstream: selected! });
+						setParams({ job: selected! });
 						const section =
 							sections.find((section) => section.kind === 'inbox') ??
 							sections.find((section) => section.kind !== 'done');
 						if (section) setNewTask({ sectionId: section.id, parentId: parent.id });
 						else
 							void action.run(
-								() =>
-									write<Section>('sections', 'POST', { title: 'Inbox', workstreamId: selected }),
+								() => write<Section>('sections', 'POST', { title: 'Inbox', jobId: selected }),
 								async (created) => {
 									await refresh();
 									setNewTask({ sectionId: created.id, parentId: parent.id });
@@ -471,30 +457,30 @@ function TaskCard({ task, board, onClick }: { task: Task; board: Board; onClick:
 		</article>
 	);
 }
-function WorkstreamForm({
+function JobForm({
 	item,
 	onClose,
 	onSaved,
 }: {
-	item?: Workstream;
+	item?: Job;
 	onClose: () => void;
-	onSaved: (item: Workstream) => void;
+	onSaved: (item: Job) => void;
 }) {
 	const [title, setTitle] = useState(item?.title ?? '');
 	const [description, setDescription] = useState(item?.description ?? '');
 	const action = useAction();
 	return (
-		<Modal title={item ? 'Edit Workstream' : 'New Workstream'} onClose={onClose}>
+		<Modal title={item ? 'Edit Job' : 'New Job'} onClose={onClose}>
 			<form
 				onSubmit={submit(
 					() =>
 						void action.run(
 							() =>
-								write<Workstream>(
-									item ? `workstreams/${item.id}` : 'workstreams',
-									item ? 'PATCH' : 'POST',
-									{ title, description, ...(item ? { revision: item.revision } : {}) },
-								),
+								write<Job>(item ? `jobs/${item.id}` : 'jobs', item ? 'PATCH' : 'POST', {
+									title,
+									description,
+									...(item ? { revision: item.revision } : {}),
+								}),
 							onSaved,
 						),
 				)}
@@ -520,7 +506,7 @@ function WorkstreamForm({
 						Cancel
 					</button>
 					<button className="primary" disabled={action.busy}>
-						Save Workstream
+						Save Job
 					</button>
 				</div>
 			</form>
@@ -588,7 +574,7 @@ function SectionForm({
 											revisions: Object.fromEntries(
 												sections.map((item) => [item.id, item.revision]),
 											),
-											workstreamId: section.workstreamId,
+											jobId: section.jobId,
 										}),
 									() => {
 										void refresh();
@@ -658,9 +644,8 @@ function TaskForm({
 	const [moveTo, setMoveTo] = useState('');
 	const [preview, setPreview] = useState(false);
 	const [completeAll, setCompleteAll] = useState(false);
-	const workstreamId =
-		task?.workstreamId ?? board.sections.find((item) => item.id === sectionId)!.workstreamId;
-	const sections = board.sections.filter((item) => item.workstreamId === workstreamId);
+	const jobId = task?.jobId ?? board.sections.find((item) => item.id === sectionId)!.jobId;
+	const sections = board.sections.filter((item) => item.jobId === jobId);
 	const action = useAction();
 	const { confirm } = useFeedback();
 	const descendantIds = new Set<string>();
@@ -775,9 +760,7 @@ function TaskForm({
 								{board.tasks
 									.filter(
 										(item) =>
-											item.workstreamId === workstreamId &&
-											item.id !== task?.id &&
-											!descendantIds.has(item.id),
+											item.jobId === jobId && item.id !== task?.id && !descendantIds.has(item.id),
 									)
 									.map((item) => (
 										<option key={item.id} value={item.id}>
@@ -794,11 +777,11 @@ function TaskForm({
 									<Plus size={15} />
 									Add subtask
 								</button>
-								<Field label="Transfer subtree to Workstream">
+								<Field label="Transfer subtree to Job">
 									<select value={moveTo} onChange={(event) => setMoveTo(event.target.value)}>
 										<option value="">Choose destination…</option>
-										{board.workstreams
-											.filter((item) => item.id !== workstreamId)
+										{board.jobs
+											.filter((item) => item.id !== jobId)
 											.map((item) => (
 												<option key={item.id} value={item.id}>
 													{item.title}
@@ -824,7 +807,7 @@ function TaskForm({
 													write(`tasks/${task.id}/move`, 'POST', {
 														revision: task.revision,
 														sectionId: board.sections.find(
-															(item) => item.workstreamId === moveTo && item.kind === 'done',
+															(item) => item.jobId === moveTo && item.kind === 'done',
 														)!.id,
 													}),
 												onSaved,

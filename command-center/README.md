@@ -40,10 +40,12 @@ The default allowlist also includes `planicam.redhat.io`. Hostnames must match e
 
 ## Everyday use
 
-- **Hub:** Workstream progress, unfinished tasks, Tehran today/tomorrow day notes, recent documents, and conclusions.
+Jobs use `/jobs?job=<id>` in the browser, `/api/v1/jobs` in the API, and `jobs`/`jobId` in JSON and SQLite.
+
+- **Hub:** Job progress, unfinished tasks, Tehran today/tomorrow day notes, recent documents, and conclusions.
 - **Documents:** Repository Markdown files, with source editing and explicit Save. Edits change the real files. Generated folders and hidden files are excluded.
 - **Conclusions:** Markdown records created after an approved discussion. Metadata includes a stable ID, title, approval date, tags, and optional source-chat URL.
-- **Workstreams:** Inbox, In Progress, Done, custom sections, recursive subtasks, card/section ordering, filters, transfers, and recovery. A completed parent cannot retain unfinished descendants. Reopening a descendant reopens completed ancestors.
+- **Jobs:** Each Job groups sections and tasks: Inbox, In Progress, Done, custom sections, recursive subtasks, card/section ordering, filters, transfers, and recovery. A completed parent cannot retain unfinished descendants. Reopening a descendant reopens completed ancestors.
 - **Notes:** Folder/page organization, Markdown source, previews, and attachments.
 - **Calendar:** Gregorian month view, Saturday start, Thursday/Friday weekends, twenty colors, date-only entries. No notifications.
 - **Schema:** Live backend Prisma model/relationship explorer. Uses no database connection. The parser adapter is pinned to Prisma 7.8.0; update it deliberately alongside schema compatibility verification.
@@ -71,7 +73,7 @@ bun run cc -- search Planicore
 Mutations accept JSON or `@path-to-json-file`. Prefer a JSON file for multiline Markdown and PowerShell quoting. Responses are JSON; IDs and revisions come from read operations. Stale revisions or file hashes produce conflicts instead of overwriting newer work.
 
 ```powershell
-bun run cc -- create workstreams @workstream-input.json
+bun run cc -- create jobs @job-input.json
 bun run cc -- create tasks @task-input.json
 bun run cc -- update tasks <task-id> @task-update.json
 bun run cc -- move-task <task-id> @task-move.json
@@ -96,7 +98,7 @@ Task creation shape:
 }
 ```
 
-Task movement: `{ "revision": 1, "sectionId": "UUID", "beforeId": null, "completeAll": false }`. Moving to another Workstream transfers the subtree, detaches its root parent, and preserves Done/unfinished state. Task edits can include `sectionId` and `completeAll` to save fields and movement atomically.
+Task movement: `{ "revision": 1, "sectionId": "UUID", "beforeId": null, "completeAll": false }`. Moving to another Job transfers the subtree, detaches its root parent, and preserves Done/unfinished state. Task edits can include `sectionId` and `completeAll` to save fields and movement atomically.
 
 Only Done is fixed. Inbox and In Progress can be renamed or deleted when empty. A missing default section is recreated when a transfer requires Inbox or reopening a completed parent requires In Progress. If a recreated default already exists, recovering the earlier deleted section restores it as an ordinary custom section.
 

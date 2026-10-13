@@ -6,11 +6,11 @@ export const tagsSchema = z
 	.array(z.string().trim().min(1).max(40))
 	.max(30)
 	.transform((tags) => [...new Set(tags)]);
-export const workstreamInput = z.object({
+export const jobInput = z.object({
 	title: titleSchema,
 	description: z.string().max(10000).default(''),
 });
-export const sectionInput = z.object({ title: titleSchema, workstreamId: z.string().uuid() });
+export const sectionInput = z.object({ title: titleSchema, jobId: z.string().uuid() });
 export const taskInput = z.object({
 	title: titleSchema,
 	description: z.string().max(100000).default(''),
@@ -52,7 +52,7 @@ export const fileInput = z.object({
 	sourceChat: z.string().url().nullable().optional(),
 });
 export type FileSource = z.infer<typeof fileInput>['source'];
-export interface Workstream {
+export interface Job {
 	id: string;
 	title: string;
 	description: string;
@@ -61,7 +61,7 @@ export interface Workstream {
 }
 export interface Section {
 	id: string;
-	workstreamId: string;
+	jobId: string;
 	title: string;
 	kind: 'inbox' | 'active' | 'done' | 'custom';
 	position: number;
@@ -69,7 +69,7 @@ export interface Section {
 }
 export interface Task {
 	id: string;
-	workstreamId: string;
+	jobId: string;
 	sectionId: string;
 	parentId: string | null;
 	title: string;
@@ -89,7 +89,7 @@ export interface CalendarEvent {
 	revision: number;
 }
 export interface Board {
-	workstreams: Workstream[];
+	jobs: Job[];
 	sections: Section[];
 	tasks: Task[];
 }
@@ -162,7 +162,7 @@ export function addDays(date: string, days: number) {
 	return value.toISOString().slice(0, 10);
 }
 export function progress(board: Board, id: string) {
-	const tasks = board.tasks.filter((task) => task.workstreamId === id);
+	const tasks = board.tasks.filter((task) => task.jobId === id);
 	const done = new Set(
 		board.sections.filter((section) => section.kind === 'done').map((section) => section.id),
 	);

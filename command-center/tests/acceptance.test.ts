@@ -42,8 +42,8 @@ function boardFixture() {
 	const f = fixture();
 	const store = new Store(f.appConfig.dataRoot);
 	f.entry.store = store;
-	const stream = store.createWorkstream('Engineering', '');
-	const sections = store.board().sections.filter((item) => item.workstreamId === stream.id);
+	const stream = store.createJob('Engineering', '');
+	const sections = store.board().sections.filter((item) => item.jobId === stream.id);
 	const inbox = sections.find((item) => item.kind === 'inbox')!,
 		done = sections.find((item) => item.kind === 'done')!,
 		active = sections.find((item) => item.kind === 'active')!;
@@ -104,10 +104,10 @@ describe('task invariants and atomic writes', () => {
 		const child = create('Child', parent.id);
 		expect(store.board().tasks.find((task) => task.id === parent.id)?.sectionId).not.toBe(done.id);
 		store.moveTask(child.id, { revision: child.revision, sectionId: done.id, completeAll: false });
-		const other = store.createWorkstream('Other', '');
+		const other = store.createJob('Other', '');
 		const target = store
 			.board()
-			.sections.find((item) => item.workstreamId === other.id && item.kind === 'active')!;
+			.sections.find((item) => item.jobId === other.id && item.kind === 'active')!;
 		const current = store.board().tasks.find((item) => item.id === parent.id)!;
 		store.moveTask(parent.id, {
 			revision: current.revision,
@@ -115,7 +115,7 @@ describe('task invariants and atomic writes', () => {
 			completeAll: false,
 		});
 		const board = store.board();
-		expect(board.tasks.every((task) => task.workstreamId === other.id)).toBe(true);
+		expect(board.tasks.every((task) => task.jobId === other.id)).toBe(true);
 		expect(
 			board.sections.find(
 				(section) => section.id === board.tasks.find((task) => task.id === parent.id)!.sectionId,
@@ -173,13 +173,13 @@ describe('task invariants and atomic writes', () => {
 		).toBe('active');
 		store.restoreRecords(removed.trashId);
 		expect(store.row<Section>('sections', active.id).kind).toBe('custom');
-		const target = store.createWorkstream('Target', '');
+		const target = store.createJob('Target', '');
 		const targetInbox = store
 			.board()
-			.sections.find((section) => section.workstreamId === target.id && section.kind === 'inbox')!;
+			.sections.find((section) => section.jobId === target.id && section.kind === 'inbox')!;
 		const targetDone = store
 			.board()
-			.sections.find((section) => section.workstreamId === target.id && section.kind === 'done')!;
+			.sections.find((section) => section.jobId === target.id && section.kind === 'done')!;
 		store.delete('sections', targetInbox.id, targetInbox.revision);
 		store.moveTask(parent.id, {
 			revision: store.row<Task>('tasks', parent.id).revision,
@@ -226,7 +226,7 @@ describe('authenticated API and Markdown persistence', () => {
 		expect((await request('board', 'GET', undefined, false)).status).toBe(401);
 		expect(
 			(
-				await request('workstreams', 'POST', { title: 'Bad' }, true, {
+				await request('jobs', 'POST', { title: 'Bad' }, true, {
 					Origin: 'https://evil.example',
 				})
 			).status,
@@ -272,6 +272,27 @@ describe('authenticated API and Markdown persistence', () => {
 		expect(
 			(await (await request('document?source=workspace&path=docs/design.md')).json()).content,
 		).toBe('# External edit\n');
+	});
+	test('Jobs API uses jobs and jobId throughout CRUD, board records and search links', async () => {
+		const { request } = await appFixture();
+		const created = await request('jobs', 'POST', { title: 'API Job' });
+		expect(created.status).toBe(201);
+		const job = await created.json();
+		const board = await (await request('board')).json();
+		expect(board.jobs[0].id).toBe(job.id);
+		expect(board.sections.every((section: Section) => section.jobId === job.id)).toBe(true);
+		const task = await (
+			await request('tasks', 'POST', { title: 'Find this task', sectionId: board.sections[0].id })
+		).json();
+		expect(task.jobId).toBe(job.id);
+		const results = await (await request('search?q=Find')).json();
+		expect(results[0].url).toBe(`/jobs?task=${task.id}&job=${job.id}`);
+		expect(
+			(await request(`jobs/${job.id}`, 'PATCH', { title: 'Updated Job', revision: job.revision }))
+				.status,
+		).toBe(200);
+		expect((await request(`jobs/${job.id}?revision=2`, 'DELETE')).status).toBe(200);
+		expect((await (await request('board')).json()).jobs).toHaveLength(0);
 	});
 	test('notes keep stable metadata; conclusions require approval; folder CRUD preserves files', async () => {
 		const { request } = await appFixture();
@@ -367,12 +388,12 @@ describe('authenticated API and Markdown persistence', () => {
 	});
 	test('unsafe archives are rejected without replacing existing data', async () => {
 		const { store, files } = await appFixture();
-		store.createWorkstream('Preserve', '');
+		store.createJob('Preserve', '');
 		await files.save({ source: 'notes', path: 'note.md', content: '# Preserve\n', hash: null });
 		const archive = unzipSync(exportBackup(store));
 		archive['../escaped.txt'] = strToU8('bad');
 		expect(() => restoreBackup(store, zipSync(archive))).toThrow('Unsafe backup path');
-		expect(store.board().workstreams[0].title).toBe('Preserve');
+		expect(store.board().jobs[0].title).toBe('Preserve');
 		expect((await files.read('notes', 'note.md')).content).toBe('# Preserve\n');
 	});
 	test('owner session login and revocation; password failures are throttled', async () => {
@@ -395,7 +416,7 @@ describe('authenticated API and Markdown persistence', () => {
 	});
 	test('SQLite and files survive restart; backup restores content without changing credentials', async () => {
 		const { store, files, appConfig } = await appFixture();
-		const stream = store.createWorkstream('Keep me', '');
+		const stream = store.createJob('Keep me', '');
 		const section = store.board().sections[0];
 		store.createTask({
 			title: 'Persistent task',
@@ -408,11 +429,11 @@ describe('authenticated API and Markdown persistence', () => {
 		store.createEvent({ title: 'Leap day', description: '', date: '2028-02-29', color: 19 });
 		await files.save({ source: 'notes', path: 'note.md', content: '# Original\n', hash: null });
 		const archive = exportBackup(store);
-		store.updateWorkstream(stream.id, stream.revision, 'Changed', '');
+		store.updateJob(stream.id, stream.revision, 'Changed', '');
 		const note = await files.read('notes', 'note.md');
 		await files.save({ ...note, content: '# Changed\n' });
 		restoreBackup(store, archive);
-		expect(store.board().workstreams[0].title).toBe('Keep me');
+		expect(store.board().jobs[0].title).toBe('Keep me');
 		expect((await files.read('notes', 'note.md')).content).toBe('# Original\n');
 		expect(store.setting('agentTokenHash')).toBe(contentHash('test-agent'));
 		const second = new Store(appConfig.dataRoot);

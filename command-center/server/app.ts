@@ -14,7 +14,7 @@ import {
 	taskInput,
 	taskPatch,
 	titleSchema,
-	workstreamInput,
+	jobInput,
 	type FileSource,
 } from '../shared/contracts';
 import { Store } from './database';
@@ -161,21 +161,21 @@ export async function createApp(config: AppConfig) {
 		}),
 	);
 	app.get('/api/v1/board', (c) => c.json(store.board()));
-	app.post('/api/v1/workstreams', async (c) => {
-		const input = workstreamInput.parse(await c.req.json());
-		return c.json(await mutate(() => store.createWorkstream(input.title, input.description)), 201);
+	app.post('/api/v1/jobs', async (c) => {
+		const input = jobInput.parse(await c.req.json());
+		return c.json(await mutate(() => store.createJob(input.title, input.description)), 201);
 	});
-	app.patch('/api/v1/workstreams/:id', async (c) => {
-		const input = workstreamInput.extend({ revision: revisionSchema }).parse(await c.req.json());
+	app.patch('/api/v1/jobs/:id', async (c) => {
+		const input = jobInput.extend({ revision: revisionSchema }).parse(await c.req.json());
 		return c.json(
 			await mutate(() =>
-				store.updateWorkstream(c.req.param('id'), input.revision, input.title, input.description),
+				store.updateJob(c.req.param('id'), input.revision, input.title, input.description),
 			),
 		);
 	});
 	app.post('/api/v1/sections', async (c) => {
 		const input = sectionInput.parse(await c.req.json());
-		return c.json(await mutate(() => store.createSection(input.workstreamId, input.title)), 201);
+		return c.json(await mutate(() => store.createSection(input.jobId, input.title)), 201);
 	});
 	app.patch('/api/v1/sections/:id', async (c) => {
 		const input = z
@@ -188,18 +188,14 @@ export async function createApp(config: AppConfig) {
 	app.post('/api/v1/reorder', async (c) => {
 		const input = z
 			.object({
-				kind: z.enum(['sections', 'workstreams']),
+				kind: z.enum(['sections', 'jobs']),
 				ids: z.array(z.string().uuid()),
 				revisions: z.record(z.string(), revisionSchema),
-				workstreamId: z.string().uuid().optional(),
+				jobId: z.string().uuid().optional(),
 			})
 			.parse(await c.req.json());
-		ensure(
-			input.kind !== 'sections' || input.workstreamId,
-			400,
-			'Supply a Workstream for section ordering.',
-		);
-		await mutate(() => store.reorder(input.kind, input.ids, input.revisions, input.workstreamId));
+		ensure(input.kind !== 'sections' || input.jobId, 400, 'Supply a Job for section ordering.');
+		await mutate(() => store.reorder(input.kind, input.ids, input.revisions, input.jobId));
 		return c.json({ ok: true });
 	});
 	app.post('/api/v1/tasks', async (c) =>
@@ -213,7 +209,7 @@ export async function createApp(config: AppConfig) {
 		const input = moveInput.parse(await c.req.json());
 		return c.json(await mutate(() => store.moveTask(c.req.param('id'), input)));
 	});
-	for (const kind of ['workstreams', 'sections', 'tasks', 'events'] as const)
+	for (const kind of ['jobs', 'sections', 'tasks', 'events'] as const)
 		app.delete(`/api/v1/${kind}/:id`, async (c) => {
 			const revision = z.coerce.number().int().positive().parse(c.req.query('revision'));
 			return c.json(await mutate(() => store.delete(kind, c.req.param('id'), revision)));
@@ -319,7 +315,7 @@ export async function createApp(config: AppConfig) {
 				results.push({
 					title: task.title,
 					kind: 'Task',
-					url: `/workstreams?task=${task.id}&workstream=${task.workstreamId}`,
+					url: `/jobs?task=${task.id}&job=${task.jobId}`,
 					excerpt: task.description.slice(0, 160),
 				});
 		for (const event of store.events())

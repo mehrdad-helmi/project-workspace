@@ -16,7 +16,7 @@ import { ensure } from './errors';
 const folders = ['notes', 'conclusions', 'history', 'deleted'];
 export function exportBackup(store: Store) {
 	const temporary = join(store.dataRoot, `snapshot-${crypto.randomUUID()}.sqlite`);
-	store.db.exec(`VACUUM INTO '${temporary.replaceAll("'", "''")}'`);
+	store.db.run(`VACUUM INTO '${temporary.replaceAll("'", "''")}'`);
 	try {
 		const files: Record<string, Uint8Array> = {
 			'manifest.json': strToU8(
@@ -97,14 +97,14 @@ export function restoreBackup(store: Store, archive: Uint8Array) {
 				'Backup relationships are invalid.',
 			);
 		} finally {
-			snapshot.close();
+			snapshot.close(true);
 		}
-		store.db.exec(
+		store.db.run(
 			`ATTACH DATABASE '${join(stage, 'database.sqlite').replaceAll("'", "''")}' AS restored`,
 		);
 		const swapped: string[] = [];
 		const revisions = Object.fromEntries(
-			['workstreams', 'sections', 'tasks', 'events'].map((table) => [
+			['jobs', 'sections', 'tasks', 'events'].map((table) => [
 				table,
 				new Map(
 					store
@@ -115,12 +115,12 @@ export function restoreBackup(store: Store, archive: Uint8Array) {
 		);
 		try {
 			store.transaction(() => {
-				store.db.exec(
-					'PRAGMA defer_foreign_keys=ON; DELETE FROM tasks; DELETE FROM sections; DELETE FROM workstreams; DELETE FROM events; DELETE FROM trash;',
+				store.db.run(
+					'PRAGMA defer_foreign_keys=ON; DELETE FROM tasks; DELETE FROM sections; DELETE FROM jobs; DELETE FROM events; DELETE FROM trash;',
 				);
-				for (const table of ['workstreams', 'sections', 'tasks', 'events', 'trash'])
-					store.db.exec(`INSERT INTO main.${table} SELECT * FROM restored.${table}`);
-				for (const table of ['workstreams', 'sections', 'tasks', 'events'])
+				for (const table of ['jobs', 'sections', 'tasks', 'events', 'trash'])
+					store.db.run(`INSERT INTO main.${table} SELECT * FROM restored.${table}`);
+				for (const table of ['jobs', 'sections', 'tasks', 'events'])
 					for (const row of store.all<{ id: string; revision: number }>(
 						`SELECT id,revision FROM ${table}`,
 					))
@@ -132,7 +132,7 @@ export function restoreBackup(store: Store, archive: Uint8Array) {
 				// Reject inconsistent completion and hierarchy even if an archive was edited.
 				ensure(
 					!store.get(
-						'SELECT t.id FROM tasks t JOIN tasks p ON t.parentId=p.id WHERE t.workstreamId!=p.workstreamId',
+						'SELECT t.id FROM tasks t JOIN tasks p ON t.parentId=p.id WHERE t.jobId!=p.jobId',
 					),
 					400,
 					'Backup contains inconsistent task parents.',
@@ -144,9 +144,9 @@ export function restoreBackup(store: Store, archive: Uint8Array) {
 					400,
 					'Backup contains unfinished descendants of completed tasks.',
 				);
-				for (const stream of store.board().workstreams)
+				for (const stream of store.board().jobs)
 					ensure(
-						store.get("SELECT id FROM sections WHERE workstreamId=? AND kind='done'", stream.id),
+						store.get("SELECT id FROM sections WHERE jobId=? AND kind='done'", stream.id),
 						400,
 						'Backup is missing Done.',
 					);
@@ -180,7 +180,7 @@ export function restoreBackup(store: Store, archive: Uint8Array) {
 			}
 			throw error;
 		} finally {
-			store.db.exec('DETACH DATABASE restored');
+			store.db.run('DETACH DATABASE restored');
 		}
 	} finally {
 		rmSync(stage, { recursive: true, force: true });

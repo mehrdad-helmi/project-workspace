@@ -16,6 +16,7 @@
 	--red: #e35f55;
 	color-scheme: dark;
 	font-size: 14px;
+	--event-color: initial;
 }
 * {
 	box-sizing: border-box;
@@ -539,27 +540,27 @@ kbd {
 	flex-direction: column;
 	gap: 18px;
 }
-.workstream-summary {
+.job-summary {
 	display: block;
 	padding: 17px 16px;
 	border-bottom: 1px solid var(--border);
 	color: var(--text);
 }
-.workstream-summary:last-child {
+.job-summary:last-child {
 	border: 0;
 }
-.workstream-summary:hover {
+.job-summary:hover {
 	background: #17191f;
 	text-decoration: none;
 }
-.workstream-summary > div:first-child {
+.job-summary > div:first-child {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	font-size: 13px;
 	margin-bottom: 12px;
 }
-.workstream-summary > div:last-child {
+.job-summary > div:last-child {
 	display: flex;
 	justify-content: space-between;
 	color: var(--muted);
@@ -1318,14 +1319,14 @@ dialog::backdrop {
 .hljs-type {
 	color: #80acec;
 }
-.workstream-tabs {
+.job-tabs {
 	display: flex;
 	gap: 10px;
 	overflow: auto;
 	padding-bottom: 8px;
 	margin-bottom: 16px;
 }
-.workstream-tabs > div {
+.job-tabs > div {
 	display: flex;
 	min-width: 190px;
 	border: 1px solid var(--border);
@@ -1333,10 +1334,10 @@ dialog::backdrop {
 	border-radius: 3px;
 	overflow: hidden;
 }
-.workstream-tabs > div.active {
+.job-tabs > div.active {
 	border-color: #f0843966;
 }
-.workstream-tabs > div > button:first-child {
+.job-tabs > div > button:first-child {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
@@ -1348,14 +1349,14 @@ dialog::backdrop {
 	padding: 14px;
 	font-size: 13px;
 }
-.workstream-tabs .mono {
+.job-tabs .mono {
 	font-size: 9px;
 	color: var(--muted);
 }
-.workstream-tabs .progress-track {
+.job-tabs .progress-track {
 	width: 100%;
 }
-.workstream-tabs > div > button:last-child {
+.job-tabs > div > button:last-child {
 	background: none;
 	border: 0;
 	min-width: 24px;

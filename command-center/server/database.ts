@@ -1,14 +1,7 @@
 import { Database } from 'bun:sqlite';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import type {
-	Board,
-	CalendarEvent,
-	Section,
-	Task,
-	TrashItem,
-	Workstream,
-} from '../shared/contracts';
+import type { Board, CalendarEvent, Section, Task, TrashItem, Job } from '../shared/contracts';
 import { ensure } from './errors';
 
 export class Store {
@@ -16,14 +9,14 @@ export class Store {
 	constructor(readonly dataRoot: string) {
 		mkdirSync(dataRoot, { recursive: true });
 		this.db = new Database(join(dataRoot, 'command-center.sqlite'), { create: true, strict: true });
-		this.db.run(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
-		CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+		this.db.run('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
+		this.db.run(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 		CREATE TABLE IF NOT EXISTS sessions (hash TEXT PRIMARY KEY, expiresAt INTEGER NOT NULL);
-		CREATE TABLE IF NOT EXISTS workstreams (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1);
-		CREATE TABLE IF NOT EXISTS sections (id TEXT PRIMARY KEY, workstreamId TEXT NOT NULL REFERENCES workstreams(id) ON DELETE CASCADE, title TEXT NOT NULL, kind TEXT NOT NULL CHECK(kind IN ('inbox','active','done','custom')), position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1, UNIQUE(id,workstreamId));
-		CREATE UNIQUE INDEX IF NOT EXISTS builtin_sections ON sections(workstreamId,kind) WHERE kind != 'custom';
-		CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, workstreamId TEXT NOT NULL REFERENCES workstreams(id) ON DELETE CASCADE, sectionId TEXT NOT NULL, parentId TEXT REFERENCES tasks(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, title TEXT NOT NULL, description TEXT NOT NULL, tags TEXT NOT NULL, links TEXT NOT NULL, position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1, updatedAt TEXT NOT NULL, FOREIGN KEY(sectionId,workstreamId) REFERENCES sections(id,workstreamId) DEFERRABLE INITIALLY DEFERRED);
-		CREATE INDEX IF NOT EXISTS tasks_board ON tasks(workstreamId,sectionId,position); CREATE INDEX IF NOT EXISTS tasks_parent ON tasks(parentId);
+		CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1);
+		CREATE TABLE IF NOT EXISTS sections (id TEXT PRIMARY KEY, jobId TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE, title TEXT NOT NULL, kind TEXT NOT NULL CHECK(kind IN ('inbox','active','done','custom')), position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1, UNIQUE(id,jobId));
+		CREATE UNIQUE INDEX IF NOT EXISTS builtin_sections ON sections(jobId,kind) WHERE kind != 'custom';
+		CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, jobId TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE, sectionId TEXT NOT NULL, parentId TEXT REFERENCES tasks(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, title TEXT NOT NULL, description TEXT NOT NULL, tags TEXT NOT NULL, links TEXT NOT NULL, position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1, updatedAt TEXT NOT NULL, FOREIGN KEY(sectionId,jobId) REFERENCES sections(id,jobId) DEFERRABLE INITIALLY DEFERRED);
+		CREATE INDEX IF NOT EXISTS tasks_board ON tasks(jobId,sectionId,position); CREATE INDEX IF NOT EXISTS tasks_parent ON tasks(parentId);
 		CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, date TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, color INTEGER NOT NULL CHECK(color BETWEEN 0 AND 19), revision INTEGER NOT NULL DEFAULT 1);
 		CREATE INDEX IF NOT EXISTS events_date ON events(date);
 		CREATE TABLE IF NOT EXISTS trash (id TEXT PRIMARY KEY, kind TEXT NOT NULL, title TEXT NOT NULL, deletedAt TEXT NOT NULL, payload TEXT NOT NULL);
@@ -68,7 +61,7 @@ export class Store {
 	}
 	board(): Board {
 		return {
-			workstreams: this.all<Workstream>('SELECT * FROM workstreams ORDER BY position,id'),
+			jobs: this.all<Job>('SELECT * FROM jobs ORDER BY position,id'),
 			sections: this.all<Section>('SELECT * FROM sections ORDER BY position,id'),
 			tasks: this.all<Record<string, unknown>>('SELECT * FROM tasks ORDER BY position,id').map(
 				(row) =>
@@ -81,7 +74,7 @@ export class Store {
 		};
 	}
 	row<T extends { revision: number }>(
-		table: 'tasks' | 'sections' | 'workstreams' | 'events',
+		table: 'tasks' | 'sections' | 'jobs' | 'events',
 		id: string,
 		revision?: number,
 	): T {
@@ -91,15 +84,15 @@ export class Store {
 			ensure(row.revision === revision, 409, 'This item changed. Reload it before saving.');
 		return row;
 	}
-	createWorkstream(title: string, description: string) {
+	createJob(title: string, description: string) {
 		return this.transaction(() => {
 			const id = crypto.randomUUID();
 			this.run(
-				'INSERT INTO workstreams VALUES (?,?,?,?,1)',
+				'INSERT INTO jobs VALUES (?,?,?,?,1)',
 				id,
 				title,
 				description,
-				this.all<Workstream>('SELECT id FROM workstreams').length,
+				this.all<Job>('SELECT id FROM jobs').length,
 			);
 			(['inbox', 'active', 'done'] as const).forEach((kind, position) =>
 				this.run(
@@ -111,30 +104,30 @@ export class Store {
 					position,
 				),
 			);
-			return this.row<Workstream>('workstreams', id);
+			return this.row<Job>('jobs', id);
 		});
 	}
-	updateWorkstream(id: string, revision: number, title: string, description: string) {
+	updateJob(id: string, revision: number, title: string, description: string) {
 		return this.transaction(() => {
-			this.row('workstreams', id, revision);
+			this.row('jobs', id, revision);
 			this.run(
-				'UPDATE workstreams SET title=?,description=?,revision=revision+1 WHERE id=?',
+				'UPDATE jobs SET title=?,description=?,revision=revision+1 WHERE id=?',
 				title,
 				description,
 				id,
 			);
-			return this.row<Workstream>('workstreams', id);
+			return this.row<Job>('jobs', id);
 		});
 	}
-	createSection(workstreamId: string, title: string) {
-		this.row('workstreams', workstreamId);
+	createSection(jobId: string, title: string) {
+		this.row('jobs', jobId);
 		const id = crypto.randomUUID();
 		this.run(
 			"INSERT INTO sections VALUES (?,?,?,'custom',?,1)",
 			id,
-			workstreamId,
+			jobId,
 			title,
-			this.all<Section>('SELECT id FROM sections WHERE workstreamId=?', workstreamId).length,
+			this.all<Section>('SELECT id FROM sections WHERE jobId=?', jobId).length,
 		);
 		return this.row<Section>('sections', id);
 	}
@@ -147,16 +140,16 @@ export class Store {
 		});
 	}
 	reorder(
-		kind: 'sections' | 'workstreams',
+		kind: 'sections' | 'jobs',
 		ids: string[],
 		revisions: Record<string, number>,
-		workstreamId?: string,
+		jobId?: string,
 	) {
 		return this.transaction(() => {
 			const rows =
 				kind === 'sections'
-					? this.all<Section>('SELECT * FROM sections WHERE workstreamId=?', workstreamId!)
-					: this.all<Workstream>('SELECT * FROM workstreams');
+					? this.all<Section>('SELECT * FROM sections WHERE jobId=?', jobId!)
+					: this.all<Job>('SELECT * FROM jobs');
 			ensure(
 				ids.length === rows.length &&
 					new Set(ids).size === ids.length &&
@@ -184,10 +177,10 @@ export class Store {
 				}) as Task,
 		);
 	}
-	defaultSection(workstreamId: string, kind: 'inbox' | 'active'): Section {
+	defaultSection(jobId: string, kind: 'inbox' | 'active'): Section {
 		const existing = this.get<Section>(
-			'SELECT * FROM sections WHERE workstreamId=? AND kind=?',
-			workstreamId,
+			'SELECT * FROM sections WHERE jobId=? AND kind=?',
+			jobId,
 			kind,
 		);
 		if (existing) return existing;
@@ -195,10 +188,10 @@ export class Store {
 		this.run(
 			'INSERT INTO sections VALUES (?,?,?,?,?,1)',
 			id,
-			workstreamId,
+			jobId,
 			kind === 'inbox' ? 'Inbox' : 'In Progress',
 			kind,
-			this.all<Section>('SELECT id FROM sections WHERE workstreamId=?', workstreamId).length,
+			this.all<Section>('SELECT id FROM sections WHERE jobId=?', jobId).length,
 		);
 		return this.row<Section>('sections', id);
 	}
@@ -207,7 +200,7 @@ export class Store {
 			const task = this.row<Task>('tasks', parentId);
 			const section = this.row<Section>('sections', task.sectionId);
 			if (section.kind === 'done') {
-				const active = this.defaultSection(task.workstreamId, 'active');
+				const active = this.defaultSection(task.jobId, 'active');
 				this.run(
 					'UPDATE tasks SET sectionId=?,revision=revision+1,updatedAt=? WHERE id=?',
 					active.id,
@@ -230,15 +223,15 @@ export class Store {
 			const section = this.row<Section>('sections', input.sectionId);
 			if (input.parentId)
 				ensure(
-					this.row<Task>('tasks', input.parentId).workstreamId === section.workstreamId,
+					this.row<Task>('tasks', input.parentId).jobId === section.jobId,
 					400,
-					'A subtask must stay in its parent’s Workstream.',
+					'A subtask must stay in its parent’s Job.',
 				);
 			const id = crypto.randomUUID();
 			this.run(
 				'INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?,1,?)',
 				id,
-				section.workstreamId,
+				section.jobId,
 				section.id,
 				input.parentId,
 				input.title,
@@ -270,9 +263,9 @@ export class Store {
 					'A task cannot be its own descendant.',
 				);
 				ensure(
-					this.row<Task>('tasks', parentId).workstreamId === original.workstreamId,
+					this.row<Task>('tasks', parentId).jobId === original.jobId,
 					400,
-					'A parent must belong to the same Workstream.',
+					'A parent must belong to the same Job.',
 				);
 			}
 			this.run(
@@ -304,17 +297,17 @@ export class Store {
 			const original = this.row<Task>('tasks', id, input.revision);
 			const target = this.row<Section>('sections', input.sectionId);
 			const tree = this.descendants(id);
-			if (target.workstreamId !== original.workstreamId) {
-				const inbox = this.defaultSection(target.workstreamId, 'inbox');
+			if (target.jobId !== original.jobId) {
+				const inbox = this.defaultSection(target.jobId, 'inbox');
 				const done = this.get<Section>(
-					"SELECT * FROM sections WHERE workstreamId=? AND kind='done'",
-					target.workstreamId,
+					"SELECT * FROM sections WHERE jobId=? AND kind='done'",
+					target.jobId,
 				)!;
 				for (const task of tree) {
 					const completed = this.row<Section>('sections', task.sectionId).kind === 'done';
 					this.run(
-						'UPDATE tasks SET workstreamId=?,sectionId=?,parentId=?,revision=revision+1,updatedAt=? WHERE id=?',
-						target.workstreamId,
+						'UPDATE tasks SET jobId=?,sectionId=?,parentId=?,revision=revision+1,updatedAt=? WHERE id=?',
+						target.jobId,
 						completed ? done.id : inbox.id,
 						task.id === id ? null : task.parentId,
 						new Date().toISOString(),
@@ -418,9 +411,9 @@ export class Store {
 	trashList() {
 		return this.all<TrashItem>('SELECT id,kind,title,deletedAt FROM trash ORDER BY deletedAt DESC');
 	}
-	delete(kind: 'tasks' | 'workstreams' | 'sections' | 'events', id: string, revision: number) {
+	delete(kind: 'tasks' | 'jobs' | 'sections' | 'events', id: string, revision: number) {
 		return this.transaction(() => {
-			const row = this.row<Task | Workstream | Section | CalendarEvent>(kind, id, revision);
+			const row = this.row<Task | Job | Section | CalendarEvent>(kind, id, revision);
 			let rows: Record<string, unknown[]> = { [kind]: [row] };
 			if (kind === 'sections') {
 				ensure((row as Section).kind !== 'done', 400, 'Done cannot be deleted.');
@@ -435,11 +428,11 @@ export class Store {
 					'WITH RECURSIVE tree AS (SELECT * FROM tasks WHERE id=? UNION ALL SELECT t.* FROM tasks t JOIN tree ON t.parentId=tree.id) SELECT * FROM tree',
 					id,
 				);
-			if (kind === 'workstreams')
+			if (kind === 'jobs')
 				rows = {
-					workstreams: [row],
-					sections: this.all('SELECT * FROM sections WHERE workstreamId=?', id),
-					tasks: this.all('SELECT * FROM tasks WHERE workstreamId=?', id),
+					jobs: [row],
+					sections: this.all('SELECT * FROM sections WHERE jobId=?', id),
+					tasks: this.all('SELECT * FROM tasks WHERE jobId=?', id),
 				};
 			const trashId = this.trash('records', row.title, rows);
 			this.run(`DELETE FROM ${kind} WHERE id=?`, id);
@@ -457,7 +450,7 @@ export class Store {
 			);
 			ensure(item && item.kind === 'records', 404, 'Recoverable records not found.');
 			const rows = JSON.parse(item.payload) as Record<string, Record<string, unknown>[]>;
-			for (const table of ['workstreams', 'sections', 'tasks', 'events'])
+			for (const table of ['jobs', 'sections', 'tasks', 'events'])
 				for (const row of rows[table] ?? []) {
 					const columns = Object.keys(row);
 					const allowed = this.all<{ name: string }>(`PRAGMA table_info(${table})`).map(
@@ -474,8 +467,8 @@ export class Store {
 						table === 'sections' &&
 						['inbox', 'active'].includes(String(row.kind)) &&
 						this.get(
-							'SELECT id FROM sections WHERE workstreamId=? AND kind=?',
-							String(row.workstreamId),
+							'SELECT id FROM sections WHERE jobId=? AND kind=?',
+							String(row.jobId),
 							String(row.kind),
 						)
 					)

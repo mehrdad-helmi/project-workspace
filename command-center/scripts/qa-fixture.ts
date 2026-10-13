@@ -8,7 +8,7 @@ import { localDate, addDays } from '../shared/contracts';
 if (!config.dataRoot.includes('qa-data'))
 	throw new Error('QA fixtures require CC_DATA_DIR pointing to an isolated qa-data directory.');
 const { store, files } = await createApp(config);
-if (store.board().workstreams.length) {
+if (store.board().jobs.length) {
 	console.log('QA data already exists.');
 	store.db.close();
 	process.exit(0);
@@ -36,8 +36,8 @@ for (const [title, tasks] of [
 	],
 	['Cloud infrastructure', ['Review tenant isolation rules', 'Document session lifecycle']],
 ] as [string, string[]][]) {
-	const stream = store.createWorkstream(`[Demo] ${title}`, 'Isolated QA fixture');
-	const sections = store.board().sections.filter((section) => section.workstreamId === stream.id);
+	const stream = store.createJob(`[Demo] ${title}`, 'Isolated QA fixture');
+	const sections = store.board().sections.filter((section) => section.jobId === stream.id);
 	tasks.forEach((title, index) =>
 		store.createTask({
 			title,

@@ -48,9 +48,7 @@ const SchemaPage = lazy(() =>
 const DocumentsPage = lazy(() =>
 	import('./documents').then((module) => ({ default: module.DocumentsPage })),
 );
-const WorkstreamsPage = lazy(() =>
-	import('./workstreams').then((module) => ({ default: module.WorkstreamsPage })),
-);
+const JobsPage = lazy(() => import('./jobs').then((module) => ({ default: module.JobsPage })));
 const CalendarPage = lazy(() =>
 	import('./calendar').then((module) => ({ default: module.CalendarPage })),
 );
@@ -61,7 +59,7 @@ const navigation = [
 	{ path: '/', title: 'Hub', icon: LayoutDashboard },
 	{ path: '/documents', title: 'Documents', icon: BookOpen },
 	{ path: '/conclusions', title: 'Conclusions', icon: FileCheck2 },
-	{ path: '/workstreams', title: 'Workstreams', icon: PanelsTopLeft },
+	{ path: '/jobs', title: 'Jobs', icon: PanelsTopLeft },
 	{ path: '/notes', title: 'Notes', icon: StickyNote },
 	{ path: '/calendar', title: 'Calendar', icon: CalendarDays },
 	{ path: '/schema', title: 'Schema', icon: Network },
@@ -258,7 +256,7 @@ function Shell({ preferences, onLogout }: { preferences: Preferences; onLogout: 
 							<Route path="/documents" element={<DocumentsPage />} />
 							<Route path="/notes" element={<DocumentsPage mode="notes" />} />
 							<Route path="/conclusions" element={<DocumentsPage mode="conclusions" />} />
-							<Route path="/workstreams" element={<WorkstreamsPage />} />
+							<Route path="/jobs" element={<JobsPage />} />
 							<Route path="/calendar" element={<CalendarPage preferences={preferences} />} />
 							<Route path="/schema" element={<SchemaPage />} />
 							<Route
