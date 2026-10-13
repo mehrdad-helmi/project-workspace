@@ -34,6 +34,7 @@ export const config = {
 		backend: resolve(appRoot, '../../planicam-backend'),
 	},
 	exclusions: new Set([
+		'command-center',
 		'node_modules',
 		'.git',
 		'dist',
