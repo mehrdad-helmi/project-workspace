@@ -28,6 +28,7 @@ function assetUrl(path: string, context?: FileContext) {
 	if (!context || path.startsWith('/api/v1/asset?')) return path;
 	return `/api/v1/asset?source=${context.source}&path=${encodeURIComponent(resolveRelative(path, context))}`;
 }
+let diagramSequence = 0;
 function Diagram({ code }: { code: string }) {
 	const ref = useRef<HTMLDivElement>(null);
 	const [error, setError] = useState('');
@@ -47,10 +48,7 @@ function Diagram({ code }: { code: string }) {
 						fontFamily: 'IBM Plex Sans',
 					},
 				});
-				const { svg } = await mermaid.render(
-					`diagram_${crypto.randomUUID().replaceAll('-', '')}`,
-					code,
-				);
+				const { svg } = await mermaid.render(`diagram_${++diagramSequence}`, code);
 				if (alive && ref.current) ref.current.innerHTML = svg;
 			})
 			.catch((error) => {
