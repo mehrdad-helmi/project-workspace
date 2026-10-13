@@ -62,18 +62,37 @@ export function SchemaPage() {
 	const [edges, setEdges] = useState<Edge[]>([]);
 	const [selected, setSelected] = useState('');
 	const [search, setSearch] = useState('');
+	const [file, setFile] = useState('');
 	const [layoutError, setLayoutError] = useState('');
+	const files = useMemo(
+		() => [...new Set(query.data?.models.map((model) => model.sourceFile))].sort(),
+		[query.data],
+	);
+	const models = useMemo(
+		() => query.data?.models.filter((model) => !file || model.sourceFile === file) ?? [],
+		[query.data, file],
+	);
 	useEffect(() => {
-		if (!query.data?.models.length) return;
+		if (query.data && file && !files.includes(file)) setFile('');
+	}, [query.data, file, files]);
+	useEffect(() => {
+		setSelected((current) => (models.some((model) => model.name === current) ? current : ''));
+		if (!models.length) {
+			setNodes([]);
+			setEdges([]);
+			return;
+		}
 		let alive = true;
-		const graph = query.data;
+		const modelNames = new Set(models.map((model) => model.name));
 		const relationEdges: Edge[] = [];
 		const keys = new Set<string>();
-		for (const model of graph.models)
-			for (const field of model.fields.filter((field) => field.kind === 'object')) {
+		for (const model of models)
+			for (const field of model.fields.filter(
+				(field) => field.kind === 'object' && modelNames.has(field.type),
+			)) {
 				const key = `${[model.name, field.type].sort().join(':')}:${field.relationName}`;
 				if (keys.has(key)) continue;
-				const inverse = graph.models
+				const inverse = models
 					.find((target) => target.name === field.type)
 					?.fields.find(
 						(candidate) =>
@@ -109,7 +128,7 @@ export function SchemaPage() {
 					'elk.spacing.nodeNode': '45',
 					'elk.layered.spacing.nodeNodeBetweenLayers': '100',
 				},
-				children: graph.models.map((model) => ({
+				children: models.map((model) => ({
 					id: model.name,
 					width: 295,
 					height: 40 + model.fields.filter((field) => field.kind !== 'object').length * 24,
@@ -123,7 +142,7 @@ export function SchemaPage() {
 			.then((result) => {
 				if (!alive) return;
 				setNodes(
-					graph.models.map((model) => {
+					models.map((model) => {
 						const position = result.children!.find((node) => node.id === model.name)!;
 						return {
 							id: model.name,
@@ -142,7 +161,7 @@ export function SchemaPage() {
 		return () => {
 			alive = false;
 		};
-	}, [query.data]);
+	}, [models, setNodes]);
 	const visibleNodes = useMemo(
 		() =>
 			nodes.map((node) => ({
@@ -166,17 +185,32 @@ export function SchemaPage() {
 	if (query.isPending) return <Loading />;
 	if (query.error) return <ErrorBox error={query.error} />;
 	const graph = query.data!;
-	const model = graph.models.find((model) => model.name === selected);
+	const model = models.find((model) => model.name === selected);
 	return (
 		<div className="schema-page">
 			<div className="view-heading">
 				<div>
 					<h1>Schema explorer</h1>
 					<p className="muted mono">
-						BACKEND / PRISMA · {graph.models.length} MODELS · {graph.enums.length} ENUMS
+						BACKEND / PRISMA · {models.length} MODELS · {graph.enums.length} ENUMS
 					</p>
 				</div>
 				<div className="toolbar">
+					<select
+						aria-label="Schema file"
+						value={file}
+						onChange={(event) => {
+							setFile(event.target.value);
+							setSelected('');
+						}}
+					>
+						<option value="">All files</option>
+						{files.map((path) => (
+							<option key={path} value={path}>
+								{path}
+							</option>
+						))}
+					</select>
 					<input
 						aria-label="Search schema models"
 						placeholder="Find a model…"
@@ -199,6 +233,7 @@ export function SchemaPage() {
 			<div className="schema-layout">
 				<div className="schema-canvas">
 					<ReactFlow
+						key={nodes.map((node) => node.id).join(',')}
 						nodes={visibleNodes}
 						edges={visibleEdges}
 						nodeTypes={nodeTypes}
@@ -228,6 +263,7 @@ export function SchemaPage() {
 							</div>
 							<div className="inspector-body">
 								<p className="mono muted">TABLE {model.dbName ?? model.name}</p>
+								<p className="mono muted">{model.sourceFile}</p>
 								<h3>Fields and relations</h3>
 								{model.fields.map((field) => (
 									<div className="inspector-field" key={field.name}>
@@ -274,7 +310,7 @@ export function SchemaPage() {
 							<p className="muted">
 								Select a model to inspect fields and highlight its relationships.
 							</p>
-							{graph.models
+							{models
 								.filter((model) => model.name.toLowerCase().includes(search.toLowerCase()))
 								.map((model) => (
 									<button

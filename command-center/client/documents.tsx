@@ -249,7 +249,12 @@ function NewDocument({
 	onCreated: (path: string) => void;
 }) {
 	const [title, setTitle] = useState('');
-	const [path, setPath] = useState(folder ? `${folder}/` : source === 'workspace' ? 'docs/' : '');
+	const pathPrefix = folder
+		? `${folder}/`
+		: ['workspace', 'frontend', 'backend'].includes(source)
+			? 'docs/'
+			: '';
+	const [path, setPath] = useState(pathPrefix);
 	const [approval, setApproval] = useState(localDate());
 	const action = useAction();
 	return (
@@ -284,7 +289,7 @@ function NewDocument({
 							const next = event.target.value;
 							setTitle(next);
 							setPath(
-								`${folder ? `${folder}/` : source === 'workspace' ? 'docs/' : ''}${next
+								`${pathPrefix}${next
 									.toLowerCase()
 									.replace(/[^a-z0-9]+/g, '-')
 									.replace(/^-|-$/g, '')}.md`,

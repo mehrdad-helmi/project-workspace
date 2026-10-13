@@ -123,6 +123,7 @@ export interface SchemaField {
 }
 export interface SchemaModel {
 	name: string;
+	sourceFile: string;
 	dbName?: string | null;
 	fields: SchemaField[];
 	primaryKey: unknown;

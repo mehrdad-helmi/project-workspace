@@ -437,6 +437,17 @@ describe('calendar and schema', () => {
 		expect(graph.stale).toBe(false);
 		expect(graph.models).toHaveLength(11);
 		expect(
+			graph.models
+				.filter((model) => model.sourceFile === 'models/organization.prisma')
+				.map((model) => model.name),
+		).toEqual([
+			'Organization',
+			'OrganizationMembership',
+			'OrganizationInvitation',
+			'OrganizationAddress',
+		]);
+		expect(graph.models.every((model) => model.sourceFile.endsWith('.prisma'))).toBe(true);
+		expect(
 			graph.models.find((model) => model.name === 'OrganizationMembership')!.uniqueFields,
 		).toContainEqual(['organizationId', 'userId']);
 		expect(
@@ -444,6 +455,31 @@ describe('calendar and schema', () => {
 				.find((model) => model.name === 'AuthSession')!
 				.fields.some((field) => field.relationName),
 		).toBe(true);
+	});
+	test('model file ownership handles nested files, comments, strings and cross-file relations', async () => {
+		const f = fixture();
+		const prisma = join(f.appConfig.repositories.backend, 'prisma');
+		mkdirSync(join(prisma, 'models'), { recursive: true });
+		writeFileSync(join(prisma, 'schema.prisma'), 'datasource db {\n provider = "postgresql"\n}\n');
+		writeFileSync(
+			join(prisma, 'models', 'parent.prisma'),
+			'/// model Child {\nmodel Parent {\n id String @id\n text String @default("/*")\n children Child[] @relation("Family")\n}\n',
+		);
+		writeFileSync(
+			join(prisma, 'child.prisma'),
+			'model Child {\n id String @id\n parentId String?\n parent Parent? @relation("Family", fields: [parentId], references: [id])\n}\n',
+		);
+		const graph = await new SchemaReader(prisma).read();
+		expect(graph.stale).toBe(false);
+		expect(graph.models.find((model) => model.name === 'Parent')?.sourceFile).toBe(
+			'models/parent.prisma',
+		);
+		expect(graph.models.find((model) => model.name === 'Child')?.sourceFile).toBe('child.prisma');
+		expect(
+			graph.models
+				.find((model) => model.name === 'Child')
+				?.fields.find((field) => field.name === 'parent')?.relationName,
+		).toBe('Family');
 	});
 	test('invalid schema retains its last valid graph', async () => {
 		const f = fixture();
@@ -459,6 +495,7 @@ describe('calendar and schema', () => {
 		const graph = await reader.read();
 		expect(graph.stale).toBe(true);
 		expect(graph.models).toHaveLength(1);
+		expect(graph.models[0].sourceFile).toBe('schema.prisma');
 		expect(graph.error).toBeTruthy();
 	});
 });

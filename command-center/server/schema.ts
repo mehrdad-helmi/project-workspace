@@ -1,5 +1,5 @@
 import { readFile, readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { getDMMF } from '@prisma/internals';
 import type { SchemaGraph, SchemaModel } from '../shared/contracts';
 
@@ -19,9 +19,23 @@ export class SchemaReader {
 			};
 			await walk(this.root);
 			const dmmf = await getDMMF({ datamodel: files });
+			const modelFiles = new Map<string, string>();
+			for (const [path, content] of files) {
+				// Mask comments and strings so only actual model declarations determine ownership.
+				const declarations = content.replace(
+					/"(?:\\.|[^"\\])*"|\/\/[^\r\n]*|\/\*[\s\S]*?\*\//g,
+					(match) => match.replace(/[^\r\n]/g, ' '),
+				);
+				for (const match of declarations.matchAll(/^\s*model\s+([A-Za-z_]\w*)\s*\{/gm))
+					modelFiles.set(match[1], relative(this.root, path).replaceAll('\\', '/'));
+			}
 			const models = dmmf.datamodel.models.map((model) => {
 				const indexes = dmmf.datamodel.indexes.filter((index) => index.model === model.name);
-				return { ...model, indexes } as unknown as SchemaModel;
+				return {
+					...model,
+					indexes,
+					sourceFile: modelFiles.get(model.name)!,
+				} as unknown as SchemaModel;
 			});
 			this.cached = {
 				models,
