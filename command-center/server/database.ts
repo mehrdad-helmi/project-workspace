@@ -16,7 +16,7 @@ export class Store {
 	constructor(readonly dataRoot: string) {
 		mkdirSync(dataRoot, { recursive: true });
 		this.db = new Database(join(dataRoot, 'command-center.sqlite'), { create: true, strict: true });
-		this.db.exec(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
+		this.db.run(`PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
 		CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 		CREATE TABLE IF NOT EXISTS sessions (hash TEXT PRIMARY KEY, expiresAt INTEGER NOT NULL);
 		CREATE TABLE IF NOT EXISTS workstreams (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, position INTEGER NOT NULL, revision INTEGER NOT NULL DEFAULT 1);
