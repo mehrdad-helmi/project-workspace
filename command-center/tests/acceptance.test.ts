@@ -300,7 +300,7 @@ describe('authenticated API and Markdown persistence', () => {
 			(
 				await request('document', 'PUT', {
 					source: 'conclusions',
-					path: 'decision.md',
+					path: 'workspace/decision.md',
 					content: 'decision',
 					hash: null,
 				})
@@ -309,7 +309,7 @@ describe('authenticated API and Markdown persistence', () => {
 		const conclusion = await (
 			await request('document', 'PUT', {
 				source: 'conclusions',
-				path: 'decision.md',
+				path: 'workspace/decision.md',
 				title: 'Decision',
 				approvedAt: '2026-10-13',
 				tags: ['architecture'],
@@ -331,6 +331,54 @@ describe('authenticated API and Markdown persistence', () => {
 		).toBe(409);
 		await request('folders', 'POST', { action: 'move', path: 'Engineering', to: 'Design' });
 		expect((await request('document?source=notes&path=Design/note.md')).status).toBe(200);
+	});
+	test('conclusions stay in their repository scope, including moves and search links', async () => {
+		const { request } = await appFixture();
+		for (const scope of ['workspace', 'frontend', 'backend']) {
+			const response = await request('document', 'PUT', {
+				source: 'conclusions',
+				path: `${scope}/decision.md`,
+				title: `${scope} decision`,
+				approvedAt: '2026-10-13',
+				content: `# ${scope} decision`,
+				hash: null,
+			});
+			expect(response.status).toBe(200);
+		}
+		const frontend = await (await request('documents?source=conclusions&scope=frontend')).json();
+		expect(frontend.map((item: { path: string }) => item.path)).toEqual(['frontend/decision.md']);
+		expect(await (await request('documents?source=conclusions')).json()).toHaveLength(3);
+		expect((await request('documents?source=conclusions&scope=invalid')).status).toBe(400);
+		expect((await request('documents?source=workspace&scope=frontend')).status).toBe(400);
+		expect(
+			(
+				await request('document', 'PUT', {
+					source: 'conclusions',
+					path: 'decision.md',
+					approvedAt: '2026-10-13',
+					content: 'Unscoped',
+					hash: null,
+				})
+			).status,
+		).toBe(400);
+		const file = await (
+			await request('document?source=conclusions&path=frontend/decision.md')
+		).json();
+		const moved = await (
+			await request('document/move', 'POST', {
+				source: 'conclusions',
+				path: file.path,
+				to: 'backend/moved.md',
+				hash: file.hash,
+			})
+		).json();
+		expect(moved.id).toBe(file.id);
+		expect(await (await request('documents?source=conclusions&scope=frontend')).json()).toEqual([]);
+		expect(await (await request('documents?source=conclusions&scope=backend')).json()).toHaveLength(
+			2,
+		);
+		const results = await (await request('search?q=frontend')).json();
+		expect(results[0].url).toContain('path=backend%2Fmoved.md');
 	});
 	test('attachments survive renames and moves; active content is downloaded', async () => {
 		const { app, files } = await appFixture();

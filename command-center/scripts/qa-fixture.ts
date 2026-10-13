@@ -60,7 +60,7 @@ await files.save({
 });
 await files.save({
 	source: 'conclusions',
-	path: 'demo-decision.md',
+	path: 'workspace/demo-decision.md',
 	title: '[Demo] Calculation ownership',
 	approvedAt: localDate(),
 	tags: ['architecture'],

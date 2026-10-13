@@ -10,6 +10,7 @@ import {
 	fileInput,
 	moveInput,
 	revisionSchema,
+	repositoryScopeSchema,
 	sectionInput,
 	taskInput,
 	taskPatch,
@@ -227,9 +228,17 @@ export async function createApp(config: AppConfig) {
 	});
 	app.get('/api/v1/documents', async (c) => {
 		const source = c.req.query('source');
+		const scope = c.req.query('scope')
+			? repositoryScopeSchema.parse(c.req.query('scope'))
+			: undefined;
+		ensure(
+			!scope || source === 'conclusions',
+			400,
+			'Repository scope applies to conclusions only.',
+		);
 		return c.json(
 			source
-				? await files.list(sourceSchema.parse(source))
+				? await files.list(sourceSchema.parse(source), scope)
 				: (
 						await Promise.all(Object.keys(files.roots).map((key) => files.list(key as FileSource)))
 					).flat(),

@@ -22,7 +22,7 @@ import {
 	BarChart3,
 } from 'lucide-react';
 import type { DocumentFile, FileSource } from '../shared/contracts';
-import { localDate } from '../shared/contracts';
+import { localDate, repositoryScopes, type RepositoryScope } from '../shared/contracts';
 import { api, useDocuments, useRefresh, write } from './api';
 import {
 	Empty,
@@ -49,7 +49,8 @@ export function DocumentsPage({
 		mode === 'documents' ? (params.get('source') ?? 'workspace') : mode
 	) as FileSource;
 	const path = params.get('path');
-	const documents = useDocuments(source);
+	const scope = (params.get('scope') ?? path?.split('/')[0] ?? 'workspace') as RepositoryScope;
+	const documents = useDocuments(source, mode === 'conclusions' ? scope : undefined);
 	const folders = useQuery({
 		queryKey: ['folders'],
 		queryFn: () => api<string[]>('folders'),
@@ -66,7 +67,19 @@ export function DocumentsPage({
 	const action = useAction();
 	const refresh = useRefresh();
 	const select = async (nextSource: string, nextPath?: string) => {
-		setParams({ source: nextSource, ...(nextPath ? { path: nextPath } : {}) });
+		setParams({
+			source: mode === 'conclusions' ? 'conclusions' : nextSource,
+			...(mode === 'conclusions'
+				? {
+						scope: nextPath
+							? nextPath.split('/')[0]
+							: nextSource === 'conclusions'
+								? scope
+								: nextSource,
+					}
+				: {}),
+			...(nextPath ? { path: nextPath } : {}),
+		});
 	};
 	const items =
 		documents.data?.filter(
@@ -88,11 +101,11 @@ export function DocumentsPage({
 						<Plus size={18} />
 					</button>
 				</div>
-				{mode === 'documents' && (
+				{mode !== 'notes' && (
 					<div className="segmented">
-						{['workspace', 'frontend', 'backend'].map((item) => (
+						{repositoryScopes.map((item) => (
 							<button
-								className={source === item ? 'selected' : ''}
+								className={(mode === 'conclusions' ? scope : source) === item ? 'selected' : ''}
 								key={item}
 								onClick={() => void select(item)}
 							>
@@ -175,7 +188,7 @@ export function DocumentsPage({
 					</div>
 				)}
 				<div className="browser-footer mono">
-					{items.length} FILES · {source.toUpperCase()}
+					{items.length} FILES · {(mode === 'conclusions' ? scope : source).toUpperCase()}
 				</div>
 			</aside>
 			<section className="document-workspace">
@@ -184,8 +197,8 @@ export function DocumentsPage({
 						key={`${source}:${path}`}
 						source={source}
 						path={path}
-						onRemoved={() => setParams({ source })}
-						onMoved={(to) => setParams({ source, path: to })}
+						onRemoved={() => void select(source)}
+						onMoved={(to) => void select(source, to)}
 					/>
 				) : (
 					<Empty
@@ -207,7 +220,7 @@ export function DocumentsPage({
 			{creating && (
 				<NewDocument
 					source={source}
-					folder={folder}
+					folder={mode === 'conclusions' ? scope : folder}
 					onClose={() => setCreating(false)}
 					onCreated={(createdPath) => {
 						setCreating(false);

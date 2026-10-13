@@ -34,6 +34,7 @@ Read only the documents relevant to the task. Do not load every document for eve
 | Calculations, Planicore crates, semantic commands, WASM/worker integration, or calculation/catalog context | [Planicore](docs/architecture/planicore.md)                                               |
 | Position saving, client/server trust, future server verification/IPC, or browser WASM exposure             | [Cloud trust and verification](docs/architecture/cloud-trust.md)                          |
 | Implementation in a product repository                                                                     | That repository's `AGENTS.md`, relevant local documentation, contracts, and existing code |
+| Approved workspace decisions and prior discussions                                                         | [Workspace conclusions](command-center/data/conclusions/workspace/) and the conclusion workflow below |
 
 The architecture documents describe the agreed V1 baseline and explicitly marked future targets. Use them for prior decisions rather than re-deriving those decisions. Inspect the affected repositories to establish what is actually implemented.
 
@@ -64,3 +65,11 @@ The cloud frontend consumes Planicore through the defined WASM boundary. The des
 The standalone workspace companion lives in `command-center/`. Read its `AGENTS.md` and `README.md` for implementation and CLI workflows. The running app is available on port 7200.
 
 Use `bun run cc -- ...` from that directory to work with tasks, notes, calendar entries, documents, and recovery through the shared server rules. Save an approved chat conclusion only when Mehrdad explicitly asks you to save it; do not infer approval or ingest conversations automatically.
+
+### Conclusions in chats
+
+Before revisiting a decision, consult only the relevant [Workspace conclusions](command-center/data/conclusions/workspace/). For repository-specific decisions, also consult [Frontend conclusions](command-center/data/conclusions/frontend/) or [Backend conclusions](command-center/data/conclusions/backend/).
+
+From this workspace, list with `bun run --cwd command-center cc -- documents conclusions workspace` and read with `bun run --cwd command-center cc -- read conclusions workspace/<topic>.md`. The host must be running for CLI operations; local Markdown can be read directly when it is stopped. These links use the default data directory; for a custom `CC_DATA_DIR`, use the CLI with the configured environment.
+
+Only after Mehrdad explicitly asks to save an approved conclusion, prepare JSON with `source: "conclusions"`, `path: "workspace/<topic>.md"`, `title`, the actual `approvedAt` date, `tags`, approved Markdown `content`, and `hash: null` for creation. Include `sourceChat` when available. Use workspace scope for shared decisions; use the owning repository's scope for frontend/backend decisions. Save through `bun run --cwd command-center cc -- save @<absolute-json-path>`. For edits, read the latest hash first. Add supporting diagrams, tables, and attachments through the same CLI; return the saved conclusion's app link. Never infer approval, ingest chats automatically, or commit conclusions automatically. See [Command Center CLI documentation](command-center/README.md#agent-cli).

@@ -52,6 +52,9 @@ export const fileInput = z.object({
 	sourceChat: z.string().url().nullable().optional(),
 });
 export type FileSource = z.infer<typeof fileInput>['source'];
+export const repositoryScopes = ['workspace', 'frontend', 'backend'] as const;
+export const repositoryScopeSchema = z.enum(repositoryScopes);
+export type RepositoryScope = z.infer<typeof repositoryScopeSchema>;
 export interface Job {
 	id: string;
 	title: string;

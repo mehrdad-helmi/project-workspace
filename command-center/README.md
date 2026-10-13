@@ -44,7 +44,7 @@ Jobs use `/jobs?job=<id>` in the browser, `/api/v1/jobs` in the API, and `jobs`/
 
 - **Hub:** Job progress, unfinished tasks, Tehran today/tomorrow day notes, recent documents, and conclusions.
 - **Documents:** Repository Markdown files, with source editing and explicit Save. Edits change the real files. Generated folders and hidden files are excluded.
-- **Conclusions:** Markdown records created after an approved discussion. Metadata includes a stable ID, title, approval date, tags, and optional source-chat URL.
+- **Conclusions:** Workspace, Frontend, and Backend tabs group approved Markdown records under `data/conclusions/<scope>/`. Metadata includes a stable ID, title, approval date, tags, and optional source-chat URL.
 - **Jobs:** Each Job groups sections and tasks: Inbox, In Progress, Done, custom sections, recursive subtasks, card/section ordering, filters, transfers, and recovery. A completed parent cannot retain unfinished descendants. Reopening a descendant reopens completed ancestors.
 - **Notes:** Folder/page organization, Markdown source, previews, and attachments.
 - **Calendar:** Gregorian month view, Saturday start, Thursday/Friday weekends, twenty colors, date-only entries. No notifications.
@@ -64,6 +64,8 @@ Run commands here while the server is running:
 bun run cc -- help
 bun run cc -- board
 bun run cc -- documents workspace
+bun run cc -- documents conclusions frontend
+bun run cc -- read conclusions frontend/<topic>.md
 bun run cc -- read workspace docs/architecture/overview.md
 bun run cc -- events
 bun run cc -- schema
@@ -107,7 +109,7 @@ Document save shape:
 ```json
 {
 	"source": "conclusions",
-	"path": "calculation-ownership.md",
+	"path": "workspace/calculation-ownership.md",
 	"title": "Calculation ownership",
 	"approvedAt": "2026-10-13",
 	"tags": ["architecture"],
@@ -119,6 +121,8 @@ Document save shape:
 For updates, use the latest `hash` from `cc read`. `hash: null` creates a new file only. `source` is one of `workspace`, `frontend`, `backend`, `notes`, or `conclusions`. The local token resides in `data/agent-token`; the CLI sends it to the loopback server and never edits SQLite directly.
 
 **Conclusion workflow:** Wait for Mehrdad to explicitly ask to save the approved result. Write the agreed conclusion, relevant diagrams/tables/assets, approval date, tags, and available source-chat link. Save using the CLI, then return the conclusion's app URL. Do not invent approval or save conversations automatically.
+
+Use a path beginning with `workspace/`, `frontend/`, or `backend/` to choose the conclusion's repository scope. Shared decisions belong in workspace scope. `cc documents conclusions <scope>` lists only that scope; `cc documents conclusions` lists all three. Open a saved record at `/conclusions?scope=<scope>&path=<encoded-path>`. Repository AGENTS.md files route chats to their own conclusions and this workflow.
 
 ## Backup and recovery
 

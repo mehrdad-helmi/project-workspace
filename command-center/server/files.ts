@@ -3,7 +3,13 @@ import { existsSync } from 'node:fs';
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import matter from 'gray-matter';
 import type { AppConfig } from '../config';
-import type { DocumentFile, DocumentItem, FileSource } from '../shared/contracts';
+import {
+	repositoryScopes,
+	type DocumentFile,
+	type DocumentItem,
+	type FileSource,
+	type RepositoryScope,
+} from '../shared/contracts';
 import type { Store } from './database';
 import { ensure } from './errors';
 
@@ -27,6 +33,11 @@ export class Files {
 				mkdir(join(this.config.dataRoot, folder), { recursive: true }),
 			),
 		);
+		await Promise.all(
+			repositoryScopes.map((scope) =>
+				mkdir(join(this.roots.conclusions, scope), { recursive: true }),
+			),
+		);
 	}
 	async safePath(source: FileSource, path: string, create = false) {
 		ensure(Object.hasOwn(this.roots, source), 400, 'Unknown document source.');
@@ -36,6 +47,12 @@ export class Files {
 			'Use a repository-relative path.',
 		);
 		const pieces = path.replaceAll('\\', '/').split('/');
+		if (source === 'conclusions')
+			ensure(
+				repositoryScopes.includes(pieces[0] as RepositoryScope) && pieces.length > 1,
+				400,
+				'Conclusion paths must start with workspace/, frontend/, or backend/.',
+			);
 		ensure(
 			!pieces.some(
 				(piece) => piece === '..' || this.config.exclusions.has(piece) || piece.startsWith('.'),
@@ -55,9 +72,10 @@ export class Files {
 		ensure(contained(await realpath(existing)), 403, 'Linked paths cannot escape the repository.');
 		return target;
 	}
-	async list(source: FileSource): Promise<DocumentItem[]> {
+	async list(source: FileSource, scope?: RepositoryScope): Promise<DocumentItem[]> {
 		const root = this.roots[source];
-		if (!existsSync(root)) return [];
+		const folder = source === 'conclusions' && scope ? join(root, scope) : root;
+		if (!existsSync(folder)) return [];
 		const items: DocumentItem[] = [];
 		const walk = async (folder: string) => {
 			for (const entry of await readdir(folder, { withFileTypes: true })) {
@@ -81,7 +99,7 @@ export class Files {
 				}
 			}
 		};
-		await walk(root);
+		await walk(folder);
 		return items.sort((a, b) => a.path.localeCompare(b.path));
 	}
 	async read(source: FileSource, path: string): Promise<DocumentFile> {

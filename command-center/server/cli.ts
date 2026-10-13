@@ -4,7 +4,7 @@ import { config } from '../config';
 
 const args = process.argv.slice(2).filter((arg) => arg !== '--');
 const usage = `Command Center CLI (JSON output)
-cc board | documents [source] | folders | events | schema | trash | search <query>
+cc board | documents [source] [conclusion-scope] | folders | events | schema | trash | search <query>
 cc read <source> <path>
 cc create <jobs|sections|tasks|events> <JSON-or-@file>
 cc update <collection> <id> <JSON-or-@file>
@@ -43,7 +43,7 @@ try {
 			endpoint = command;
 			break;
 		case 'documents':
-			endpoint = `documents${first ? `?source=${encodeURIComponent(first)}` : ''}`;
+			endpoint = `documents${first ? `?source=${encodeURIComponent(first)}` : ''}${second ? `&scope=${encodeURIComponent(second)}` : ''}`;
 			break;
 		case 'search':
 			endpoint = `search?q=${encodeURIComponent(args.slice(1).join(' '))}`;

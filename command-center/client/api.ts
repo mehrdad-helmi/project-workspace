@@ -1,5 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Board, CalendarEvent, DocumentItem, TrashItem } from '../shared/contracts';
+import type {
+	Board,
+	CalendarEvent,
+	DocumentItem,
+	TrashItem,
+	RepositoryScope,
+} from '../shared/contracts';
 
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
 	const response = await fetch(`/api/v1/${path}`, {
@@ -28,10 +34,13 @@ export function useBoard() {
 export function useEvents() {
 	return useQuery({ queryKey: ['events'], queryFn: () => api<CalendarEvent[]>('events') });
 }
-export function useDocuments(source?: string) {
+export function useDocuments(source?: string, scope?: RepositoryScope) {
 	return useQuery({
-		queryKey: ['documents', source],
-		queryFn: () => api<DocumentItem[]>(`documents${source ? `?source=${source}` : ''}`),
+		queryKey: ['documents', source, scope],
+		queryFn: () =>
+			api<DocumentItem[]>(
+				`documents${source ? `?source=${source}` : ''}${scope ? `&scope=${scope}` : ''}`,
+			),
 	});
 }
 export function useTrash() {
