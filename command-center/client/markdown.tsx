@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -149,87 +149,208 @@ function Chart({ code, context }: { code: string; context?: FileContext }) {
 		<div className="chart" ref={ref} />
 	);
 }
-export function Markdown({ content, context }: { content: string; context?: FileContext }) {
-	return (
-		<div className="markdown">
-			<ReactMarkdown
-				remarkPlugins={[remarkGfm]}
-				rehypePlugins={[rehypeHighlight]}
-				components={{
-					pre: ({ children }) => <div className="code-block">{children}</div>,
-					code: ({ className, children }) => {
-						const code = String(children).replace(/\n$/, '');
-						if (className?.includes('language-mermaid')) return <Diagram code={code} />;
-						if (className?.includes('language-vega-lite'))
-							return <Chart code={code} context={context} />;
-						return <code className={className}>{children}</code>;
-					},
-					img: ({ src, alt }) => (
-						<img loading="lazy" src={assetUrl(String(src ?? ''), context)} alt={alt ?? ''} />
-					),
-					a: ({ href = '', children }) => {
-						if (/^(https?:|mailto:)/i.test(href))
+export function Markdown({
+	content,
+	context,
+	outline = false,
+}: {
+	content: string;
+	context?: FileContext;
+	outline?: boolean;
+}) {
+	const ref = useRef<HTMLDivElement>(null);
+	const navigation = useRef<HTMLElement>(null);
+	const [headings, setHeadings] = useState<{ id: string; text: string; level: number }[]>([]);
+	const [activeId, setActiveId] = useState('');
+	useEffect(() => {
+		const root = ref.current;
+		if (!root) return;
+		const elements = [...root.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6')];
+		const ids = new Set<string>();
+		const items = elements.map((element) => {
+			const text = element.textContent?.trim() ?? '';
+			const base = slug(text) || 'heading';
+			let id = base;
+			let suffix = 0;
+			while (ids.has(id)) id = `${base}-${++suffix}`;
+			ids.add(id);
+			element.id = id;
+			element.tabIndex = -1;
+			return { id, text: text || 'Untitled heading', level: Number(element.tagName.slice(1)) };
+		});
+		if (!outline) return;
+		setHeadings(items);
+		const scroller = root.parentElement!;
+		const update = () => {
+			const top = scroller.getBoundingClientRect().top + 28;
+			let active = elements.at(0);
+			for (const element of elements) {
+				if (element.getBoundingClientRect().top > top) break;
+				active = element;
+			}
+			if (
+				scroller.scrollTop > 0 &&
+				scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1
+			)
+				active = elements.at(-1);
+			setActiveId(active?.id ?? '');
+		};
+		update();
+		scroller.addEventListener('scroll', update, { passive: true });
+		const resize = new ResizeObserver(update);
+		resize.observe(root);
+		resize.observe(scroller);
+		return () => {
+			scroller.removeEventListener('scroll', update);
+			resize.disconnect();
+		};
+	}, [content, outline]);
+	const revealActiveHeading = () => {
+		const nav = navigation.current;
+		const active = nav?.querySelector('[aria-current="location"]');
+		if (!nav || !active || !nav.clientHeight) return;
+		const bounds = nav.getBoundingClientRect();
+		const item = active.getBoundingClientRect();
+		if (item.top < bounds.top) nav.scrollTop += item.top - bounds.top;
+		else if (item.bottom > bounds.bottom) nav.scrollTop += item.bottom - bounds.bottom;
+	};
+	useEffect(revealActiveHeading, [activeId]);
+	const rendered = useMemo(
+		() => (
+			<div className="markdown" ref={ref}>
+				<ReactMarkdown
+					remarkPlugins={[remarkGfm]}
+					rehypePlugins={[rehypeHighlight]}
+					components={{
+						pre: ({ children }) => <div className="code-block">{children}</div>,
+						code: ({ className, children }) => {
+							const code = String(children).replace(/\n$/, '');
+							if (className?.includes('language-mermaid')) return <Diagram code={code} />;
+							if (className?.includes('language-vega-lite'))
+								return <Chart code={code} context={context} />;
+							return <code className={className}>{children}</code>;
+						},
+						img: ({ src, alt }) => (
+							<img loading="lazy" src={assetUrl(String(src ?? ''), context)} alt={alt ?? ''} />
+						),
+						a: ({ href = '', children }) => {
+							if (/^(https?:|mailto:)/i.test(href))
+								return (
+									<a href={href} target="_blank" rel="noreferrer">
+										{children}
+									</a>
+								);
+							if (href.startsWith('#')) return <a href={href}>{children}</a>;
+							if (href.startsWith('/') && !href.startsWith('/api/v1/asset'))
+								return <GuardLink to={href}>{children}</GuardLink>;
+							const resolved = resolveRelative(href, context);
+							const [path, anchor] = resolved.split('#');
+							if (/\.(md|markdown)$/i.test(path) && context)
+								return (
+									<GuardLink
+										to={`/${context.source === 'notes' || context.source === 'conclusions' ? context.source : 'documents'}?source=${context.source}&path=${encodeURIComponent(path)}${anchor ? `#${anchor}` : ''}`}
+									>
+										{children}
+									</GuardLink>
+								);
+							const url = assetUrl(href, context);
+							const extension = href.split('.').pop()?.split('#')[0].toLowerCase();
+							if (['mp3', 'wav', 'ogg'].includes(extension ?? ''))
+								return (
+									<span className="media">
+										<a href={url}>{children}</a>
+										<audio controls src={url} />
+									</span>
+								);
+							if (['mp4', 'webm'].includes(extension ?? ''))
+								return (
+									<span className="media">
+										<a href={url}>{children}</a>
+										<video controls src={url} />
+									</span>
+								);
+							if (extension === 'pdf')
+								return (
+									<span className="media">
+										<a href={url} target="_blank" rel="noreferrer">
+											{children}
+										</a>
+										<iframe title={String(children)} src={url} />
+									</span>
+								);
 							return (
-								<a href={href} target="_blank" rel="noreferrer">
+								<a href={url} target="_blank" rel="noreferrer">
 									{children}
 								</a>
 							);
-						if (href.startsWith('#')) return <a href={href}>{children}</a>;
-						if (href.startsWith('/') && !href.startsWith('/api/v1/asset'))
-							return <GuardLink to={href}>{children}</GuardLink>;
-						const resolved = resolveRelative(href, context);
-						const [path, anchor] = resolved.split('#');
-						if (/\.(md|markdown)$/i.test(path) && context)
-							return (
-								<GuardLink
-									to={`/${context.source === 'notes' || context.source === 'conclusions' ? context.source : 'documents'}?source=${context.source}&path=${encodeURIComponent(path)}${anchor ? `#${anchor}` : ''}`}
+						},
+					}}
+				>
+					{content}
+				</ReactMarkdown>
+			</div>
+		),
+		[content, context],
+	);
+	if (!outline) return rendered;
+	return (
+		<div className="markdown-reader">
+			<div className="document-preview" role="region" aria-label="Document content" tabIndex={0}>
+				{rendered}
+			</div>
+			<aside className="document-outline">
+				<details
+					open
+					onToggle={(event) => {
+						if (event.currentTarget.open) revealActiveHeading();
+					}}
+				>
+					<summary>Outline</summary>
+					<nav aria-label="Document outline" ref={navigation}>
+						{headings.length ? (
+							headings.map((heading) => (
+								<a
+									key={heading.id}
+									href={`#${encodeURIComponent(heading.id)}`}
+									aria-current={heading.id === activeId ? 'location' : undefined}
+									style={{ paddingInlineStart: `${12 + (heading.level - 1) * 12}px` }}
+									onClick={(event) => {
+										event.preventDefault();
+										const target = [
+											...ref.current!.querySelectorAll<HTMLHeadingElement>(
+												'h1, h2, h3, h4, h5, h6',
+											),
+										].find((element) => element.id === heading.id);
+										const scroller = ref.current!.parentElement!;
+										if (!target) return;
+										target.focus({ preventScroll: true });
+										scroller.scrollTo({
+											top:
+												scroller.scrollTop +
+												target.getBoundingClientRect().top -
+												scroller.getBoundingClientRect().top -
+												24,
+											behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+												? 'instant'
+												: 'smooth',
+										});
+									}}
 								>
-									{children}
-								</GuardLink>
-							);
-						const url = assetUrl(href, context);
-						const extension = href.split('.').pop()?.split('#')[0].toLowerCase();
-						if (['mp3', 'wav', 'ogg'].includes(extension ?? ''))
-							return (
-								<span className="media">
-									<a href={url}>{children}</a>
-									<audio controls src={url} />
-								</span>
-							);
-						if (['mp4', 'webm'].includes(extension ?? ''))
-							return (
-								<span className="media">
-									<a href={url}>{children}</a>
-									<video controls src={url} />
-								</span>
-							);
-						if (extension === 'pdf')
-							return (
-								<span className="media">
-									<a href={url} target="_blank" rel="noreferrer">
-										{children}
-									</a>
-									<iframe title={String(children)} src={url} />
-								</span>
-							);
-						return (
-							<a href={url} target="_blank" rel="noreferrer">
-								{children}
-							</a>
-						);
-					},
-					h1: ({ children }) => <h1 id={slug(String(children))}>{children}</h1>,
-					h2: ({ children }) => <h2 id={slug(String(children))}>{children}</h2>,
-					h3: ({ children }) => <h3 id={slug(String(children))}>{children}</h3>,
-				}}
-			>
-				{content}
-			</ReactMarkdown>
+									{heading.text}
+								</a>
+							))
+						) : (
+							<p className="muted">No headings in this document.</p>
+						)}
+					</nav>
+				</details>
+			</aside>
 		</div>
 	);
 }
 const slug = (value: string) =>
 	value
 		.toLowerCase()
-		.replace(/[^\w\s-]/g, '')
+		.trim()
+		.replace(/[^\p{L}\p{N}_\s-]/gu, '')
 		.replace(/\s+/g, '-');

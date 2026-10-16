@@ -1183,14 +1183,73 @@ dialog::backdrop {
 .editor-content .cm-focused {
 	outline: none;
 }
-.editor-content > .document-preview {
+.markdown-reader {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 210px;
+}
+.document-preview {
 	padding: 28px;
 	overflow: auto;
 	min-width: 0;
+	min-height: 0;
+	overscroll-behavior: contain;
+}
+.editor-content.split .markdown-reader {
+	border-left: 1px solid var(--border);
 }
 .editor-content.split .document-preview {
-	border-left: 1px solid var(--border);
 	padding: 20px;
+}
+.document-outline {
+	min-height: 0;
+	min-width: 0;
+	border-left: 1px solid var(--border);
+	padding: 16px 8px;
+	display: flex;
+}
+.document-outline details {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	min-height: 0;
+}
+.document-outline details[open]::details-content {
+	display: contents;
+}
+.document-outline summary {
+	font-size: 12px;
+	font-weight: 500;
+	padding: 4px 12px 12px;
+	cursor: pointer;
+}
+.document-outline nav {
+	min-height: 0;
+	overflow: auto;
+	overscroll-behavior: contain;
+}
+.document-outline a {
+	display: block;
+	padding: 7px 12px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--muted);
+	border: 1px solid transparent;
+	border-radius: 3px;
+	overflow-wrap: anywhere;
+}
+.document-outline a:hover {
+	background: var(--raised);
+	color: var(--text);
+	text-decoration: none;
+}
+.document-outline a[aria-current] {
+	color: var(--orange);
+	background: #f0843910;
+	border-color: #f0843930;
+}
+.document-outline p {
+	padding: 8px 12px;
+	font-size: 12px;
 }
 .markdown {
 	font-size: 14px;
@@ -1903,7 +1962,7 @@ dialog::backdrop {
 	.editor-content.split {
 		grid-template-columns: 1fr;
 	}
-	.editor-content.split .document-preview {
+	.editor-content.split .markdown-reader {
 		border-left: 0;
 		border-top: 1px solid var(--border);
 	}
@@ -2021,6 +2080,28 @@ dialog::backdrop {
 	}
 	.hub-footer {
 		flex-wrap: wrap;
+	}
+}
+@media (max-width: 700px) {
+	.markdown-reader {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto minmax(0, 1fr);
+	}
+	.document-outline {
+		grid-row: 1;
+		border-left: 0;
+		border-bottom: 1px solid var(--border);
+		padding: 8px;
+	}
+	.document-outline summary {
+		padding-bottom: 4px;
+	}
+	.document-outline nav {
+		max-height: 120px;
+	}
+	.document-preview {
+		grid-row: 2;
+		padding: 20px;
 	}
 }
 @media (max-width: 600px) {

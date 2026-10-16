@@ -623,11 +623,7 @@ function DocumentEditor({
 						}}
 					/>
 				)}
-				{(!editing || preview) && (
-					<div className="document-preview">
-						<Markdown content={content} context={{ source, path }} />
-					</div>
-				)}
+				{(!editing || preview) && <Markdown content={content} context={{ source, path }} outline />}
 			</div>
 			{moving && (
 				<Prompt
