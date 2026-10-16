@@ -655,7 +655,7 @@ function TaskForm({
 	const [sectionId, setSectionId] = useState(task?.sectionId ?? initial!.sectionId);
 	const [parentId, setParentId] = useState(task?.parentId ?? initial?.parentId ?? '');
 	const [moveTo, setMoveTo] = useState('');
-	const [preview, setPreview] = useState(false);
+	const [editingDescription, setEditingDescription] = useState(false);
 	const [completeAll, setCompleteAll] = useState(false);
 	const jobId = task?.jobId ?? board.sections.find((item) => item.id === sectionId)!.jobId;
 	const sections = board.sections.filter((item) => item.jobId === jobId);
@@ -709,17 +709,29 @@ function TaskForm({
 								onChange={(event) => setTitle(event.target.value)}
 							/>
 						</Field>
-						<Field label="Description · Markdown">
-							<textarea
-								rows={9}
-								value={description}
-								onChange={(event) => setDescription(event.target.value)}
-							/>
-						</Field>
-						<button type="button" onClick={() => setPreview(!preview)}>
-							Toggle description preview
+						<h3 className="subheading">Description</h3>
+						{description.trim() ? (
+							<Markdown content={description} />
+						) : (
+							<p className="muted">No description yet.</p>
+						)}
+						<button
+							type="button"
+							aria-expanded={editingDescription}
+							aria-controls="task-description-editor"
+							onClick={() => setEditingDescription(!editingDescription)}
+						>
+							{editingDescription ? 'Hide editor' : 'Edit description'}
 						</button>
-						{preview && <Markdown content={description} />}
+						<div id="task-description-editor" hidden={!editingDescription}>
+							<Field label="Description · Markdown">
+								<textarea
+									rows={9}
+									value={description}
+									onChange={(event) => setDescription(event.target.value)}
+								/>
+							</Field>
+						</div>
 						<Field label="Tags (comma separated)">
 							<input value={tags} onChange={(event) => setTags(event.target.value)} />
 						</Field>
