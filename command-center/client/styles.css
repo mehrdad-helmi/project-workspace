@@ -1126,7 +1126,8 @@ dialog::backdrop {
 	flex: 1;
 	min-width: 170px;
 }
-.editor-header > .toolbar button {
+.editor-header > .toolbar button,
+.editor-header > .toolbar .button {
 	font-size: 10px;
 	min-height: 30px;
 	padding: 6px 8px;

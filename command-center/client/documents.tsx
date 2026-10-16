@@ -20,6 +20,7 @@ import {
 	Code2,
 	Network,
 	BarChart3,
+	ExternalLink,
 } from 'lucide-react';
 import type { DocumentFile, FileSource } from '../shared/contracts';
 import { localDate, repositoryScopes, type RepositoryScope } from '../shared/contracts';
@@ -447,6 +448,18 @@ function DocumentEditor({
 					>
 						Reload
 					</button>
+					{source === 'conclusions' && loaded.sourceChat && (
+						<a
+							className="button"
+							href={loaded.sourceChat}
+							target="_blank"
+							rel="noopener noreferrer"
+							title="Open source chat in a new tab"
+						>
+							<ExternalLink size={16} aria-hidden="true" />
+							Source chat
+						</a>
+					)}
 					<button className={editing ? 'selected' : ''} onClick={() => setEditing(!editing)}>
 						{editing ? <Eye size={16} /> : <Pencil size={16} />}
 						{editing ? 'Read' : 'Edit'}
