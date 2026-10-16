@@ -118,8 +118,16 @@ export function restoreBackup(store: Store, archive: Uint8Array) {
 				store.db.run(
 					'PRAGMA defer_foreign_keys=ON; DELETE FROM tasks; DELETE FROM sections; DELETE FROM jobs; DELETE FROM events; DELETE FROM trash;',
 				);
-				for (const table of ['jobs', 'sections', 'tasks', 'events', 'trash'])
-					store.db.run(`INSERT INTO main.${table} SELECT * FROM restored.${table}`);
+				for (const table of ['jobs', 'sections', 'tasks', 'events', 'trash']) {
+					if (table === 'events') {
+						const hasType = store
+							.all<{ name: string }>('PRAGMA restored.table_info(events)')
+							.some(({ name }) => name === 'type');
+						store.db.run(
+							`INSERT INTO main.events (id,date,title,description,color,revision,type) SELECT id,date,title,description,color,revision,${hasType ? 'type' : 'NULL'} FROM restored.events`,
+						);
+					} else store.db.run(`INSERT INTO main.${table} SELECT * FROM restored.${table}`);
+				}
 				for (const table of ['jobs', 'sections', 'tasks', 'events'])
 					for (const row of store.all<{ id: string; revision: number }>(
 						`SELECT id,revision FROM ${table}`,

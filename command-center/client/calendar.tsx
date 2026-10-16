@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
-import { addDays, localDate, dateSchema, type CalendarEvent } from '../shared/contracts';
+import {
+	addDays,
+	dateSchema,
+	calendarEventTypeSchema,
+	type CalendarEvent,
+} from '../shared/contracts';
+import { formatCountdown } from '../shared/calendar';
+import { useToday } from './use-today';
 import { useEvents, useRefresh, write } from './api';
 import { Empty, ErrorBox, Field, Loading, Modal, submit, useAction, useFeedback } from './ui';
 import { Markdown } from './markdown';
@@ -15,7 +22,7 @@ export interface Preferences {
 }
 export function CalendarPage({ preferences }: { preferences: Preferences }) {
 	const [params, setParams] = useSearchParams();
-	const today = localDate(new Date(), preferences.timezone);
+	const today = useToday(preferences.timezone);
 	const candidateDate = params.get('date');
 	const date = candidateDate && dateSchema.safeParse(candidateDate).success ? candidateDate : today;
 	const [newDate, setNewDate] = useState<string | null>(null);
@@ -106,7 +113,14 @@ export function CalendarPage({ preferences }: { preferences: Preferences }) {
 									onClick={() => setParams({ date: day, event: event.id })}
 								>
 									<span className="event-dot" />
-									<span>{event.title}</span>
+									<span>
+										{event.title}
+										{event.type === 'COUNTDOWN' && (
+											<small className="countdown-label mono">
+												{formatCountdown(event.date, today)}
+											</small>
+										)}
+									</span>
 								</button>
 							))}
 						</div>
@@ -156,6 +170,7 @@ function EventForm({
 	const [description, setDescription] = useState(event?.description ?? '');
 	const [selectedDate, setSelectedDate] = useState(event?.date ?? date);
 	const [color, setColor] = useState(event?.color ?? 0);
+	const [type, setType] = useState<CalendarEvent['type']>(event ? event.type : 'SIMPLE');
 	const [preview, setPreview] = useState(false);
 	const action = useAction();
 	const { confirm } = useFeedback();
@@ -171,6 +186,7 @@ function EventForm({
 									description,
 									date: selectedDate,
 									color,
+									type,
 									...(event ? { revision: event.revision } : {}),
 								}),
 							onSaved,
@@ -193,6 +209,15 @@ function EventForm({
 						value={selectedDate}
 						onChange={(event) => setSelectedDate(event.target.value)}
 					/>
+				</Field>
+				<Field label="Type">
+					<select
+						value={type ?? 'SIMPLE'}
+						onChange={(event) => setType(calendarEventTypeSchema.parse(event.target.value))}
+					>
+						<option value="SIMPLE">Simple</option>
+						<option value="COUNTDOWN">Countdown</option>
+					</select>
 				</Field>
 				<Field label="Description · Markdown">
 					<textarea

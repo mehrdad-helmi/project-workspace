@@ -35,11 +35,14 @@ export const dateSchema = z
 		const parsed = new Date(`${date}T12:00:00Z`);
 		return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === date;
 	}, 'Use a valid Gregorian date');
+export const calendarEventTypeSchema = z.enum(['SIMPLE', 'COUNTDOWN']);
+export type CalendarEventType = z.infer<typeof calendarEventTypeSchema>;
 export const eventInput = z.object({
 	title: titleSchema,
 	description: z.string().max(100000).default(''),
 	date: dateSchema,
 	color: z.number().int().min(0).max(19),
+	type: calendarEventTypeSchema.nullable().default('SIMPLE'),
 });
 export const fileInput = z.object({
 	source: z.enum(['workspace', 'frontend', 'backend', 'notes', 'conclusions']),
@@ -89,6 +92,7 @@ export interface CalendarEvent {
 	title: string;
 	description: string;
 	color: number;
+	type: CalendarEventType | null;
 	revision: number;
 }
 export interface Board {

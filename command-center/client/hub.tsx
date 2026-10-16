@@ -9,7 +9,9 @@ import {
 	ArrowRight,
 	FolderOpen,
 } from 'lucide-react';
-import { progress, localDate, addDays } from '../shared/contracts';
+import { progress, addDays } from '../shared/contracts';
+import { formatCountdown } from '../shared/calendar';
+import { useToday } from './use-today';
 import { useBoard, useDocuments, useEvents } from './api';
 import { Empty, ErrorBox, GuardLink, Loading, Panel } from './ui';
 import type { Preferences } from './calendar';
@@ -18,7 +20,7 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 	const board = useBoard();
 	const documents = useDocuments();
 	const events = useEvents();
-	const today = localDate(new Date(), preferences.timezone);
+	const today = useToday(preferences.timezone);
 	const tomorrow = addDays(today, 1);
 	if (board.isPending || documents.isPending || events.isPending) return <Loading />;
 	if (board.error || documents.error || events.error)
@@ -43,6 +45,9 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 		.sort((a, b) => (b.approvedAt ?? b.updatedAt).localeCompare(a.approvedAt ?? a.updatedAt))
 		.slice(0, 5);
 	const recent = [...files].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5);
+	const countdowns = events
+		.data!.filter((entry) => entry.type === 'COUNTDOWN' && entry.date >= today)
+		.sort((a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title));
 	return (
 		<div className="hub">
 			<div className="view-heading">
@@ -215,6 +220,36 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 					</Panel>
 				</div>
 				<div className="hub-right">
+					<Panel title="Countdowns">
+						{countdowns.length ? (
+							<ul className="countdown-list">
+								{countdowns.map((entry) => (
+									<li key={entry.id}>
+										<GuardLink
+											className="countdown-entry"
+											to={`/calendar?date=${entry.date}&event=${entry.id}`}
+										>
+											<span
+												className="event-dot"
+												style={{ background: preferences.colors[entry.color] }}
+											/>
+											<div>
+												<strong>{entry.title}</strong>
+												<small className="countdown-label mono">
+													{formatCountdown(entry.date, today)}
+												</small>
+												<time className="mono" dateTime={entry.date}>
+													{entry.date}
+												</time>
+											</div>
+										</GuardLink>
+									</li>
+								))}
+							</ul>
+						) : (
+							<Empty>No upcoming countdowns. Choose Countdown when adding a day note.</Empty>
+						)}
+					</Panel>
 					<Panel
 						title="Day notes"
 						actions={
@@ -244,6 +279,11 @@ export function Hub({ preferences }: { preferences: Preferences }) {
 												/>
 												<div>
 													<strong>{entry.title}</strong>
+													{entry.type === 'COUNTDOWN' && (
+														<small className="countdown-label mono">
+															{formatCountdown(entry.date, today)}
+														</small>
+													)}
 													{entry.description && <p>{entry.description.slice(0, 110)}</p>}
 												</div>
 											</GuardLink>

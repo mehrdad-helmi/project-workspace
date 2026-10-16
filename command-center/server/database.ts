@@ -21,6 +21,12 @@ export class Store {
 		CREATE INDEX IF NOT EXISTS events_date ON events(date);
 		CREATE TABLE IF NOT EXISTS trash (id TEXT PRIMARY KEY, kind TEXT NOT NULL, title TEXT NOT NULL, deletedAt TEXT NOT NULL, payload TEXT NOT NULL);
 		PRAGMA user_version=1;`);
+		if (
+			!this.all<{ name: string }>('PRAGMA table_info(events)').some(({ name }) => name === 'type')
+		)
+			this.db.run(
+				"ALTER TABLE events ADD COLUMN type TEXT DEFAULT 'SIMPLE' CHECK(type IN ('SIMPLE','COUNTDOWN'))",
+			);
 	}
 	all<T>(sql: string, ...params: (string | number | null)[]): T[] {
 		const statement = this.db.prepare(sql);
@@ -367,27 +373,35 @@ export class Store {
 			return this.board().tasks.find((task) => task.id === id)!;
 		});
 	}
-	createEvent(input: Omit<CalendarEvent, 'id' | 'revision'>) {
+	createEvent(
+		input: Omit<CalendarEvent, 'id' | 'revision' | 'type'> & { type?: CalendarEvent['type'] },
+	) {
 		const id = crypto.randomUUID();
 		this.run(
-			'INSERT INTO events VALUES (?,?,?,?,?,1)',
+			'INSERT INTO events (id,date,title,description,color,revision,type) VALUES (?,?,?,?,?,1,?)',
 			id,
 			input.date,
 			input.title,
 			input.description,
 			input.color,
+			input.type === undefined ? 'SIMPLE' : input.type,
 		);
 		return this.row<CalendarEvent>('events', id);
 	}
-	updateEvent(id: string, revision: number, input: Omit<CalendarEvent, 'id' | 'revision'>) {
+	updateEvent(
+		id: string,
+		revision: number,
+		input: Omit<CalendarEvent, 'id' | 'revision' | 'type'> & { type?: CalendarEvent['type'] },
+	) {
 		return this.transaction(() => {
-			this.row('events', id, revision);
+			const current = this.row<CalendarEvent>('events', id, revision);
 			this.run(
-				'UPDATE events SET date=?,title=?,description=?,color=?,revision=revision+1 WHERE id=?',
+				'UPDATE events SET date=?,title=?,description=?,color=?,type=?,revision=revision+1 WHERE id=?',
 				input.date,
 				input.title,
 				input.description,
 				input.color,
+				input.type === undefined ? current.type : input.type,
 				id,
 			);
 			return this.row<CalendarEvent>('events', id);
@@ -452,6 +466,7 @@ export class Store {
 			const rows = JSON.parse(item.payload) as Record<string, Record<string, unknown>[]>;
 			for (const table of ['jobs', 'sections', 'tasks', 'events'])
 				for (const row of rows[table] ?? []) {
+					if (table === 'events' && !('type' in row)) row.type = null;
 					const columns = Object.keys(row);
 					const allowed = this.all<{ name: string }>(`PRAGMA table_info(${table})`).map(
 						(column) => column.name,

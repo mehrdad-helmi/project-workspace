@@ -222,7 +222,7 @@ export async function createApp(config: AppConfig) {
 	});
 	app.patch('/api/v1/events/:id', async (c) => {
 		const { revision, ...input } = eventInput
-			.extend({ revision: revisionSchema })
+			.extend({ revision: revisionSchema, type: eventInput.shape.type.removeDefault().optional() })
 			.parse(await c.req.json());
 		return c.json(await mutate(() => store.updateEvent(c.req.param('id'), revision, input)));
 	});

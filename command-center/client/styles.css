@@ -1764,6 +1764,45 @@ dialog::backdrop {
 	overflow: hidden;
 	overflow-wrap: anywhere;
 }
+.countdown-label {
+	display: block;
+	margin-top: 4px;
+	font-size: 11px;
+	color: var(--orange);
+	overflow-wrap: anywhere;
+}
+.countdown-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.countdown-list > li + li {
+	border-top: 1px solid var(--border);
+}
+.countdown-entry {
+	display: flex;
+	gap: 10px;
+	padding: 14px 16px;
+	color: var(--text);
+}
+.countdown-entry:hover {
+	background: var(--raised);
+	text-decoration: none;
+}
+.countdown-entry > div {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+.countdown-entry strong {
+	font-size: 13px;
+	font-weight: 500;
+}
+.countdown-entry time {
+	display: block;
+	margin-top: 5px;
+	font-size: 10px;
+	color: var(--muted);
+}
 .calendar-hint {
 	margin-top: 16px;
 	font-size: 12px;

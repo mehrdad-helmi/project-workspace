@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import { Database } from 'bun:sqlite';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from 'node:fs';
 import { zipSync, unzipSync, strToU8 } from 'fflate';
 import { tmpdir } from 'node:os';
@@ -9,9 +10,11 @@ import { Store } from '../server/database';
 import { contentHash } from '../server/files';
 import { exportBackup, restoreBackup } from '../server/backup';
 import { SchemaReader } from '../server/schema';
+import { formatCountdown } from '../shared/calendar';
 import {
 	addDays,
 	dateSchema,
+	eventInput,
 	localDate,
 	progress,
 	type Section,
@@ -235,6 +238,36 @@ describe('authenticated API and Markdown persistence', () => {
 			expect(
 				(await request(`asset?source=workspace&path=${encodeURIComponent(path)}`)).status,
 			).toBeGreaterThanOrEqual(400);
+	});
+	test('calendar API defaults new types, validates the enum and preserves omitted types on edit', async () => {
+		const { request, store } = await appFixture();
+		const input = { title: 'Milestone', description: '', date: '2028-02-29', color: 0 };
+		const created = await request('events', 'POST', input);
+		expect(created.status).toBe(201);
+		const event = await created.json();
+		expect(event.type).toBe('SIMPLE');
+		const update = async (revision: number, extra: object = {}) => {
+			const response = await request(`events/${event.id}`, 'PATCH', {
+				...input,
+				revision,
+				...extra,
+			});
+			expect(response.status).toBe(200);
+			return response.json();
+		};
+		expect((await update(1, { type: 'COUNTDOWN' })).type).toBe('COUNTDOWN');
+		expect((await update(2)).type).toBe('COUNTDOWN');
+		expect((await update(3, { type: null })).type).toBeNull();
+		expect((await update(4)).type).toBeNull();
+		expect((await update(5, { type: 'SIMPLE' })).type).toBe('SIMPLE');
+		expect(
+			(await request(`events/${event.id}`, 'PATCH', { ...input, revision: 1, type: 'COUNTDOWN' }))
+				.status,
+		).toBe(409);
+		expect((await request('events', 'POST', { ...input, type: 'OTHER' })).status).toBe(400);
+		expect((await request('events', 'POST', { ...input, type: null })).status).toBe(201);
+		expect((await request('events')).status).toBe(200);
+		expect(store.events().map((entry) => entry.type)).toEqual(['SIMPLE', null]);
 	});
 	test('saves exact repository Markdown, rejects external changes, recovers deletion', async () => {
 		const { request, appConfig } = await appFixture();
@@ -492,6 +525,86 @@ describe('authenticated API and Markdown persistence', () => {
 });
 
 describe('calendar and schema', () => {
+	test('countdowns use calendar years, months and days, including month ends and leap days', () => {
+		expect(formatCountdown('2026-10-16', '2026-10-17')).toBe('Passed');
+		expect(formatCountdown('2026-10-17', '2026-10-17')).toBe('Today');
+		expect(formatCountdown('2026-10-18', '2026-10-17')).toBe('1 day left');
+		expect(formatCountdown('2026-10-30', '2026-10-17')).toBe('13 days left');
+		expect(formatCountdown('2026-11-17', '2026-10-17')).toBe('1 month left');
+		expect(formatCountdown('2028-12-20', '2026-10-17')).toBe('2 years, 2 months, 3 days left');
+		expect(formatCountdown('2027-02-28', '2027-01-31')).toBe('1 month left');
+		expect(formatCountdown('2027-03-01', '2027-01-31')).toBe('1 month, 1 day left');
+		expect(formatCountdown('2028-02-29', '2028-02-28')).toBe('1 day left');
+		expect(formatCountdown('2025-02-28', '2024-02-29')).toBe('1 year left');
+		expect(formatCountdown('2027-01-01', '2026-12-31')).toBe('1 day left');
+		expect(eventInput.parse({ title: 'Legacy', date: '2028-02-29', color: 0 }).type).toBe('SIMPLE');
+	});
+	test('legacy calendar databases and recovery records remain usable with a nullable type', () => {
+		const f = fixture();
+		mkdirSync(f.appConfig.dataRoot);
+		const path = join(f.appConfig.dataRoot, 'command-center.sqlite');
+		const legacy = new Database(path);
+		legacy.run(
+			'CREATE TABLE events (id TEXT PRIMARY KEY, date TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, color INTEGER NOT NULL CHECK(color BETWEEN 0 AND 19), revision INTEGER NOT NULL DEFAULT 1)',
+		);
+		legacy.run("INSERT INTO events VALUES ('legacy','2028-02-29','Legacy','',0,1)");
+		legacy.close(true);
+		const store = new Store(f.appConfig.dataRoot);
+		f.entry.store = store;
+		expect(store.events()[0].type).toBe('SIMPLE');
+		expect(
+			store.createEvent({ title: 'Default', description: '', date: '2028-02-29', color: 0 }).type,
+		).toBe('SIMPLE');
+		expect(
+			store.createEvent({
+				title: 'Null',
+				description: '',
+				date: '2028-02-29',
+				color: 0,
+				type: null,
+			}).type,
+		).toBeNull();
+		expect(() => store.run("UPDATE events SET type='OTHER' WHERE id='legacy'")).toThrow();
+		const { type, ...oldRecord } = store.events().find((entry) => entry.id === 'legacy')!;
+		store.run("DELETE FROM events WHERE id='legacy'");
+		store.restoreRecords(store.trash('records', 'Legacy event', { events: [oldRecord] }));
+		expect(store.events().find((entry) => entry.id === 'legacy')?.type).toBeNull();
+	});
+	test('backups round-trip countdown types and restore archives from before the type column existed', async () => {
+		const f = fixture();
+		const { store } = await createApp(f.appConfig);
+		f.entry.store = store;
+		const event = store.createEvent({
+			title: 'Countdown',
+			description: '',
+			date: '2028-02-29',
+			color: 0,
+			type: 'COUNTDOWN',
+		});
+		const archive = exportBackup(store);
+		store.updateEvent(event.id, 1, { ...event, type: 'SIMPLE' });
+		restoreBackup(store, archive);
+		expect(store.events()[0].type).toBe('COUNTDOWN');
+		const files = unzipSync(archive);
+		const snapshotPath = join(f.root, 'legacy-backup.sqlite');
+		writeFileSync(snapshotPath, files['database.sqlite']);
+		const snapshot = new Database(snapshotPath);
+		snapshot.run('ALTER TABLE events DROP COLUMN type');
+		const { type, ...oldRecord } = event;
+		snapshot.run('INSERT INTO trash VALUES (?,?,?,?,?)', [
+			'legacy-trash',
+			'records',
+			'Legacy event',
+			new Date().toISOString(),
+			JSON.stringify({ events: [{ ...oldRecord, id: 'recovered' }] }),
+		]);
+		snapshot.close(true);
+		files['database.sqlite'] = new Uint8Array(await Bun.file(snapshotPath).arrayBuffer());
+		restoreBackup(store, zipSync(files));
+		expect(store.events()[0].type).toBeNull();
+		store.restoreRecords('legacy-trash');
+		expect(store.events().find((entry) => entry.id === 'recovered')?.type).toBeNull();
+	});
 	test('dates cover leap years, month transitions and Tehran midnight', () => {
 		expect(dateSchema.safeParse('2026-02-29').success).toBe(false);
 		expect(dateSchema.safeParse('2028-02-29').success).toBe(true);

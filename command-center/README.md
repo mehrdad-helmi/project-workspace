@@ -42,12 +42,12 @@ The default allowlist also includes `planicam.redhat.io`. Hostnames must match e
 
 Jobs use `/jobs?job=<id>` in the browser, `/api/v1/jobs` in the API, and `jobs`/`jobId` in JSON and SQLite.
 
-- **Hub:** Job progress, unfinished tasks, Tehran today/tomorrow day notes, recent documents, and conclusions.
+- **Hub:** Job progress, unfinished tasks, Tehran today/tomorrow day notes, upcoming countdowns, recent documents, and conclusions.
 - **Documents:** Repository Markdown files, with source editing and explicit Save. Edits change the real files. Generated folders and hidden files are excluded.
 - **Conclusions:** Workspace, Frontend, and Backend tabs group approved Markdown records under `data/conclusions/<scope>/`. Metadata includes a stable ID, title, approval date, tags, and optional source-chat URL.
 - **Jobs:** Each Job groups sections and tasks: Inbox, In Progress, Done, custom sections, recursive subtasks, card/section ordering, filters, transfers, and recovery. A completed parent cannot retain unfinished descendants. Reopening a descendant reopens completed ancestors.
 - **Notes:** Folder/page organization, Markdown source, previews, and attachments.
-- **Calendar:** Gregorian month view, Saturday start, Thursday/Friday weekends, twenty colors, date-only entries. No notifications.
+- **Calendar:** Gregorian month view, Saturday start, Thursday/Friday weekends, twenty colors, date-only entries. Simple notes or countdowns with calendar years/months/days remaining; passed countdowns stay on the calendar and leave the Hub. No notifications.
 - **Schema:** Live backend Prisma model/relationship explorer. Uses no database connection. The parser adapter is pinned to Prisma 7.8.0; update it deliberately alongside schema compatibility verification.
 
 Use **Ctrl K** for global search and **Ctrl S** in the source editor to save. Drag handles support keyboard pickup with Space and movement with arrow keys. Section/task dialogs also provide ordinary move controls. Task links accept app URLs such as `/notes?source=notes&path=Engineering/design.md` or ordinary HTTPS URLs.
@@ -101,6 +101,8 @@ Task creation shape:
 ```
 
 Task movement: `{ "revision": 1, "sectionId": "UUID", "beforeId": null, "completeAll": false }`. Moving to another Job transfers the subtree, detaches its root parent, and preserves Done/unfinished state. Task edits can include `sectionId` and `completeAll` to save fields and movement atomically.
+
+Calendar entries accept `title`, `description`, `date` (`YYYY-MM-DD`), `color` (0–19), and nullable `type` (`SIMPLE` or `COUNTDOWN`). Creation defaults to `SIMPLE`; `null` behaves as Simple. Editing requires `revision` and preserves the existing type when omitted. The Hub lists all countdowns dated today or later, ordered by date. Cards show `Today` on the target date and `Passed` afterward, using the configured timezone.
 
 Only Done is fixed. Inbox and In Progress can be renamed or deleted when empty. A missing default section is recreated when a transfer requires Inbox or reopening a completed parent requires In Progress. If a recreated default already exists, recovering the earlier deleted section restores it as an ordinary custom section.
 
