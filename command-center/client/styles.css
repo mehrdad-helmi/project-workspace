@@ -1678,6 +1678,127 @@ dialog::backdrop {
 	background: var(--panel);
 	padding: 14px 18px;
 }
+.calendar-views.segmented {
+	margin: 0;
+}
+.calendar-views > button {
+	gap: 7px;
+	padding: 8px 12px;
+	font-size: 12px;
+}
+.calendar-views > button.selected {
+	color: var(--orange);
+	border-color: var(--orange);
+}
+.calendar-table-panel {
+	background: var(--panel);
+}
+.calendar-table-panel > .calendar-toolbar {
+	min-width: 0;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+.calendar-table-scroll {
+	overflow-x: auto;
+	border: 1px solid var(--border);
+	border-top: 0;
+}
+.calendar-table {
+	width: 100%;
+	min-width: 640px;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+.calendar-table th,
+.calendar-table td {
+	padding: 14px 18px;
+	text-align: left;
+	vertical-align: top;
+	border-bottom: 1px solid var(--border);
+}
+.calendar-table th {
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 500;
+}
+.calendar-table .calendar-table-section th {
+	background: var(--raised);
+	color: var(--text);
+	font-size: 12px;
+}
+.calendar-section-title {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+}
+.calendar-section-title > .mono {
+	font-size: 10px;
+	font-weight: 400;
+}
+.calendar-table td:first-child,
+.calendar-table td:nth-child(3) {
+	white-space: nowrap;
+}
+.calendar-table th:nth-child(2) {
+	width: 50%;
+}
+.calendar-table tr:last-child td {
+	border-bottom: 0;
+}
+.calendar-table tbody tr:hover {
+	background: var(--raised);
+}
+.calendar-table-today {
+	background: #f0843908;
+}
+.calendar-table-past {
+	background: var(--bg);
+	color: var(--muted);
+}
+.calendar-table-past .calendar-table-entry,
+.calendar-table-past .countdown-label {
+	color: var(--muted);
+}
+.calendar-date-status {
+	display: block;
+	margin-top: 4px;
+	font-size: 10px;
+	color: var(--muted);
+}
+.calendar-date-status.is-today {
+	color: var(--orange);
+}
+.calendar-table-entry {
+	justify-content: flex-start;
+	align-items: flex-start;
+	gap: 9px;
+	border: 0;
+	background: none;
+	padding: 0;
+	min-height: 0;
+	font-size: 13px;
+	text-align: left;
+	overflow-wrap: anywhere;
+}
+.calendar-table-entry:hover {
+	color: var(--orange);
+	background: none;
+	text-decoration: underline;
+}
+.calendar-entry-summary {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+	color: var(--muted);
+	font-size: 11px;
+	line-height: 1.6;
+	margin: 6px 0 0 15px;
+}
+.calendar-table .countdown-label {
+	margin-top: 0;
+}
 .calendar-toolbar h2 {
 	font-size: 20px;
 	font-weight: 400;

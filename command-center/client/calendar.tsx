@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Table2, Trash2 } from 'lucide-react';
 import {
 	addDays,
 	dateSchema,
@@ -22,6 +22,8 @@ export interface Preferences {
 }
 export function CalendarPage({ preferences }: { preferences: Preferences }) {
 	const [params, setParams] = useSearchParams();
+	const view = params.get('view') === 'table' ? 'table' : 'month';
+	const viewParams: Record<string, string> = view === 'table' ? { view: 'table' } : {};
 	const today = useToday(preferences.timezone);
 	const candidateDate = params.get('date');
 	const date = candidateDate && dateSchema.safeParse(candidateDate).success ? candidateDate : today;
@@ -40,6 +42,8 @@ export function CalendarPage({ preferences }: { preferences: Preferences }) {
 	);
 	const weekdays = Array.from({ length: 7 }, (_, index) => (preferences.weekStartsOn + index) % 7);
 	const selected = query.data?.find((event) => event.id === params.get('event'));
+	const openEvent = (event: CalendarEvent) =>
+		setParams({ ...viewParams, date: event.date, event: event.id });
 	const navigateMonth = (delta: number) => {
 		const value = new Date(monthDate);
 		value.setUTCMonth(value.getUTCMonth() + delta);
@@ -54,84 +58,116 @@ export function CalendarPage({ preferences }: { preferences: Preferences }) {
 					<h1>Calendar</h1>
 					<p className="muted">Day notes · Gregorian · {preferences.timezone}</p>
 				</div>
-				<button className="primary" onClick={() => setNewDate(date)}>
-					<Plus size={16} />
-					Add day note
-				</button>
-			</div>
-			<div className="calendar-toolbar">
-				<h2>
-					{monthDate.toLocaleDateString('en-US', {
-						month: 'long',
-						year: 'numeric',
-						timeZone: 'UTC',
-					})}
-				</h2>
 				<div className="toolbar">
-					<button aria-label="Previous month" onClick={() => navigateMonth(-1)}>
-						<ChevronLeft size={18} />
-					</button>
-					<button onClick={() => setParams({ date: today })}>Today</button>
-					<button aria-label="Next month" onClick={() => navigateMonth(1)}>
-						<ChevronRight size={18} />
+					<div className="segmented calendar-views" role="group" aria-label="Calendar view">
+						{(['month', 'table'] as const).map((option) => (
+							<button
+								key={option}
+								className={view === option ? 'selected' : ''}
+								aria-pressed={view === option}
+								onClick={() =>
+									setParams({ date, ...(option === 'table' ? { view: 'table' } : {}) })
+								}
+							>
+								{option === 'month' ? <CalendarDays size={15} /> : <Table2 size={15} />}
+								{option === 'month' ? 'Month' : 'Table'}
+							</button>
+						))}
+					</div>
+					<button className="primary" onClick={() => setNewDate(view === 'table' ? today : date)}>
+						<Plus size={16} />
+						Add day note
 					</button>
 				</div>
 			</div>
-			<div className="calendar-grid">
-				{weekdays.map((day) => (
-					<div
-						className={`weekday mono ${preferences.weekends.includes(day) ? 'weekend' : ''}`}
-						key={day}
-					>
-						{['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]}
-					</div>
-				))}
-				{cells.map((day) => {
-					const dayEvents = query.data!.filter((event) => event.date === day);
-					const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
-					return (
-						<div
-							className={`calendar-day ${day.slice(0, 7) !== monthStart.slice(0, 7) ? 'outside' : ''} ${day === today ? 'today' : ''} ${preferences.weekends.includes(weekday) ? 'weekend' : ''}`}
-							key={day}
-						>
-							<button
-								className="day-number mono"
-								aria-label={`Add note on ${day}`}
-								onClick={() => setNewDate(day)}
-							>
-								{Number(day.slice(-2))}
-								{day === today && <span>Today</span>}
-								<Plus size={13} />
+			{view === 'table' ? (
+				<CalendarTable
+					events={query.data!}
+					today={today}
+					preferences={preferences}
+					onOpen={openEvent}
+				/>
+			) : (
+				<>
+					<div className="calendar-toolbar">
+						<h2>
+							{monthDate.toLocaleDateString('en-US', {
+								month: 'long',
+								year: 'numeric',
+								timeZone: 'UTC',
+							})}
+						</h2>
+						<div className="toolbar">
+							<button aria-label="Previous month" onClick={() => navigateMonth(-1)}>
+								<ChevronLeft size={18} />
 							</button>
-							{dayEvents.map((event) => (
-								<button
-									className="calendar-event"
-									style={
-										{ '--event-color': preferences.colors[event.color] } as React.CSSProperties
-									}
-									key={event.id}
-									onClick={() => setParams({ date: day, event: event.id })}
-								>
-									<span className="event-dot" />
-									<span>
-										{event.title}
-										{event.type === 'COUNTDOWN' && (
-											<small className="countdown-label mono">
-												{formatCountdown(event.date, today)}
-											</small>
-										)}
-									</span>
-								</button>
-							))}
+							<button onClick={() => setParams({ date: today })}>Today</button>
+							<button aria-label="Next month" onClick={() => navigateMonth(1)}>
+								<ChevronRight size={18} />
+							</button>
 						</div>
-					);
-				})}
-			</div>
-			{query.data!.length === 0 && (
-				<p className="muted calendar-hint">
-					Click a day to record a milestone, decision, or reminder. Entries stay here without
-					notifications.
-				</p>
+					</div>
+					<div className="calendar-grid">
+						{weekdays.map((day) => (
+							<div
+								className={`weekday mono ${preferences.weekends.includes(day) ? 'weekend' : ''}`}
+								key={day}
+							>
+								{
+									['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
+										day
+									]
+								}
+							</div>
+						))}
+						{cells.map((day) => {
+							const dayEvents = query.data!.filter((event) => event.date === day);
+							const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+							return (
+								<div
+									className={`calendar-day ${day.slice(0, 7) !== monthStart.slice(0, 7) ? 'outside' : ''} ${day === today ? 'today' : ''} ${preferences.weekends.includes(weekday) ? 'weekend' : ''}`}
+									key={day}
+								>
+									<button
+										className="day-number mono"
+										aria-label={`Add note on ${day}`}
+										onClick={() => setNewDate(day)}
+									>
+										{Number(day.slice(-2))}
+										{day === today && <span>Today</span>}
+										<Plus size={13} />
+									</button>
+									{dayEvents.map((event) => (
+										<button
+											className="calendar-event"
+											style={
+												{ '--event-color': preferences.colors[event.color] } as React.CSSProperties
+											}
+											key={event.id}
+											onClick={() => openEvent(event)}
+										>
+											<span className="event-dot" />
+											<span>
+												{event.title}
+												{event.type === 'COUNTDOWN' && (
+													<small className="countdown-label mono">
+														{formatCountdown(event.date, today)}
+													</small>
+												)}
+											</span>
+										</button>
+									))}
+								</div>
+							);
+						})}
+					</div>
+					{query.data!.length === 0 && (
+						<p className="muted calendar-hint">
+							Click a day to record a milestone, decision, or reminder. Entries stay here without
+							notifications.
+						</p>
+					)}
+				</>
 			)}
 			{(selected || newDate) && (
 				<EventForm
@@ -141,16 +177,138 @@ export function CalendarPage({ preferences }: { preferences: Preferences }) {
 					preferences={preferences}
 					onClose={() => {
 						setNewDate(null);
-						setParams({ date });
+						setParams({ ...viewParams, date });
 					}}
 					onSaved={() => {
 						setNewDate(null);
-						setParams({ date });
+						setParams({ ...viewParams, date });
 						void refresh();
 					}}
 				/>
 			)}
 		</div>
+	);
+}
+function CalendarTable({
+	events,
+	today,
+	preferences,
+	onOpen,
+}: {
+	events: CalendarEvent[];
+	today: string;
+	preferences: Preferences;
+	onOpen: (event: CalendarEvent) => void;
+}) {
+	const sorted = [...events].sort(
+		(a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title),
+	);
+	const groups = [
+		{ title: 'Today', entries: sorted.filter((event) => event.date === today) },
+		{ title: 'Upcoming', entries: sorted.filter((event) => event.date > today) },
+		{ title: 'Past', entries: sorted.filter((event) => event.date < today).reverse() },
+	];
+	return (
+		<section className="calendar-table-panel" aria-label="All calendar entries">
+			<div className="calendar-toolbar">
+				<h2>All entries</h2>
+				<span className="muted mono">
+					{events.length} {events.length === 1 ? 'entry' : 'entries'}
+				</span>
+			</div>
+			{sorted.length ? (
+				<div
+					className="calendar-table-scroll"
+					role="region"
+					aria-label="Calendar entries table"
+					tabIndex={0}
+				>
+					<table className="calendar-table">
+						<caption className="sr-only">
+							All calendar entries, grouped into Today, Upcoming, and Past
+						</caption>
+						<thead>
+							<tr>
+								<th scope="col">Date</th>
+								<th scope="col">Entry</th>
+								<th scope="col">Type</th>
+								<th scope="col">Countdown</th>
+							</tr>
+						</thead>
+						{groups.map((group) => (
+							<tbody key={group.title} aria-label={group.title}>
+								<tr className="calendar-table-section">
+									<th scope="rowgroup" colSpan={4}>
+										<div className="calendar-section-title">
+											<span>{group.title}</span>
+											<span className="muted mono">
+												{group.entries.length} {group.entries.length === 1 ? 'entry' : 'entries'}
+											</span>
+										</div>
+									</th>
+								</tr>
+								{group.entries.length === 0 && (
+									<tr>
+										<td colSpan={4} className="muted">
+											No {group.title.toLowerCase()} entries.
+										</td>
+									</tr>
+								)}
+								{group.entries.map((event) => (
+									<tr
+										key={event.id}
+										className={
+											event.date < today
+												? 'calendar-table-past'
+												: event.date === today
+													? 'calendar-table-today'
+													: ''
+										}
+									>
+										<td>
+											<time className="mono" dateTime={event.date}>
+												{event.date}
+											</time>
+											<small
+												className={`calendar-date-status mono ${event.date === today ? 'is-today' : ''}`}
+											>
+												{event.date < today ? 'Past' : event.date === today ? 'Today' : 'Upcoming'}
+											</small>
+										</td>
+										<td>
+											<button className="calendar-table-entry" onClick={() => onOpen(event)}>
+												<span
+													className="event-dot"
+													style={{ background: preferences.colors[event.color] }}
+												/>
+												<span>{event.title}</span>
+											</button>
+											{event.description && (
+												<p className="calendar-entry-summary">{event.description}</p>
+											)}
+										</td>
+										<td className="muted">{event.type === 'COUNTDOWN' ? 'Countdown' : 'Simple'}</td>
+										<td>
+											{event.type === 'COUNTDOWN' ? (
+												<span className="countdown-label mono">
+													{formatCountdown(event.date, today)}
+												</span>
+											) : (
+												<span className="muted" aria-label="Not a countdown">
+													—
+												</span>
+											)}
+										</td>
+									</tr>
+								))}
+							</tbody>
+						))}
+					</table>
+				</div>
+			) : (
+				<Empty>Add a day note to start your calendar.</Empty>
+			)}
+		</section>
 	);
 }
 function EventForm({
