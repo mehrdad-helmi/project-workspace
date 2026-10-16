@@ -102,7 +102,7 @@ Task creation shape:
 
 Task movement: `{ "revision": 1, "sectionId": "UUID", "beforeId": null, "completeAll": false }`. Moving to another Job transfers the subtree, detaches its root parent, and preserves Done/unfinished state. Task edits can include `sectionId` and `completeAll` to save fields and movement atomically.
 
-Calendar entries accept `title`, `description`, `date` (`YYYY-MM-DD`), `color` (0–19), and nullable `type` (`SIMPLE` or `COUNTDOWN`). Creation defaults to `SIMPLE`; `null` behaves as Simple. Editing requires `revision` and preserves the existing type when omitted. The Hub lists all countdowns dated today or later, ordered by date. Cards show `Today` on the target date and `Passed` afterward, using the configured timezone.
+Calendar entries accept `title`, `description`, `date` (`YYYY-MM-DD`), `color` (0–19), and nullable `type` (`SIMPLE` or `COUNTDOWN`). Creation defaults to `SIMPLE`; `null` behaves as Simple. Editing requires `revision` and preserves the existing type when omitted. The Hub lists all countdowns dated today or later, ordered by date. Cards show `Today` on the target date and elapsed time afterward (for example, `1 month, 3 days ago`), using the configured timezone.
 
 Only Done is fixed. Inbox and In Progress can be renamed or deleted when empty. A missing default section is recreated when a transfer requires Inbox or reopening a completed parent requires In Progress. If a recreated default already exists, recovering the earlier deleted section restores it as an ordinary custom section.
 

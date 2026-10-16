@@ -1,9 +1,9 @@
 /** Date-only Gregorian duration; UTC arithmetic avoids timezone and DST rounding. */
 export function formatCountdown(date: string, today: string) {
-	if (date < today) return 'Passed';
 	if (date === today) return 'Today';
-	const start = new Date(`${today}T12:00:00Z`);
-	const end = new Date(`${date}T12:00:00Z`);
+	const passed = date < today;
+	const start = new Date(`${passed ? date : today}T12:00:00Z`);
+	const end = new Date(`${passed ? today : date}T12:00:00Z`);
 	let months = (end.getUTCFullYear() - start.getUTCFullYear()) * 12;
 	months += end.getUTCMonth() - start.getUTCMonth();
 	const anchorAt = (offset: number) => {
@@ -25,6 +25,6 @@ export function formatCountdown(date: string, today: string) {
 		]
 			.filter(([amount]) => amount !== 0)
 			.map(([amount, unit]) => `${amount} ${unit}${amount === 1 ? '' : 's'}`)
-			.join(', ') + ' left'
+			.join(', ') + (passed ? ' ago' : ' left')
 	);
 }

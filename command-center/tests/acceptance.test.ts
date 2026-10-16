@@ -526,7 +526,12 @@ describe('authenticated API and Markdown persistence', () => {
 
 describe('calendar and schema', () => {
 	test('countdowns use calendar years, months and days, including month ends and leap days', () => {
-		expect(formatCountdown('2026-10-16', '2026-10-17')).toBe('Passed');
+		expect(formatCountdown('2026-10-16', '2026-10-17')).toBe('1 day ago');
+		expect(formatCountdown('2026-10-04', '2026-10-17')).toBe('13 days ago');
+		expect(formatCountdown('2026-09-17', '2026-10-17')).toBe('1 month ago');
+		expect(formatCountdown('2024-08-14', '2026-10-17')).toBe('2 years, 2 months, 3 days ago');
+		expect(formatCountdown('2027-01-31', '2027-03-01')).toBe('1 month, 1 day ago');
+		expect(formatCountdown('2024-02-29', '2025-02-28')).toBe('1 year ago');
 		expect(formatCountdown('2026-10-17', '2026-10-17')).toBe('Today');
 		expect(formatCountdown('2026-10-18', '2026-10-17')).toBe('1 day left');
 		expect(formatCountdown('2026-10-30', '2026-10-17')).toBe('13 days left');
