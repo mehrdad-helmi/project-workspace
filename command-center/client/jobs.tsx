@@ -27,6 +27,7 @@ import {
 	Link2,
 	Check,
 	ArrowRight,
+	ArrowUp,
 } from 'lucide-react';
 import { progress, type Board, type Section, type Task, type Job } from '../shared/contracts';
 import { useBoard, useRefresh, write } from './api';
@@ -123,147 +124,154 @@ export function JobsPage() {
 		}
 	};
 	return (
-		<div>
-			<div className="view-heading">
-				<div>
-					<h1>Jobs</h1>
-					<p className="muted">Organize the work. Keep the next action visible.</p>
-				</div>
-				<button className="primary" onClick={() => setNewJob(true)}>
-					<Plus size={16} />
-					New Job
-				</button>
-			</div>
-			<div className="job-tabs">
-				{board.jobs.map((item, index) => {
-					const count = progress(board, item.id);
-					return (
-						<div className={item.id === selected ? 'active' : ''} key={item.id}>
-							<button onClick={() => setParams({ job: item.id })}>
-								<strong>{item.title}</strong>
-								<span className="mono">
-									{count.remaining}/{count.total} remaining
-								</span>
-								<span className="progress-track">
-									<span style={{ width: `${count.percent}%` }} />
-								</span>
-							</button>
-							<button
-								title="Move Job left"
-								aria-label={`Move ${item.title} left`}
-								disabled={index === 0 || action.busy}
-								onClick={() =>
-									void action.run(
-										() =>
-											write('reorder', 'POST', {
-												kind: 'jobs',
-												ids: arrayMove(
-													board.jobs.map((item) => item.id),
-													index,
-													index - 1,
-												),
-												revisions: Object.fromEntries(
-													board.jobs.map((item) => [item.id, item.revision]),
-												),
-											}),
-										() => void refresh(),
-									)
-								}
-							>
-								←
-							</button>
-						</div>
-					);
-				})}
-			</div>
-			{job ? (
-				<>
-					<div className="board-toolbar">
-						<div>
-							<h2>{job.title}</h2>
-							{job.description && <p className="muted">{job.description}</p>}
-						</div>
-						<div className="toolbar">
-							<input
-								aria-label="Filter tasks"
-								placeholder="Filter tasks…"
-								value={filter}
-								onChange={(event) => setFilter(event.target.value)}
-							/>
-							<select
-								aria-label="Filter by tag"
-								value={tag}
-								onChange={(event) => setTag(event.target.value)}
-							>
-								<option value="">All tags</option>
-								{tags.map((tag) => (
-									<option key={tag}>{tag}</option>
-								))}
-							</select>
-							<button onClick={() => setNewSection(true)}>
-								<Plus size={16} />
-								Section
-							</button>
-							<button aria-label="Edit Job" onClick={() => setEditJob(job)}>
-								<Pencil size={16} />
-							</button>
-							<button
-								aria-label="Delete Job"
-								onClick={async () => {
-									if (
-										await confirm(
-											`Move “${job.title}”, its ${sections.length} sections and ${tasks.length} tasks to recovery?`,
-										)
-									)
-										void action.run(
-											() => write(`jobs/${job.id}?revision=${job.revision}`, 'DELETE'),
-											() => void refresh(),
-										);
-								}}
-							>
-								<Trash2 size={16} />
-							</button>
-						</div>
+		<div className="jobs-layout">
+			<aside className="jobs-sidebar" aria-label="Jobs">
+				<div className="view-heading">
+					<div>
+						<h1>Jobs</h1>
+						<p className="muted">Organize the work. Keep the next action visible.</p>
 					</div>
-					<DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={drag}>
-						<SortableContext
-							items={sections.map((section) => section.id)}
-							strategy={horizontalListSortingStrategy}
-						>
-							<div className="board">
-								{sections.map((section) => (
-									<BoardSection
-										key={section.id}
-										section={section}
-										tasks={tasks.filter(
-											(task) =>
-												task.sectionId === section.id &&
-												`${task.title} ${task.description}`
-													.toLowerCase()
-													.includes(filter.toLowerCase()) &&
-												(!tag || task.tags.includes(tag)),
-										)}
-										board={board}
-										onTask={openTask}
-										onAdd={() => setNewTask({ sectionId: section.id, parentId: null })}
-										onEdit={() => setEditSection(section)}
-									/>
-								))}
+					<button className="primary" onClick={() => setNewJob(true)}>
+						<Plus size={16} />
+						New Job
+					</button>
+				</div>
+				<nav className="job-list" aria-label="Choose a Job">
+					{board.jobs.map((item, index) => {
+						const count = progress(board, item.id);
+						return (
+							<div className={item.id === selected ? 'active' : ''} key={item.id}>
+								<button
+									aria-current={item.id === selected ? 'page' : undefined}
+									onClick={() => setParams({ job: item.id })}
+								>
+									<strong>{item.title}</strong>
+									<span className="mono">
+										{count.remaining}/{count.total} remaining
+									</span>
+									<span className="progress-track">
+										<span style={{ width: `${count.percent}%` }} />
+									</span>
+								</button>
+								<button
+									title="Move Job up"
+									aria-label={`Move ${item.title} up`}
+									disabled={index === 0 || action.busy}
+									onClick={() =>
+										void action.run(
+											() =>
+												write('reorder', 'POST', {
+													kind: 'jobs',
+													ids: arrayMove(
+														board.jobs.map((item) => item.id),
+														index,
+														index - 1,
+													),
+													revisions: Object.fromEntries(
+														board.jobs.map((item) => [item.id, item.revision]),
+													),
+												}),
+											() => void refresh(),
+										)
+									}
+								>
+									<ArrowUp size={14} />
+								</button>
 							</div>
-						</SortableContext>
-					</DndContext>
-				</>
-			) : (
-				<Empty
-					action={
-						<button className="primary" onClick={() => setNewJob(true)}>
-							Create your first Job
-						</button>
-					}
-				>
-					A clear place for each part of Planicam.
-				</Empty>
-			)}
+						);
+					})}
+				</nav>
+			</aside>
+			<div className="jobs-workspace">
+				{job ? (
+					<>
+						<div className="board-toolbar">
+							<div>
+								<h2>{job.title}</h2>
+								{job.description && <p className="muted">{job.description}</p>}
+							</div>
+							<div className="toolbar">
+								<input
+									aria-label="Filter tasks"
+									placeholder="Filter tasks…"
+									value={filter}
+									onChange={(event) => setFilter(event.target.value)}
+								/>
+								<select
+									aria-label="Filter by tag"
+									value={tag}
+									onChange={(event) => setTag(event.target.value)}
+								>
+									<option value="">All tags</option>
+									{tags.map((tag) => (
+										<option key={tag}>{tag}</option>
+									))}
+								</select>
+								<button onClick={() => setNewSection(true)}>
+									<Plus size={16} />
+									Section
+								</button>
+								<button aria-label="Edit Job" onClick={() => setEditJob(job)}>
+									<Pencil size={16} />
+								</button>
+								<button
+									aria-label="Delete Job"
+									onClick={async () => {
+										if (
+											await confirm(
+												`Move “${job.title}”, its ${sections.length} sections and ${tasks.length} tasks to recovery?`,
+											)
+										)
+											void action.run(
+												() => write(`jobs/${job.id}?revision=${job.revision}`, 'DELETE'),
+												() => void refresh(),
+											);
+									}}
+								>
+									<Trash2 size={16} />
+								</button>
+							</div>
+						</div>
+						<DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={drag}>
+							<SortableContext
+								items={sections.map((section) => section.id)}
+								strategy={horizontalListSortingStrategy}
+							>
+								<div className="board" role="region" aria-label="Job sections" tabIndex={0}>
+									{sections.map((section) => (
+										<BoardSection
+											key={section.id}
+											section={section}
+											tasks={tasks.filter(
+												(task) =>
+													task.sectionId === section.id &&
+													`${task.title} ${task.description}`
+														.toLowerCase()
+														.includes(filter.toLowerCase()) &&
+													(!tag || task.tags.includes(tag)),
+											)}
+											board={board}
+											onTask={openTask}
+											onAdd={() => setNewTask({ sectionId: section.id, parentId: null })}
+											onEdit={() => setEditSection(section)}
+										/>
+									))}
+								</div>
+							</SortableContext>
+						</DndContext>
+					</>
+				) : (
+					<Empty
+						action={
+							<button className="primary" onClick={() => setNewJob(true)}>
+								Create your first Job
+							</button>
+						}
+					>
+						A clear place for each part of Planicam.
+					</Empty>
+				)}
+			</div>
 			{newJob && (
 				<JobForm
 					onClose={() => setNewJob(false)}
@@ -382,7 +390,12 @@ function BoardSection({
 				</button>
 			</div>
 			<SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
-				<div className="task-stack">
+				<div
+					className="task-stack"
+					role="region"
+					aria-label={`${section.title} tasks`}
+					tabIndex={0}
+				>
 					{tasks.map((task) => (
 						<TaskCard key={task.id} task={task} board={board} onClick={() => onTask(task.id)} />
 					))}
