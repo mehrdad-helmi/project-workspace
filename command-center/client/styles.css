@@ -1184,6 +1184,58 @@ dialog::backdrop {
 .editor-content .cm-focused {
 	outline: none;
 }
+.editor-content .cm-panels {
+	flex-shrink: 0;
+	max-height: 100%;
+	overflow-y: auto;
+}
+.editor-content .cm-panel.cm-search {
+	padding: 8px 40px 8px 12px;
+	background: var(--panel);
+	font-family: 'IBM Plex Sans', sans-serif;
+	color: var(--text);
+}
+.editor-content .cm-search .cm-textfield {
+	width: min(20ch, 100%);
+	min-height: 32px;
+	padding: 6px 8px;
+	background: var(--bg);
+	color: var(--text);
+	border: 1px solid var(--border);
+}
+.editor-content .cm-search .cm-textfield:focus {
+	border-color: var(--orange);
+}
+.editor-content .cm-search label {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	min-height: 32px;
+	vertical-align: middle;
+}
+.editor-content .cm-search input[type='checkbox'] {
+	width: auto;
+	margin: 0;
+	accent-color: var(--orange);
+}
+.editor-content .cm-search .cm-button {
+	background: var(--raised);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	font: inherit;
+}
+.editor-content .cm-search .cm-button:hover {
+	background: #242730;
+	border-color: #626671;
+}
+.editor-content .cm-search button[name='close'] {
+	top: 8px;
+	right: 6px;
+	width: 28px;
+	min-height: 28px;
+	font-size: 20px;
+}
 .markdown-reader {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) 210px;
