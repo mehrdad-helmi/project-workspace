@@ -1,12 +1,12 @@
 :root {
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: 'IBM Plex Mono', sans-serif;
 	color: #e5e5e8;
 	background: #08090c;
 	font-synthesis: none;
 	--bg: #08090c;
 	--panel: #101115;
 	--raised: #17191f;
-	--border: #2a2d35;
+	--border: #2a2d35a2;
 	--text: #e5e5e8;
 	--muted: #a1a4af;
 	--orange: #f08439;
@@ -338,6 +338,7 @@ kbd {
 	z-index: 10;
 }
 .brand {
+	font-family: 'Inter';
 	display: flex;
 	gap: 10px;
 	align-items: center;
@@ -379,6 +380,7 @@ kbd {
 	flex-shrink: 0;
 }
 .sidebar nav a {
+	font-family: 'Inter', sans-serif;
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -1318,18 +1320,30 @@ dialog::backdrop {
 	margin: 10px 0 22px;
 	font-weight: 500;
 }
+.markdown h1 * {
+	font-size: 27px !important;
+}
 .markdown h2 {
 	font-size: 21px;
 	margin: 30px 0 15px;
 	line-height: 1.5;
 }
+.markdown h2 * {
+	font-size: 21px !important;
+}
 .markdown h3 {
 	font-size: 17px;
 	margin: 24px 0 12px;
 }
+.markdown h3 * {
+	font-size: 17px !important;
+}
 .markdown h4 {
 	font-size: 15px;
 	margin: 20px 0 10px;
+}
+.markdown h4 * {
+	font-size: 15px !important;
 }
 .markdown p {
 	margin: 14px 0;
@@ -1616,7 +1630,7 @@ dialog::backdrop {
 	border: 1px solid var(--border);
 	border-radius: 3px;
 	background: var(--panel);
-	padding: 12px;
+	padding: 6px 10px;
 	min-width: 0;
 }
 .task-card:hover {
