@@ -1,0 +1,4 @@
+interface:
+  display_name: "Planicam Domain Research"
+  short_description: "Research Logikal without overriding Planicam decisions"
+  default_prompt: "Use $planicam-domain-research to answer this domain question with sources and preserve our existing decisions."

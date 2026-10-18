@@ -1,0 +1,4 @@
+interface:
+  display_name: "Redhat Crew — Atlas"
+  short_description: "Atlas leads Planicam's repository-first crew"
+  default_prompt: "Use $redhat-crew with Atlas as Pack Leader to plan and deliver a Planicam feature with me."

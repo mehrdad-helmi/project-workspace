@@ -62,6 +62,14 @@ The cloud frontend consumes Planicore through the defined WASM boundary. The des
 
 ## Command Center
 
+### Redhat Crew exception
+
+When Mehrdad requests Redhat Crew, use the project-local [`redhat-crew` skill](.agents/skills/redhat-crew/SKILL.md) and [crew guide](docs/agents/redhat-crew.md). The Pack Leader may delegate bounded assignments to the configured specialists; ordinary chats do not automatically activate the crew.
+
+Every member must read the affected repository's `AGENTS.md`, relevant routed documentation, and existing implementation before planning, editing, or reviewing. Preserve established decisions and update the owning repository's documentation for approved new concepts, architecture, schema semantics, workflows, and code-organization decisions.
+
+For crew work, Command Center and all its existing data/documents are excluded, including the conclusion-reading routes below. The sole exception is the Pack Leader saving each initial feature plan after Mehrdad explicitly approves it, through the existing save CLI into `conclusions/workspace/`. This standing instruction authorizes that save, not approval of a plan. Do not browse, maintain, or track work in Command Center. See the [save procedure](docs/agents/crew-protocol.md#approved-plan-save).
+
 The standalone workspace companion lives in `command-center/`. Read its `AGENTS.md` and `README.md` for implementation and CLI workflows. The running app is available on port 7200.
 
 Use `bun run cc -- ...` from that directory to work with tasks, notes, calendar entries, documents, and recovery through the shared server rules. Save an approved chat conclusion only when Mehrdad explicitly asks you to save it; do not infer approval or ingest conversations automatically.

@@ -1,0 +1,8 @@
+# Pack Leader defaults for new chats opened in this workspace.
+# A model selected explicitly in Codex may override these defaults.
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
+
+[agents]
+# Compatible alias supported by the installed CLI and current Codex clients.
+max_threads = 3
