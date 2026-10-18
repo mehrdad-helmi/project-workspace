@@ -1403,6 +1403,9 @@ dialog::backdrop {
 	padding: 9px 12px;
 	text-align: left;
 }
+.markdown th,td code{
+	white-space: nowrap;	
+}
 .markdown th {
 	background: var(--raised);
 	font-weight: 500;
