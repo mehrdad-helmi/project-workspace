@@ -12,7 +12,8 @@ Copy the relevant sections into `.codex/crew-runs/<task-id>/progress.md` (Atlas)
 - Baseline directory: index backup, index entries, staged/unstaged patches, dirty/untracked file hashes, originals of files to edit:
 - Explicit task-owned file/hunk allowlist / current Git writer per repository:
 - Canonical API contract and architecture/documentation paths:
-- Assignment IDs / role / agent ID if available / checkpoint path / dependencies:
+- Assignment IDs / role / agent ID if available / checkpoint path / dependencies / chosen fresh-or-inherited context:
+- Original user request/constraints and correction references supplied independently to reviewer / grounding acknowledgments:
 - Validated milestones: repository, commit hash, summary, verification:
 - Changesets: repository, path, planned or committed state, final commit hash; no release where appropriate:
 - Pending operation: intent, repository/path, expected precondition, observed result or unknown outcome:
@@ -26,13 +27,15 @@ Copy the relevant sections into `.codex/crew-runs/<task-id>/progress.md` (Atlas)
 - Task ID / assignment ID / role / runtime agent ID if exposed:
 - Objective / approved scope / acceptance criteria:
 - Repository / task branch / base HEAD / current observed HEAD:
-- Required instructions/docs read and canonical shared contract paths:
+- Original user constraints (verbatim where material), subsequent corrections, approved exceptions / original request reference:
+- Required instructions/docs read, representative existing implementation and canonical shared contract paths:
+- Grounding: placement/patterns, architecture/state/contracts, reused services/controls and concrete gaps, constraints/exceptions, checks; source paths and Atlas acceptance:
 - Owned code/test/docs files or area / checkpoint path (sole writer):
 - Dependencies / interfaces / next recipient:
 - Completed work / modified files:
 - Verification: exact focused check, result, evidence, unexecuted checks:
-- Milestone commits and hashes (leads only; otherwise reference the responsible lead):
+- Milestone commits and hashes (owning engineers only under Atlas coordination; others reference the engineer):
 - Pending operation and outcome / blockers / next step:
-- Handoff state: implementing | ready for QA | changes requested | QA passed | lead review | accepted
+- Handoff state: grounding pending | grounded | implementing | ready for review | changes requested | review passed | Atlas integration accepted
 
 An intended operation is not evidence that it ran. After interruption, reconcile these records against Git/files and reachable agents before resuming. Keep code/API/architecture decisions in their owning repository docs; use these checkpoints for coordination and references only.

@@ -5,7 +5,7 @@ description: Research Logikal and Orgadata workflows for Planicam crew planning,
 
 # Planicam domain research
 
-Read [the shared crew protocol](../../../docs/agents/crew-protocol.md), the workspace's product context, and relevant existing repository instructions/docs before researching. Resolve links from this skill directory. Stay read-only in product repositories; the only permitted coordination write is your assigned local checkpoint. Update it at meaningful research/handoff boundaries, preserving sources, findings, uncertainty, and next steps. Report to the Pack Leader. Do not access Command Center or save conclusions.
+Read [the compact crew protocol](../../../docs/agents/crew-protocol.md) and your original assignment constraints. Record source-linked grounding in your assigned checkpoint and await Atlas acknowledgment before recommendations. Read the workspace's product context, and relevant existing repository instructions/docs before researching. Resolve links from this skill directory. Stay read-only in product repositories; the only permitted coordination write is your assigned local checkpoint. Update it at meaningful research/handoff boundaries, preserving sources, findings, uncertainty, and next steps. Report to the Pack Leader. Do not access Command Center or save conclusions.
 
 Establish the specific question and the existing Planicam decision first. Research official Orgadata/Logikal documentation where available. Record the source URL, relevant product/version/date when stated, and what the source actually establishes. Use other sources only with clear attribution and limitations. Do not claim real operator experience, access to private documentation, or certainty unsupported by the sources.
 

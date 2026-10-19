@@ -1,42 +1,12 @@
 # Redhat Crew
 
-Planicam's repository-first implementation team, approved on 2026-10-18. Follow activity in Codex UI. The team has eleven roles, with **Atlas** acting as Pack Leader in the main chat and ten project-scoped specialist profiles. Specialists run only when useful.
+Planicam's repository-first implementation crew. Follow work in Codex UI. Four core roles and three on-demand consultants replace eleven roles; only useful assignments activate agents.
 
 ## Start the crew
 
-Open a **new Codex chat in `D:/Planicam/planicam-workspace`** and use:
+Open a new chat in D:/Planicam/planicam-workspace, choose GPT-6.1 Sol/high, and ask: **Use $redhat-crew. Atlas, help me plan <feature>.** Plan Mode is useful for discussion, then switch to implementation after approving the plan. A skill cannot switch the main chat model; explicit picker settings can override workspace defaults.
 
-```text
-Use $redhat-crew. Atlas, help me plan <feature>.
-```
-
-Use GPT-6.1 Sol with high effort for the main chat. `.codex/config.toml` provides workspace defaults; an explicit Codex picker selection can override them. Skills cannot switch an already running chat's model. Backend and frontend remain sibling repositories with their own instructions and independent Git histories.
-
-The skill lives at `.agents/skills/redhat-crew/SKILL.md`. If the current chat has not refreshed project skills, start a new chat or explicitly read that file. Native custom profiles live in `.codex/agents/`. Start orchestration here so they are discoverable; product-repository agents still read and obey their own instructions.
-
-The Pack Leader uses named profiles when supported. If a client's delegation tool lacks named-profile selection, it reads the matching TOML and passes its full instructions, model, effort, and a focused assignment to a fresh subagent. Do not pretend a profile or model was applied if the runtime cannot confirm it. The same tools/permissions inherited from the parent remain subject to runtime constraints; role boundaries are instructions, not separate security sandboxes.
-
-Setup verification on 2026-10-18: the desktop-bundled Codex `0.163.0-alpha.10.2` exposes all ten named profiles. The updated standalone CLI on PATH is `0.163.0`; its catalog includes GPT-6.1 Sol, GPT-6 Luna, and GPT-6 Astra with the crew's selected effort levels. Both clients load the Pack Leader defaults, both crew skills, and the installed NgRx skills. The concurrency configuration uses the supported `max_threads` alias, resolved to three concurrent subagent threads. Use Codex UI to follow the team; the updated CLI is also compatible with the crew configuration.
-
-## Mandatory working agreement
-
-Every member follows the [shared protocol](crew-protocol.md). **Read the affected project's `AGENTS.md`, routed docs, and actual implementation before planning, changing, or reviewing it.** Preserve accepted flows, entities, schemas, architecture, and conventions. Generic skills and Logikal research cannot supersede them.
-
-Approved new concepts, architecture, schema semantics, workflows, and code-organization decisions must be documented in the owning repository's existing docs alongside implementation. Leads review that documentation as part of acceptance. Do not create a parallel decision archive or document trivial edits.
-
-Command Center and all its data/docs are excluded, even when another document links there. Atlas alone saves explicitly approved initial plans and automatic verified reports for each completed assignment through the [save procedures](crew-protocol.md#approved-plan-save). Reports record outcomes without implying user acceptance or merge permission. An explicitly supplied document may be read for that specific request. No activity tracking or other interaction is permitted. Planicore implementation remains outside the initial crew and returns to Mehrdad.
-
-## Durable task and Git lifecycle
-
-After an initial plan is explicitly approved and implementation is permitted, Atlas records repository baselines and initializes the same descriptive `cycle/<task-name>` branch from each product repository's current HEAD. Both initializations must succeed before implementation. Preserve existing dirty work and staging, handle collisions safely, and record partial initialization. Keep the workspace on its existing branch unless otherwise instructed. An explicit maintenance exception can retain current product branches.
-
-Active recovery records live in ignored `.codex/crew-runs/<task-id>/`: Atlas owns `progress.md`, and each specialist owns one `agents/<assignment-id>.md`, using the [checkpoint template](../../.agents/skills/redhat-crew/references/task-checkpoint.md). Record task contracts, ownership, dependencies, modified files, verification, pending operations, branch/commit metadata, and save receipts. Even read-only roles can write their assigned checkpoint without gaining product-edit permissions. Canonical contracts and decisions stay in owning repository docs.
-
-Frontend and Backend leads commit cohesive validated milestones, with Atlas serializing Git writes and protecting task-only paths/hunks. Existing staged work must not enter a crew commit; use the protocol's temporary-index procedure where necessary. Atlas alone creates and commits applicable final changesets, following existing configuration and using no-release changesets for instruction-only work. This is standing crew-only authorization, including the backend exception to additional changeset confirmation.
-
-On interruption, reconcile recorded task/branches against Git/files and reachable agents, then recover or replace workers from their durable assignments. Never assume a pending operation failed, duplicate a successful commit, or create a new task branch merely because context was lost. See the [recovery procedure](crew-protocol.md#recovery-reconciliation).
-
-Each completed assignment produces one engineer-readable report with UI, endpoints, database/schema, engineering/docs, branches, commits, verification, and limitations. Atlas saves it to workspace conclusions and records the receipt. Deliver the summary before removing only that task's temporary checkpoint directory; retain it if a save or reconciliation remains pending. Keep task branches intact and checked out. Merge/rebase/squash/deletion, push/PR, and release/deployment actions require explicit authorization.
+Project profiles live in .codex/agents; refresh discovery with a new chat after setup changes. Native profiles are preferred. A runtime without the new named role must receive its complete TOML instructions and explicit matching model/effort in a generic worker. Never silently fall back or claim unverified effective settings. Profiles are behavioral boundaries, not security sandboxes.
 
 ## Atlas — Pack Leader
 
@@ -62,92 +32,79 @@ Atlas's CTO/architect role is an advisory and coordination persona. Mehrdad rema
 
 > "Complexity is a liability. Every abstraction must earn its existence. Every architectural decision must survive the question: Why?"
 
+
 ## Roster
 
-The TOML files are the executable source for specialist settings. These defaults optimize successful work within the subscription allowance; they are not a measured optimum.
-
-| Role / profile | Character and ownership | Model / effort |
+| Role / profile | Character and responsibility | Model / effort |
 | --- | --- | --- |
-| Atlas — Pack Leader / main chat | Calm, analytical Principal CTO / Chief Software Architect persona; challenges assumptions, plans with Mehrdad, owns delegation, approval-save, integration, and final reporting | GPT-6.1 Sol / high |
-| Logikal Specialist / `logikal_specialist` | Evidence-driven, read-only domain research; separates sources/inferences and never overrides accepted decisions | GPT-6.1 Sol / medium |
-| Backend Lead / `backend_lead` | Contract-focused, security-conscious; backend planning, interfaces, review, acceptance, and validated milestone commits | GPT-6.1 Sol / high |
-| Database Specialist / `database_specialist` | Precise about integrity; Prisma, persistence contracts, repositories, mappings, constraints, queries, transactions | GPT-6.1 Sol / high |
-| Backend Engineer / `backend_engineer` | Pragmatic implementation; APIs, API DTOs, application workflows, auth integration, orchestration | GPT-6.1 Sol / medium |
-| API Tester / `api_tester` | Skeptical and reproducible; focused endpoint QA and failure evidence, no production fixes | GPT-6.1 Sol / medium |
-| Frontend Lead / `frontend_lead` | Boundary-conscious; Angular/Nx placement, state/data-flow design, interfaces, PrimeNG-first review, acceptance, and validated milestone commits | GPT-6.1 Sol / high |
-| UI/UX Designer / `ui_ux_designer` | Consistent and attentive; minor UI specifications/states/accessibility, major pages return to Mehrdad | GPT-6.1 Sol / medium |
-| UI Developer / `ui_developer` | Visually precise; specified presentation, templates, styles, controls, bindings, accessibility | GPT-6 Luna / high |
-| Frontend Engineer / `frontend_engineer` | Systematic about state/async behavior; forms orchestration, stores, services, gateways, integration | GPT-6.1 Sol / medium |
-| UI Tester / `ui_tester` | Observant and methodical; appearance, keyboard behavior, user flows, failure states, persistence outcomes | GPT-6.1 Sol / medium |
+| Atlas / main chat | Plans, challenges assumptions, agrees contracts, checks grounding, integrates and owns finalization | GPT-6.1 Sol / high |
+| Backend Engineer / backend_engineer | Pragmatic, contract/security-conscious; complete backend slices, routine persistence, docs, checks and coordinated milestone commits | GPT-6.1 Sol / high |
+| Frontend Engineer / frontend_engineer | Boundary-conscious, visually precise, systematic about async/state; complete UI/data slices, docs, checks and coordinated milestone commits | GPT-6.1 Sol / high |
+| Quality Reviewer / quality_reviewer | Skeptical, independent, reproducible; original requirements, architecture, docs, endpoint/UI verification; no production fixes or commits | GPT-6.1 Sol / high |
+| Logikal Specialist / logikal_specialist | On demand, evidence-driven, read-only; conflicting research never overrides accepted decisions | GPT-6.1 Sol / medium |
+| Database Specialist / database_specialist | On demand for difficult integrity/persistence/concurrency work; PostgreSQL and future SQLite implications | GPT-6.1 Sol / high |
+| UI/UX Designer / ui_ux_designer | On demand for minor missing interactions/designs; major pages return to Mehrdad | GPT-6.1 Sol / medium |
 
-Increase Sol medium to high for demonstrated complexity; escalate Luna to Sol when necessary. One focused GPT-6 Astra/high escalation is permitted per blocked work item. Record the reason and outcome in the Codex handoff; unresolved failure returns to Mehrdad. Named profiles pin settings, so use a generic fresh agent with explicit settings and the same role brief for escalation. Do not silently substitute unavailable models. See the protocol for recovery and the review after three real assignments.
+Backend/Frontend lead duties merge into the engineers and Atlas; UI implementation merges into Frontend Engineer; endpoint/UI testers merge into Quality Reviewer. Atlas handles small work directly; every functional feature has independent review. No separate reviewer is required for trivial documentation/cosmetic edits. Reuse the same engineer for fixes; don't delegate merely to fill a role.
 
-## Relationships
+## Relationships and knowledge
 
 ```mermaid
 flowchart TB
-	M[Mehrdad] <--> P["Atlas / Pack Leader"]
-	P <--> L[Logikal Specialist]
-	P <--> B[Backend Lead]
-	P <--> F[Frontend Lead]
-	B <-->|Agreed API behavior and contracts| F
-	B --> D[Database Specialist]
-	B --> E[Backend Engineer]
-	D <-->|Persistence interfaces| E
-	E --> A[API Tester]
-	A -->|Defects| E
-	A -->|QA evidence| B
-	F <--> X[UI/UX Designer]
-	F --> U[UI Developer]
-	F --> G[Frontend Engineer]
-	U <-->|Presentation contract and file handoff| G
-	G --> T[UI Tester]
-	T -->|Defects| G
-	T -->|QA evidence| F
-	B -->|Accepted backend result| P
-	F -->|Accepted frontend result| P
-	P -->|Integrated delivery| M
+	M[Mehrdad] <--> A[Atlas]
+	A <-->|Grounded assignments and integration| B[Backend Engineer]
+	A <-->|Grounded assignments and integration| F[Frontend Engineer]
+	B <-->|Agreed contracts before dependent edits| F
+	A -->|Original requirements and canonical docs| Q[Quality Reviewer]
+	B -->|Task diff and evidence| Q
+	F -->|Task diff and evidence| Q
+	Q -->|Specific defects and rechecks| B
+	Q -->|Specific defects and rechecks| F
+	Q -->|Independent review outcome| A
+	A <--> L[Logikal consultant]
+	A <--> D[Database consultant]
+	A <--> U[UI/UX consultant]
+	D <-.->|Assigned persistence interface| B
+	U <-.->|PrimeNG component mapping| F
+	A -->|Integrated delivery| M
 ```
 
-Arrows describe responsibility and communication, not nested spawning. The Pack Leader alone schedules at most three specialists plus itself. Leads can finish planning, release their slots, and return for acceptance. Shared files have one writer; a UI/logic split does not imply safe concurrent editing of the same component.
+Only Atlas spawns, at most three specialists. One writer per file; serialize dependent interface edits and Git operations. Consultants coordinate within assigned scope; contract/ownership changes return to Atlas. Review success is not Mehrdad's acceptance.
 
-The Pack Leader supplies the protocol's assignment brief. Both leads agree interfaces before dependent implementation. API DTOs belong to Backend Engineer, persistence representations to Database Specialist. Testers report QA passed/failed; leads accept the implementation and documentation; the Pack Leader checks integration. Mehrdad remains the authority for domain decisions, scope changes, major designs, and final review.
+The compact [protocol](crew-protocol.md) is mandatory. Each worker explicitly reads applicable affected-repository and nested instructions, relevant routed docs and actual code. The parent workspace does not automatically supply sibling AGENTS.md. Preserve original task constraints, approved decisions/exceptions and corrections in the [assignment contract](../../.agents/skills/redhat-crew/references/worker-brief.md). Before edits, workers explain their source-linked placement, reused patterns/components and constraints in their checkpoint; Atlas checks understanding internally. Use inherited context when a fresh brief would lose nuance. Saving context must never remove required knowledge.
 
-## Skill routing
+Reviewers get original requirements and canonical documentation independently of implementation summaries. Actual architecture, control choices, behavior and necessary documentation must comply; builds or a read-list alone are insufficient. Preserve current calculation-ownership exceptions rather than flattening them into a generic prohibition. Logikal cannot override accepted Planicam decisions.
 
-Use the session's skill catalog first and read only skills relevant to the assignment. Keep system-installed skills available; do not blanket-disable unrelated skills or preload the whole catalog. Missing skills must be reported, not silently installed. Relevant repo docs remain usable without a skill.
+## Selective skill routing
 
-| Role | Primary skills |
+Keep skills available and load them by relevance, not on every task. Missing skills are reported, not automatically installed. Backend project skills require explicit reads when absent from the workspace catalog.
+
+| Role | Relevant skills |
 | --- | --- |
-| Pack Leader | `redhat-crew`; `openai-docs` for Codex configuration |
-| Logikal Specialist | `planicam-domain-research` |
-| Backend Lead | `planicam-backend-orientation`, `planicam-feature-module`, `planicam-auth-authorization`; `nestjs-expert` as needed |
-| Database Specialist | `planicam-prisma-data`; relevant `prisma-client-api`, `prisma-cli`, `database-design` |
-| Backend Engineer | `planicam-backend-orientation`, `planicam-feature-module`, relevant `planicam-auth-authorization`, `planicam-resources-integrations`; `nestjs-expert` |
-| API Tester | `planicam-quality-testing`, limited by the scoped QA exception |
-| Frontend Lead | `nx-workspace`, `angular-best-practices`, relevant `angular-best-practices-ngrx` and `angular-best-practices-signalstore` |
-| UI/UX Designer | `impeccable`, `web-accessibility`, applicable Figma skills |
-| UI Developer | `angular-best-practices`, `primeng-router`, `web-accessibility`, applicable Figma implementation skills |
-| Frontend Engineer | `angular-developer`, `angular-best-practices`, **`angular-best-practices-ngrx`**, `angular-best-practices-signalstore`, relevant Nx skills |
-| UI Tester | `playwright`, `web-accessibility`, relevant PrimeNG router/accessibility guidance |
+| Atlas | redhat-crew; openai-docs for Codex questions |
+| Backend Engineer | Project-local planicam-backend-orientation, planicam-feature-module, planicam-prisma-data; authorization/resources skills by topic; nestjs-expert |
+| Frontend Engineer | angular-developer, angular-best-practices, **angular-best-practices-ngrx**, angular-best-practices-signalstore, relevant Nx, primeng-router, web-accessibility, applicable Figma skills |
+| Quality Reviewer | Project planicam-quality-testing for endpoint QA; playwright, web-accessibility, PrimeNG guidance for UI; relevant architecture/state/authorization skills |
+| Database Specialist | Project planicam-prisma-data; prisma-client-api, prisma-cli, database-design |
+| Logikal Specialist | planicam-domain-research |
+| UI/UX Designer | impeccable, web-accessibility, primeng-router, applicable Figma prerequisites |
 
-NgRx Store guidance applies to NgRx Store; SignalStore guidance applies to SignalStore. Access to both never authorizes replacing the existing state-management approach. For PrimeNG, route through the installed `primeng-router` to the relevant focused skill, respecting `libs/shared/ui` ownership. For Figma, load the relevant prerequisite skill before using its tools.
+NgRx Store and SignalStore skills apply only to their respective existing state approach. PrimeNG routing selects the focused skill; vendor imports remain inside shared/ui. Inspect wrappers/guidance before custom UI: reuse/thin wrapper → minimal extension → justified custom gap. Native HTML inside approved directive-based controls is valid. Engineer and reviewer both check component mapping. Figma tools require their applicable prerequisite skill.
 
-Designers and UI developers must follow the frontend engineering guide's [PrimeNG-first priority](../../../planicam-frontend/docs/development/frontend-engineering.md#primeng-first-component-priority): existing/thin Planicam wrapper first, minimal wrapper extensions second, custom controls only for a justified concrete gap after checking existing wrappers and guidance. The Frontend Lead checks the choice at design review and acceptance.
+Find backend skills under ../planicam-backend/.codex/skills/<name>/SKILL.md, Angular/Nx/Prisma/accessibility under C:/Users/mehrd/.agents/skills, NestJS/database-design/Playwright under C:/Users/mehrd/.codex/skills (database-design folder is database-designer). Resolve plugin skill paths from the current catalog, not pinned cache versions. Workspace-local skill exclusions may hide unrelated office/pet/site/SQL Expert workflows only when supported and verified; no global uninstall/config changes. Relevant skills remain enabled.
 
-Current local lookup locations (use the session catalog if a plugin version/path changes):
+Setup check on 2026-10-19: native desktop configuration resolves Sol/high and three concurrent subagent slots; all six new specialist TOMLs parse and relevant installed Angular/NgRx/SignalStore/NestJS/Prisma/QA skills remain accessible. The installed client's workspace-local skill exclusions parsed but did **not** disable the discovered skills. Ineffective entries were removed; no exclusions or global changes are claimed. Recheck native behavior after a future client update before enabling this optional optimization. Current chats may retain removed role names until discovery refreshes; use only the current roster.
 
-- Crew skills: this workspace's `.agents/skills/<name>/SKILL.md`.
-- Backend project skills: `D:/Planicam/planicam-backend/.codex/skills/<name>/SKILL.md`. Open these explicitly when the parent workspace's catalog does not include sibling-repository skills.
-- Angular, NgRx, SignalStore, Nx, Prisma, and web accessibility: `C:/Users/mehrd/.agents/skills/<name>/SKILL.md`.
-- NestJS: `C:/Users/mehrd/.codex/skills/nestjs-expert/SKILL.md`; database design: `C:/Users/mehrd/.codex/skills/database-designer/SKILL.md`; Playwright: `C:/Users/mehrd/.codex/skills/playwright/SKILL.md`.
-- OpenAI Docs: `C:/Users/mehrd/.codex/skills/.system/openai-docs/SKILL.md`.
-- Impeccable, PrimeNG, and Figma: resolve the exact installed skill from the session catalog. Do not pin changing plugin-cache versions into agent definitions.
+## Operations and efficiency
 
-## Verification and limits
+The [operations reference](../../.agents/skills/redhat-crew/references/operations.md) preserves detailed Git, save, recovery and cleanup rules and documents the Bun helper. Read only the section needed. Matching cycle/<task-name> product branches begin at each current HEAD after approval; this maintenance update retains current branches. Protect unrelated staged/unstaged work using task-only patches and temporary indexes. Engineers commit cohesive validated milestones; Atlas finalizes applicable changesets. No push, PR, history rewrite, branch deletion or release without explicit authorization.
 
-Validate TOML parsing, custom-profile discovery, configured models/efforts, skill discovery/readability, and the protocol's behavior on a bounded isolated handoff. Do not run unrelated product suites for changes confined to crew instructions and docs. Testers must report unexecuted checks as unverified. Product QA uses isolated data and the narrow exceptions in each product `AGENTS.md`.
+Ignored .codex/crew-runs/<task-id> checkpoints retain baselines, assignment contracts, grounding, operations and receipts. Reconcile actual Git/files/reachable agents before recovery; don't duplicate successful commits or let replacement agents race original writers. Keep canonical decisions in owning docs, not checkpoints. Keep recovery artifacts on unresolved finalization.
 
-The crew does not guarantee correctness by having more roles. Keep assignments focused, require evidence, and review documentation and integrated behavior before accepting work. Native model availability, permissions, and concurrent-agent limits remain controlled by Codex.
+Command Center remains excluded except Atlas's approved initial-plan save and one automatic verified completion-report save per top-level user assignment. No browsing/data reads/tracking. Reports group UI, endpoints, database/schema, engineering/docs and include commits, checks and limitations; no implication of user acceptance.
 
-Configuration references: [Codex custom agents](https://learn.chatgpt.com/docs/agent-configuration/subagents), [skills](https://learn.chatgpt.com/docs/build-skills), [model guidance](https://learn.chatgpt.com/docs/model-selection). Local client verification is required when those formats change.
+Start core roles at Sol/high. Do not attribute previous failures to model effort without evidence. Consider medium only after comparable assignments demonstrate equivalent quality; no silent downgrade. One reasoned Astra/high escalation per blocked item remains available; unsuccessful escalation returns to Mehrdad. Pinned named profiles require a generic worker with explicit settings for escalation. Respect runtime limits and report actual usage failures without promising resets.
+
+After three real assignments compare accepted outcomes, instruction violations, rework, agent starts, elapsed time and available usage evidence with Mehrdad. Smaller prompts and fewer agents are not measured subscription savings; no percentage claims. Keep the lightest proven settings, never remove required project grounding.
+
+Validate actual delegated behavior, configuration/skills and disposable Git/save/recovery scenarios. Do not run unrelated product suites for crew-only maintenance. Configuration references: [custom agents](https://learn.chatgpt.com/docs/agent-configuration/subagents), [instruction discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md), [skills](https://learn.chatgpt.com/docs/build-skills).
