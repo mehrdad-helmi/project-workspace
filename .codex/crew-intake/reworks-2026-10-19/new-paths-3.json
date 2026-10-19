@@ -1,0 +1,8 @@
+{
+	"frontend": [
+		"libs/hub/data-access/src/lib/printout-options.validation.spec.ts",
+		"libs/shared/data-access/src/lib/read-all-pages.spec.ts",
+		"libs/hub/state/src/lib/hub-printout-selection.store.spec.ts",
+		"libs/shared/data-access/src/lib/api-response.ts"
+	]
+}

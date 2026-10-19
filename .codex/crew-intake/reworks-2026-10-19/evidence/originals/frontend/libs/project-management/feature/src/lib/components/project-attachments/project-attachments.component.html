@@ -1,0 +1,112 @@
+<section
+	aria-labelledby="attachments-title"
+	[attr.aria-busy]="store.loading() || store.saving() || reading()"
+>
+	<header>
+		<div>
+			<h2 id="attachments-title" class="pl-heading-md">Attachments</h2>
+			<p class="pl-body-sm pl-text-muted">
+				Images and documents, up to 10 MiB per file.
+			</p>
+		</div>
+		<pl-button
+			label="Refresh attachments"
+			variant="outlined"
+			[disabled]="store.loading() || store.saving() || reading()"
+			(pressed)="store.refresh()"
+		/>
+	</header>
+	@if (archived() || store.archived()) {
+		<p class="pl-body-sm">
+			This project is archived. Attachments are read-only.
+		</p>
+	} @else {
+		<label class="file-picker pl-label"
+			>Upload attachment<input
+				type="file"
+				[accept]="accept"
+				[disabled]="store.loading() || store.saving() || reading()"
+				(change)="chooseFile($event)"
+		/></label>
+	}
+	@if (store.loading()) {
+		<p role="status">Loading attachments…</p>
+	}
+	@if (store.saving() || reading()) {
+		<p role="status">
+			{{ reading() ? 'Reading file…' : 'Saving attachment change…' }}
+		</p>
+	}
+	@if (store.opening()) {
+		<p role="status">Preparing file…</p>
+	}
+	@if (store.error(); as error) {
+		<p role="alert" class="attachment-error">{{ error.message }}</p>
+	}
+	@if (!store.loading() && !store.items().length) {
+		<p class="pl-body-sm pl-text-muted">No attachments yet.</p>
+	}
+	<ul class="attachment-list">
+		@for (attachment of store.items(); track attachment.id) {
+			<li>
+				<div>
+					<h3 class="pl-label">{{ attachment.originalFilename }}</h3>
+					<p class="pl-caption pl-text-muted">
+						{{ attachment.mimeType }} · {{ attachment.sizeBytes }} bytes
+					</p>
+				</div>
+				<div class="attachment-actions">
+					@if (canPreview(attachment)) {
+						<pl-button
+							label="View"
+							variant="outlined"
+							size="small"
+							[disabled]="store.opening() || store.saving()"
+							(pressed)="store.open({ attachment, preview: true })"
+						/>
+					}
+					<pl-button
+						label="Download"
+						variant="outlined"
+						size="small"
+						[disabled]="store.opening() || store.saving()"
+						(pressed)="store.open({ attachment, preview: false })"
+					/>
+					@if (!archived() && !store.archived()) {
+						<pl-button
+							label="Remove"
+							variant="text"
+							severity="danger"
+							size="small"
+							[disabled]="store.loading() || store.saving()"
+							(pressed)="remove(attachment)"
+						/>
+					}
+				</div>
+			</li>
+		}
+	</ul>
+	@if (store.preview(); as preview) {
+		<section class="attachment-preview" aria-label="Attachment preview">
+			<header>
+				<h3 class="pl-label">{{ preview.filename }}</h3>
+				<pl-button
+					label="Close preview"
+					size="small"
+					variant="text"
+					(pressed)="store.closePreview()"
+				/>
+			</header>
+			@if (preview.mimeType.startsWith('image/')) {
+				<img [src]="preview.url" [alt]="preview.filename" />
+			}
+			<a
+				class="pl-label"
+				[href]="preview.url"
+				target="_blank"
+				rel="noopener noreferrer"
+				>Open {{ preview.filename }} in a new tab</a
+			>
+		</section>
+	}
+</section>

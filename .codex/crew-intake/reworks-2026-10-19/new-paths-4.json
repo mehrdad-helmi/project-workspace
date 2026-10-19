@@ -1,0 +1,3 @@
+{
+	"frontend": ["libs/fabrication/state/src/lib/fabrication.store.spec.ts"]
+}

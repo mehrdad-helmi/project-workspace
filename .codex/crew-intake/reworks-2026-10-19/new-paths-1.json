@@ -1,0 +1,40 @@
+{
+	"backend": [
+		"src/modules/printouts/definitions/printout-definitions.ts",
+		"src/modules/printouts/types/printout-definition.contracts.ts",
+		"src/modules/printouts/types/printout-workflow.types.ts",
+		"src/modules/printouts/api/dto/printout.dto.ts",
+		"src/modules/printouts/api/dto/printout-response.dto.ts",
+		"src/modules/printouts/application/printout-definition-validator.ts",
+		"prisma/migrations/20261019090000_printout_definitions/migration.sql",
+		"test/reworks.e2e-spec.ts",
+		"src/infrastructure/database/prisma/prisma-json.d.ts"
+	],
+	"frontend": [
+		"libs/shared/ui/src/lib/components/dialog/dialog.component.ts",
+		"libs/shared/ui/src/lib/components/dialog/index.ts",
+		"libs/shared/ui/src/lib/components/select/select.component.ts",
+		"libs/shared/ui/src/lib/components/select/index.ts",
+		"libs/shared/ui/src/lib/components/confirmation/confirmation.service.ts",
+		"libs/shared/ui/src/lib/components/confirmation/confirmation-host.component.ts",
+		"libs/shared/ui/src/lib/components/confirmation/index.ts",
+		"libs/shared/ui/src/lib/components/accordion/accordion.component.ts",
+		"libs/shared/ui/src/lib/components/accordion/index.ts",
+		"libs/shared/ui/src/lib/components/options-control/options-control.component.ts",
+		"libs/shared/ui/src/lib/components/options-control/index.ts",
+		"libs/shared/ui/src/lib/components/status/status.component.ts",
+		"libs/shared/ui/src/lib/components/status/index.ts",
+		"libs/shared/data-access/src/lib/read-all-pages.ts",
+		"libs/shared/data-access/src/index.ts",
+		"libs/project-management/feature/src/lib/components/customer-summary/customer-summary.component.ts",
+		"libs/project-management/feature/src/lib/components/customer-summary/index.ts",
+		"libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.ts",
+		"libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.html",
+		"libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.scss",
+		"libs/hub/feature/src/lib/components/printout-options/printout-options.component.ts",
+		"libs/hub/feature/src/lib/components/printout-options/printout-options.component.html",
+		"libs/hub/feature/src/lib/components/printout-options/printout-options.component.scss",
+		"libs/hub/data-access/src/lib/printout-definition.model.ts",
+		"libs/hub/data-access/src/lib/printout-options.validation.ts"
+	]
+}

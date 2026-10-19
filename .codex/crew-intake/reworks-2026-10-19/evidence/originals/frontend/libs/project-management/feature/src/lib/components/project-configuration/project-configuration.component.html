@@ -1,0 +1,259 @@
+<section
+	class="configuration"
+	[attr.aria-busy]="store.loading() || store.saving()"
+>
+	<header>
+		<h2>{{ section() || 'Project settings' }}</h2>
+		<p>Project-owned values are independent of organization defaults.</p>
+		<pl-button
+			label="Reload current settings"
+			variant="outlined"
+			[disabled]="store.loading() || store.saving()"
+			(pressed)="reload()"
+		/>
+	</header>
+	@if (store.error(); as error) {
+		<p role="alert">
+			{{ error.message }} Your draft has been retained. Reload only when you are
+			ready to discard it.
+		</p>
+	}
+	@if (catalog.error(); as error) {
+		<p role="alert">{{ error.message }}</p>
+	}
+	@if (store.loading()) {
+		<p role="status">Loading settings…</p>
+	}
+	@if (message(); as message) {
+		<p role="status">{{ message }}</p>
+	}
+	@if (archived()) {
+		<p>This project is archived. Settings are read-only.</p>
+	}
+	@if (costs()) {
+		<pl-button
+			label="Add allocated cost"
+			[disabled]="disabled()"
+			(pressed)="editCost(null)"
+		/>
+		@for (cost of store.records(); track cost.id) {
+			<article>
+				<h3>{{ cost.name }}</h3>
+				<p>
+					{{ cost['price'] }} {{ cost['currencyCode'] }} ·
+					{{ cost['allocationBasis'] }} · {{ cost['estimationSector'] }}
+				</p>
+				<div class="actions">
+					<pl-button
+						label="Edit cost"
+						variant="outlined"
+						[disabled]="disabled()"
+						(pressed)="editCost(cost)"
+					/>
+					@if (!cost['builtinType']) {
+						<pl-button
+							label="Remove cost"
+							severity="danger"
+							variant="text"
+							[disabled]="disabled()"
+							(pressed)="removeCost(cost)"
+						/>
+					}
+				</div>
+				@if (cost['builtinType']) {
+					<p class="pl-caption">
+						Built-in cost: name, sector and deletion are protected.
+					</p>
+				}
+			</article>
+		}
+		@if (editingCost()) {
+			<form (submit)="saveCost($event)">
+				<h3>{{ costBase() ? 'Edit allocated cost' : 'New allocated cost' }}</h3>
+				@if (costBase()?.['builtinType']) {
+					<p>{{ costBase()?.name }} · {{ costBase()?.['estimationSector'] }}</p>
+				}
+				<planicam-configuration-fields
+					[value]="costDraft()"
+					[fields]="costFields()"
+					[systems]="catalog.systems()"
+					[currencies]="catalog.currencies()"
+					[disabled]="disabled()"
+					(changed)="costDraft.set($event)"
+				/>
+				<div class="actions">
+					<pl-button
+						label="Cancel cost edit"
+						variant="outlined"
+						[disabled]="store.saving()"
+						(pressed)="editingCost.set(false)"
+					/><pl-button
+						label="Save cost"
+						type="submit"
+						[disabled]="disabled()"
+						[loading]="store.saving()"
+					/>
+				</div>
+			</form>
+		}
+	} @else if (snapshotReady()) {
+		<form class="source-replacement" (submit)="replaceSource($event)">
+			<h3>Replace project snapshot</h3>
+			@if (area() === 'estimation') {
+				<label
+					>Estimation source<select
+						[formField]="sourceForm.estimationDataSetId"
+					>
+						<option value="">Choose a source…</option>
+						@for (source of catalog.estimationDataSets(); track source.id) {
+							<option [value]="source.id">{{ source.name }}</option>
+						}
+					</select></label
+				>
+			}
+			<p class="pl-body-sm">
+				Replacement copies the selected organization source into this project.
+				It replaces this snapshot's current values and unsaved changes.
+			</p>
+			<pl-button
+				[label]="
+					area() === 'estimation'
+						? 'Replace from estimation source'
+						: 'Replace from organization preferences'
+				"
+				type="submit"
+				variant="outlined"
+				[disabled]="disabled()"
+			/>
+		</form>
+		<form (submit)="save($event)">
+			@if (area() === 'preferences' && preferenceKind() === 'system') {
+				<section>
+					<h3>Preferred systems</h3>
+					<div class="systems">
+						@for (system of catalog.systems(); track system.id) {
+							<label
+								><input
+									type="checkbox"
+									[checked]="preferredSystems().includes(system.id)"
+									[disabled]="disabled()"
+									(change)="toggleSystem(system.id, $event)"
+								/>{{ system.name }}</label
+							>
+						}
+					</div>
+				</section>
+			}
+			@if (area() === 'preferences' && preferenceKind() === 'filling') {
+				@for (key of ['glassIds', 'panelIds', 'railIds']; track key) {
+					<section>
+						<h3>
+							{{
+								key === 'glassIds'
+									? 'Preferred glass'
+									: key === 'panelIds'
+										? 'Preferred panels'
+										: 'Preferred rails'
+							}}
+						</h3>
+						@for (id of fillingIds(key); track $index; let index = $index) {
+							<div class="actions">
+								<span>Existing selection {{ index + 1 }}</span
+								><pl-button
+									label="Remove selection"
+									size="small"
+									variant="text"
+									[disabled]="disabled()"
+									(pressed)="removeFilling(key, index)"
+								/>
+							</div>
+						}
+						<select disabled aria-label="Catalog selection unavailable">
+							<option>No catalog choices available</option>
+						</select>
+						<p class="pl-caption">
+							This API has no filling catalog lookup yet. Existing references
+							are preserved; each list allows at most three selections.
+						</p>
+					</section>
+				}
+			}
+			@for (group of scalarSections(); track group.path) {
+				@if (group.fields.length) {
+					<section>
+						<h3>{{ group.title }}</h3>
+						<planicam-configuration-fields
+							[value]="value(group.path)"
+							[fields]="group.fields"
+							[systems]="catalog.systems()"
+							[currencies]="catalog.currencies()"
+							[disabled]="disabled()"
+							(changed)="update(group.path, $event)"
+						/>
+					</section>
+				}
+			}
+			@for (table of tables(); track table.path) {
+				<section>
+					<h3>{{ table.title }}</h3>
+					@if (table.unavailable) {
+						<p class="pl-caption">{{ table.unavailable }}</p>
+					}
+					@for (row of rows(table.path); track $index; let index = $index) {
+						<article>
+							<h4>{{ table.title }} {{ index + 1 }}</h4>
+							<planicam-configuration-fields
+								[value]="row"
+								[fields]="table.fields"
+								[systems]="catalog.systems()"
+								[currencies]="catalog.currencies()"
+								[disabled]="disabled()"
+								(changed)="updateRow(table.path, index, $event)"
+							/>
+							<div class="actions">
+								<pl-button
+									label="Move up"
+									size="small"
+									variant="text"
+									[disabled]="disabled() || index === 0"
+									(pressed)="moveRow(table.path, index, -1)"
+								/><pl-button
+									label="Move down"
+									size="small"
+									variant="text"
+									[disabled]="
+										disabled() || index === rows(table.path).length - 1
+									"
+									(pressed)="moveRow(table.path, index, 1)"
+								/><pl-button
+									label="Remove row"
+									variant="text"
+									severity="danger"
+									[disabled]="disabled()"
+									(pressed)="removeRow(table.path, index)"
+								/>
+							</div>
+						</article>
+					}
+					<pl-button
+						label="Add row"
+						variant="outlined"
+						[disabled]="disabled() || !table.canAdd"
+						(pressed)="addRow(table)"
+					/>
+				</section>
+			}
+			<footer class="actions">
+				<span role="status">{{
+					dirty() ? 'Unsaved changes' : 'No unsaved changes'
+				}}</span
+				><pl-button
+					label="Save project settings"
+					type="submit"
+					[disabled]="disabled() || !dirty()"
+					[loading]="store.saving()"
+				/>
+			</footer>
+		</form>
+	}
+</section>

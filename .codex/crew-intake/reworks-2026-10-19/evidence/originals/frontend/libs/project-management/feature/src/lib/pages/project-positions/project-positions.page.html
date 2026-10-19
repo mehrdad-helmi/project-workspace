@@ -1,0 +1,636 @@
+@if (project(); as project) {
+<section class="positions-page" aria-labelledby="project-positions-title">
+	<pl-workspace-layout
+		[showSidebar]="showSidebar()"
+		[showProperties]="activeTab() === 'positions'"
+	>
+		<header workspace-header class="project-header">
+			<div class="project-header-top">
+				<div class="project-identity">
+					<h1 id="project-positions-title" class="pl-heading-md">
+						{{ project.name }}
+					</h1>
+					<div class="project-contact pl-body-sm pl-text-muted">
+						<button
+							type="button"
+							(click)="editProject()"
+							[disabled]="!!store.project()?.archivedAt"
+						>
+							<svg plIcon="profile" size="18" aria-hidden="true" />{{
+							project.customer }}
+						</button>
+						<span
+							><svg plIcon="location" size="18" aria-hidden="true" />{{
+							project.location }}</span
+						>
+					</div>
+					<div class="project-totals">
+						<span class="position-tag">{{ store.total() }} Positions</span>
+						<span class="position-tag">{{ store.phases().length }} Phases</span>
+						<span class="position-tag warning-tag"
+							><svg plIcon="warning" size="12" aria-hidden="true" />Not
+							calculated</span
+						>
+					</div>
+				</div>
+				<dl class="project-metadata">
+					<div>
+						<dt>Project Number</dt>
+						<dd>{{ project.jobNumber }}</dd>
+					</div>
+					<div>
+						<dt>Person in Charge</dt>
+						<dd>{{ project.personInCharge }}</dd>
+					</div>
+					<div>
+						<dt>Last Modified</dt>
+						<dd>{{ project.updatedLabel }}</dd>
+					</div>
+				</dl>
+			</div>
+			<div class="project-header-actions">
+				<div
+					class="position-actions"
+					role="group"
+					aria-label="Selected position actions"
+				>
+					<pl-button
+						label="Open Position Editor"
+						icon="openPosition"
+						[routerLink]="selectedEditorLink()"
+						variant="outlined"
+						severity="secondary"
+						[disabled]="!selectedPosition()"
+						[filledOutline]="true"
+					/>
+					<pl-button
+						label="Cross Section unavailable"
+						[disabled]="true"
+						icon="crossSection"
+						variant="outlined"
+						severity="secondary"
+						[filledOutline]="true"
+					/>
+				</div>
+				<div class="position-actions" role="group" aria-label="Project actions">
+					<pl-button
+						label="Edit Project Headers"
+						(pressed)="editProject()"
+						[disabled]="!!store.project()?.archivedAt"
+						icon="editHeaders"
+						variant="outlined"
+						severity="secondary"
+						[filledOutline]="true"
+					/>
+					<pl-button
+						label="New Position"
+						(pressed)="newPosition()"
+						[disabled]="!!store.project()?.archivedAt"
+						icon="newPosition"
+					/>
+					<pl-button
+						label="Printout"
+						(pressed)="print()"
+						icon="printout"
+						variant="outlined"
+						severity="secondary"
+						[filledOutline]="true"
+					/>
+					<pl-button
+						label="Article list unavailable"
+						[disabled]="true"
+						icon="articleList"
+						variant="outlined"
+						severity="secondary"
+						[filledOutline]="true"
+					/>
+				</div>
+			</div>
+			<pl-tabs
+				class="project-tabs"
+				[items]="presentation.tabs"
+				[stretch]="false"
+				[value]="activeTab()"
+				(valueChange)="changeTab($event)"
+			/>
+		</header>
+		<nav
+			workspace-sidebar
+			class="position-sidebar"
+			[attr.aria-label]="activeTab() === 'positions' ? 'Position phases' : currentTab().label + ' sections'"
+		>
+			@if (activeTab() === 'positions') { @for (filter of positionFilters; track
+			filter.id) {
+			<button
+				type="button"
+				class="sidebar-filter"
+				[class.is-active]="activeFilter() === filter.id"
+				[attr.aria-current]="activeFilter() === filter.id ? 'true' : null"
+				(click)="selectFilter(filter.id)"
+			>
+				<svg [plIcon]="filter.icon" size="14" aria-hidden="true" /><span
+					>{{ filter.label }}</span
+				>
+			</button>
+			}
+			<div class="sidebar-heading"><h2>Phases</h2></div>
+			<button
+				type="button"
+				class="sidebar-filter"
+				[class.is-active]="activeFilter() === 'none'"
+				[attr.aria-current]="activeFilter() === 'none' ? 'true' : null"
+				(click)="selectFilter('none')"
+			>
+				<svg plIcon="allProjects" size="14" aria-hidden="true" /><span
+					class="unassigned-label"
+					>No Phase</span
+				><span class="filter-count"></span>
+			</button>
+			@for (phase of store.phases(); track phase.id) {
+			<div class="phase-row" [class.is-active]="activeFilter() === phase.id">
+				<button
+					type="button"
+					class="sidebar-filter"
+					[attr.aria-current]="activeFilter() === phase.id ? 'true' : null"
+					(click)="selectFilter(phase.id)"
+				>
+					<svg plIcon="phase" size="14" aria-hidden="true" /><span
+						>{{ phase.name }}</span
+					><span class="filter-count"></span>
+				</button>
+				<button
+					type="button"
+					class="rename-button"
+					[attr.aria-label]="'Rename phase ' + phase.name"
+					title="Rename phase"
+					(click)="openPhase(phase)"
+				>
+					<svg plIcon="edit" size="12" aria-hidden="true" />
+				</button>
+			</div>
+			}
+			<div class="new-phase">
+				<pl-button
+					label="New Phase"
+					(pressed)="openPhase()"
+					icon="newFolder"
+					variant="outlined"
+					severity="secondary"
+					fluid
+				/>
+			</div>
+			} @else { @for (item of currentTab().sections; track item) {
+			<button
+				type="button"
+				class="sidebar-filter"
+				[class.is-active]="section() === item"
+				[attr.aria-current]="section() === item ? 'true' : null"
+				(click)="section.set(item)"
+			>
+				<span>{{ item }}</span>
+			</button>
+			} }
+		</nav>
+		<section
+			workspace-main
+			class="position-main"
+			aria-labelledby="position-content-title"
+		>
+			@if (activeTab() === 'positions') {
+			<h2 id="position-content-title" class="sr-only">Position list</h2>
+			@if (store.error(); as error) {
+			<p role="alert">{{error.message}}</p>
+			<pl-button
+				label="Refresh"
+				variant="outlined"
+				(pressed)="store.refresh()"
+			/>
+			}@if(store.loading()){
+			<p role="status">Loading positions…</p>
+			}
+			<div class="position-toolbar">
+				<pl-icon-input-field
+					[field]="searchForm.query"
+					leftIcon="search"
+					type="search"
+					placeholder="Search positions"
+					ariaLabel="Search positions"
+				/>
+				<div class="view-switch" role="group" aria-label="Position view">
+					<label
+						>Sort positions<select
+							[formField]="sortForm.order"
+							(change)="selectSort()"
+						>
+							<option value="updatedAt:desc">Recently modified</option>
+							<option value="name:asc">Name A–Z</option>
+							<option value="name:desc">Name Z–A</option>
+							<option value="number:asc">Number ascending</option>
+							<option value="number:desc">Number descending</option>
+						</select></label
+					>
+					<button
+						type="button"
+						[class.is-active]="view() === 'table'"
+						[attr.aria-pressed]="view() === 'table'"
+						aria-label="Table view"
+						title="Table view"
+						(click)="view.set('table')"
+					>
+						<svg plIcon="tableView" size="16" aria-hidden="true" />
+					</button>
+					<button
+						type="button"
+						[class.is-active]="view() === 'card'"
+						[attr.aria-pressed]="view() === 'card'"
+						aria-label="Card view"
+						title="Card view"
+						(click)="view.set('card')"
+					>
+						<svg plIcon="cardView" size="16" aria-hidden="true" />
+					</button>
+					<button
+						type="button"
+						[class.is-active]="view() === 'grid'"
+						[attr.aria-pressed]="view() === 'grid'"
+						aria-label="Two-column card view"
+						title="Two-column card view"
+						(click)="view.set('grid')"
+					>
+						<svg plIcon="gridView" size="16" aria-hidden="true" />
+					</button>
+				</div>
+			</div>
+			@if (!filteredPositions().length) {
+			<div class="position-empty" role="status">
+				<svg plIcon="positionTemplates" size="36" aria-hidden="true" />
+				<h3>{{ emptyTitle() }}</h3>
+				<p class="pl-body-sm pl-text-muted">{{ emptyDescription }}</p>
+				<pl-button
+					label="New Position"
+					(pressed)="newPosition()"
+					[disabled]="!!store.project()?.archivedAt"
+					icon="newPosition"
+				/>
+			</div>
+			} @else if (view() === 'table') {
+			<pl-data-table
+				[rows]="rows()"
+				[columns]="columns"
+				[serverSorting]="true"
+				[sort]="sort()"
+				(sortChanged)="changeSort($event)"
+				[selectedId]="selectedPositionId()"
+				(selected)="selectPosition($event)"
+				(edited)="rename($event)"
+			>
+				<ng-template #cell let-row let-column="column">
+					@if (column.key === 'name') {
+					<a
+						[routerLink]="['/positions', row.id, 'editor']"
+						class="position-name"
+						(click)="$event.stopPropagation()"
+						(keydown)="$event.stopPropagation()"
+						[attr.aria-label]="'Open position editor for ' + row.cells['name']"
+					>
+						{{ row.cells['name'] }}
+					</a>
+					} @else if (column.key === 'system') {
+					<span class="position-tag system-tag">{{ row.cells['system'] }}</span>
+					} @else if (column.key === 'warnings' && row.cells['warnings']) {
+					<span class="position-warning"
+						><svg plIcon="warning" size="14" aria-hidden="true" />{{
+						row.cells['warnings'] }}</span
+					>
+					} @else if (column.key === 'updatedAt') {
+					<span class="cell-text"
+						>{{ positionById().get(row.id)?.updatedLabel }}</span
+					>
+					} @else {
+					<span class="cell-text">{{ row.cells[column.key] ?? '–' }}</span>
+					}
+				</ng-template>
+				<ng-template #rowActions let-row
+					><pl-action-menu
+						[label]="'More actions for '+row.cells['name']"
+						[items]="menus().get(row.id) ?? []"
+						(selected)="action(row.id,$event)" /></ng-template
+			></pl-data-table>
+			} @else {
+			<div class="position-cards" [class.is-grid]="view() === 'grid'">
+				@for (position of filteredPositions(); track position.id) {
+				<planicam-position-card
+					[position]="position"
+					[selected]="selectedPositionId() === position.id"
+					[variant]="view() === 'grid' ? 'grid' : 'card'"
+					[actions]="menus().get(position.id) ?? []"
+					(actionSelected)="action(position.id,$event)"
+					(selectionChanged)="selectPosition(selectedPositionId() === position.id ? null : position.id)"
+				/>
+				}
+			</div>
+			} } @else { @if (activeTab() === 'attachments') {
+			<planicam-project-attachments
+				[projectId]="projectId()"
+				[projectVersion]="store.project()!.version"
+				[archived]="!!store.project()?.archivedAt"
+				(changed)="store.refresh()"
+			/>
+			} @else {
+			<planicam-project-configuration
+				[projectId]="projectId()"
+				[area]="activeTab() === 'preferences' ? 'preferences' : 'estimation'"
+				[section]="section()"
+				[archived]="!!store.project()?.archivedAt"
+			/>
+			} }
+		</section>
+		<aside
+			workspace-properties
+			class="position-properties"
+			aria-labelledby="position-properties-title"
+		>
+			<header class="properties-header">
+				<h2 id="position-properties-title">
+					{{ selectedPosition()?.name ?? 'Position properties' }}
+				</h2>
+				@if (selectedPosition()) {
+				<p class="pl-body-sm pl-text-muted">Last updated {{ lastUpdated() }}</p>
+				}
+			</header>
+			<pl-tabs
+				class="properties-tabs"
+				[items]="presentation.propertyTabs"
+				[panel]="positionTab"
+				[(value)]="propertiesTab"
+			/>
+			<ng-template #positionTab let-tab>
+				@if (selectedPosition(); as position) { @if (tab === 'info') {
+				<button
+					type="button"
+					aria-label="Preview position thumbnail"
+					(click)="openThumbnail()"
+				>
+					<img
+						class="properties-thumbnail"
+						[src]="position.thumbnail"
+						[alt]="position.name + ' preview'"
+						width="123"
+						height="123"
+					/>
+				</button>
+				<dl class="position-details">
+					<div>
+						<dt>Status</dt>
+						<dd>{{label('positionStatuses',store.selected()!.status)}}</dd>
+					</div>
+					<div>
+						<dt>Calculation</dt>
+						<dd>
+							{{label('positionCalculationStatuses',store.selected()!.calculationStatus)}}
+						</dd>
+					</div>
+					<div>
+						<dt>Quantity</dt>
+						<dd>
+							{{store.selected()!.quantity}}
+							({{store.selected()!.effectiveQuantity}} included)
+						</dd>
+					</div>
+					<div>
+						<dt>Description</dt>
+						<dd>{{store.selected()!.briefDescription || '–'}}</dd>
+					</div>
+					<div>
+						<dt>Model description</dt>
+						<dd>{{store.selected()!.modelDescription || '–'}}</dd>
+					</div>
+				</dl>
+				} @else if (tab === 'elements') {
+				<p class="pl-body-sm pl-text-muted">
+					Excluded elements remain numbered and are omitted from effective
+					quantity.
+				</p>
+				@for (element of store.elements(); track element.id) {
+				<article class="element-row">
+					<h3>{{element.number}}</h3>
+					<p>
+						{{element.description || 'No description'}} ·
+						{{element.buildingLocation || 'No location'}}
+					</p>
+					<p>
+						{{element.fabricationBatch?.name || 'Unassigned'}} ·
+						{{element.isExcluded ? 'Excluded' : 'Included'}}
+					</p>
+					<pl-button
+						label="Edit element"
+						variant="outlined"
+						[disabled]="!!store.selected()?.archivedAt || !!store.selected()?.projectArchivedAt"
+						(pressed)="editElement(element)"
+					/><pl-button
+						label="Assign to batch"
+						variant="outlined"
+						[disabled]="element.isExcluded||!!element.fabricationBatchId||!!store.selected()?.archivedAt||!!store.selected()?.projectArchivedAt"
+						(pressed)="batchAssignment().open({label:element.number,elementIds:[element.id]})"
+					/><pl-button
+						[label]="element.isExcluded ? 'Include' : 'Exclude'"
+						variant="outlined"
+						[disabled]="!!store.selected()?.archivedAt || !!store.selected()?.projectArchivedAt"
+						(pressed)="store.toggleExcluded(element)"
+					/><pl-button
+						label="Remove element"
+						severity="danger"
+						variant="outlined"
+						[disabled]="!!store.selected()?.archivedAt || !!store.selected()?.projectArchivedAt"
+						(pressed)="editElement(element,true)"
+					/>
+				</article>
+				} } @else {
+				<ol class="position-history">
+					@for (entry of store.activity(); track entry.id) {
+					<li>
+						<svg plIcon="recentProjects" size="16" aria-hidden="true" />
+						<div>
+							<p class="pl-caption pl-text-muted">{{ entry.createdAt }}</p>
+							<h3 class="pl-label">{{ entry.summary }}</h3>
+							<p class="pl-body-sm pl-text-muted">
+								{{ entry.actorDisplayName }}
+							</p>
+						</div>
+					</li>
+					}
+				</ol>
+				<div class="history-pagination">
+					<pl-button
+						label="Newer activity"
+						variant="text"
+						[disabled]="store.activityPage()<=1||store.activityLoading()"
+						(pressed)="store.loadActivity(store.activityPage()-1)"
+					/><span
+						>{{store.activityTotal()}} entries · Page
+						{{store.activityPage()}}</span
+					><pl-button
+						label="Older activity"
+						variant="text"
+						[disabled]="store.activityPage()*25>=store.activityTotal()||store.activityLoading()"
+						(pressed)="store.loadActivity(store.activityPage()+1)"
+					/>
+				</div>
+				} } @else {
+				<div class="properties-empty">
+					<img
+						src="assets/images/projects/no-project-selected.png"
+						alt=""
+						width="300"
+						height="300"
+					/>
+					<h3>No position selected yet</h3>
+					<p class="pl-body-sm pl-text-muted">
+						Select a position from the list to view its info, articles, and
+						history.
+					</p>
+				</div>
+				}
+			</ng-template>
+			<footer class="properties-footer">
+				<pl-button
+					label="Open Position"
+					icon="openPosition"
+					[routerLink]="selectedEditorLink()"
+					[disabled]="!selectedPosition()"
+					fluid
+				/><pl-button
+					label="Cross Section unavailable"
+					[disabled]="true"
+					icon="crossSection"
+					variant="outlined"
+					severity="secondary"
+					fluid
+				/><pl-button
+					label="Edit Info"
+					(pressed)="action(store.selected()!.id,'edit')"
+					icon="edit"
+					variant="outlined"
+					severity="secondary"
+					[disabled]="!selectedPosition()"
+					fluid
+				/><pl-button
+					[label]="store.selected()?.archivedAt ? 'Restore' : 'Archive'"
+					(pressed)="action(store.selected()!.id,'archive')"
+					icon="archivedProjects"
+					variant="outlined"
+					severity="danger"
+					[disabled]="!selectedPosition()"
+					fluid
+				/>
+			</footer>
+		</aside>
+	</pl-workspace-layout>
+</section>
+} @else {
+<section class="unknown-project" aria-labelledby="project-positions-title">
+	<a class="pl-label" routerLink="/hub/projects">Back to Projects</a>
+	<h1 class="pl-heading-md" id="project-positions-title">Project not found</h1>
+	<p class="pl-body pl-text-muted">
+		{{store.loading() ? 'Loading project…' : store.error()?.message || 'This
+		project is unavailable.'}}
+	</p>
+</section>
+}
+
+<planicam-position-form /><planicam-project-form (saved)="store.refresh()" />
+<planicam-batch-assignment
+	(changed)="store.refresh();store.select(selectedPositionId())"
+/>
+<dialog #thumbnailDialog aria-labelledby="thumbnail-title">
+	<h2 id="thumbnail-title">
+		{{selectedPosition()?.name}} · {{thumbnailSide()}}
+	</h2>
+	<p>Development placeholder thumbnail</p>
+	<div role="group" aria-label="Thumbnail side">
+		<button
+			type="button"
+			[attr.aria-pressed]="thumbnailSide()==='Exterior'"
+			(click)="thumbnailSide.set('Exterior')"
+		>
+			Exterior</button
+		><button
+			type="button"
+			[attr.aria-pressed]="thumbnailSide()==='Interior'"
+			(click)="thumbnailSide.set('Interior')"
+		>
+			Interior
+		</button>
+	</div>
+	<img
+		[src]="selectedPosition()?.thumbnail"
+		[alt]="thumbnailSide()+' placeholder'"
+		width="480"
+		height="360"
+	/><pl-button label="Close preview" (pressed)="thumbnailDialog.close()" />
+</dialog>
+<dialog #phaseDialog aria-labelledby="phase-title">
+	<form (submit)="savePhase($event)">
+		<h2 id="phase-title">{{editingPhase() ? 'Edit phase' : 'New phase'}}</h2>
+		<pl-input-field label="Phase name" [field]="phaseFields.name" /><label
+			>Description<textarea
+				[formField]="phaseFields.description"
+			></textarea></label
+		><pl-input-field
+			label="Sort order"
+			type="number"
+			[field]="phaseFields.sortOrder"
+		/>@if(store.error();as error){
+		<p role="alert">{{error.message}}</p>
+		}<pl-button
+			label="Cancel"
+			variant="outlined"
+			(pressed)="closePhase()"
+		/><pl-button
+			label="Save phase"
+			type="submit"
+			[disabled]="store.saving() || phaseFields().invalid()"
+		/>@if(editingPhase();as phase){<pl-button
+			label="Delete phase"
+			severity="danger"
+			variant="outlined"
+			(pressed)="store.removePhase(phase);closePhase()"
+		/>}
+	</form>
+</dialog>
+<dialog #detailDialog aria-labelledby="detail-title">
+	<form (submit)="saveDetail($event)">
+		<h2 id="detail-title">
+			{{detailMode()==='quantity' ? 'Change quantity' : detailMode()==='remove'
+			? 'Remove selected element' : 'Edit element'}}
+		</h2>
+		@if(detailMode()==='quantity'){<pl-input-field
+			label="Quantity"
+			type="number"
+			[field]="detailFields.quantity"
+		/>
+		<p>Populated elements require explicit selection before removal.</p>
+		}@else if(detailMode()==='element'){<pl-input-field
+			label="Description"
+			[field]="detailFields.description"
+		/><pl-input-field
+			label="Building location"
+			[field]="detailFields.buildingLocation"
+		/>}@else{
+		<p>
+			Remove element {{editingElement()?.number}}? Its number will not be
+			reused.
+		</p>
+		}@if(store.error();as error){
+		<p role="alert">{{error.message}}</p>
+		}<pl-button
+			label="Cancel"
+			variant="outlined"
+			(pressed)="closeDetail()"
+		/><pl-button
+			[label]="detailMode()==='remove' ? 'Remove element' : 'Save'"
+			type="submit"
+			[disabled]="store.saving() || detailFields().invalid()"
+		/>
+	</form>
+</dialog>

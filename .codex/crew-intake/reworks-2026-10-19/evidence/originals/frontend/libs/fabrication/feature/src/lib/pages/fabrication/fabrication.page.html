@@ -1,0 +1,346 @@
+<section class="fabrication-page" aria-labelledby="fabrication-title">
+	<pl-workspace-layout>
+		<pl-workspace-header
+			workspace-header
+			title="Fabrication batches"
+			headingId="fabrication-title"
+			description="Organize physical elements across projects"
+			[hasSelection]="store.selected() !== null"
+		>
+			<div workspace-selection-actions class="actions">
+				<pl-button
+					label="Printout"
+					icon="printout"
+					variant="outlined"
+					[disabled]="!store.selected()"
+					(pressed)="printout()"
+				/>
+			</div>
+			<div workspace-actions>
+				<pl-button
+					label="New fabrication batch"
+					icon="newProject"
+					size="large"
+					(pressed)="openEditor()"
+				/>
+			</div>
+		</pl-workspace-header>
+		<nav workspace-sidebar class="filters" aria-label="Batch filters">
+			@for (item of filters; track item.id) {
+			<button
+				type="button"
+				[class.active]="activeFilter() === item.id"
+				[attr.aria-current]="activeFilter() === item.id ? 'true' : null"
+				(click)="filter(item.id)"
+			>
+				{{ item.label }}
+			</button>
+			}
+		</nav>
+		<section
+			workspace-main
+			class="collection"
+			aria-label="Fabrication batch list"
+			[attr.aria-busy]="store.loading()"
+		>
+			<div class="toolbar">
+				<pl-input-field
+					[field]="searchForm.query"
+					type="search"
+					placeholder="Search batches"
+					ariaLabel="Search fabrication batches"
+				/><pl-button label="Search" variant="outlined" (pressed)="search()" />
+			</div>
+			@if (store.error(); as error) {
+			<p class="error" role="alert">{{ error.message }}</p>
+			} @if (assignmentMessage()) {
+			<p class="notice" role="status">{{ assignmentMessage() }}</p>
+			} @if (store.loading()) {
+			<p class="notice" role="status">Loading fabrication batches…</p>
+			}
+			<pl-data-table
+				[rows]="rows()"
+				[columns]="columns"
+				[serverSorting]="true"
+				[sort]="sort()"
+				(sortChanged)="changeSort($event)"
+				[selectedId]="store.selectedId()"
+				emptyLabel="No fabrication batches match this view"
+				(selected)="store.select($event)"
+			/>
+			<footer class="pagination">
+				<span>{{ store.total() }} batches</span
+				><pl-button
+					label="Previous"
+					variant="text"
+					[disabled]="(store.query().page ?? 1) <= 1 || store.loading()"
+					(pressed)="page(-1)"
+				/><span>Page {{ store.query().page ?? 1 }}</span
+				><pl-button
+					label="Next"
+					variant="text"
+					[disabled]="(store.query().page ?? 1) * (store.query().pageSize ?? 25) >= store.total() || store.loading()"
+					(pressed)="page(1)"
+				/>
+			</footer>
+		</section>
+		<aside
+			workspace-properties
+			class="properties"
+			aria-label="Batch details"
+			[attr.aria-busy]="store.detailLoading()"
+		>
+			@if (store.selected(); as batch) {
+			<header class="properties-header">
+				<p class="pl-caption pl-text-muted">{{ batch.number }}</p>
+				<h2 class="pl-heading-md">{{ batch.name }}</h2>
+				@if (batch.archivedAt) {
+				<p class="pl-caption">Archived</p>
+				}
+			</header>
+			<pl-tabs [items]="tabs" [panel]="panel" [(value)]="propertiesTab" />
+			<ng-template #panel let-tab
+				>@if (tab === 'detail') {
+				<div class="detail-content">
+					<dl>
+						<div>
+							<dt>Responsible person</dt>
+							<dd>{{ batch.responsiblePerson || '—' }}</dd>
+						</div>
+						<div>
+							<dt>Status</dt>
+							<dd>{{ statusLabel(batch.status) }}</dd>
+						</div>
+						<div>
+							<dt>Deployment date</dt>
+							<dd>{{ batch.deploymentDate?.slice(0, 10) || '—' }}</dd>
+						</div>
+						<div>
+							<dt>Elements</dt>
+							<dd>{{ batch.elements?.length ?? batch.elementCount }}</dd>
+						</div>
+					</dl>
+					<p class="plain-text">{{ batch.description }}</p>
+					<div class="actions">
+						<pl-button
+							label="Edit basics"
+							icon="edit"
+							variant="outlined"
+							[disabled]="store.detailLoading() || !!batch.archivedAt"
+							(pressed)="openEditor(batch)"
+						/><pl-button
+							[label]="batch.archivedAt ? 'Restore batch' : 'Archive batch'"
+							variant="text"
+							[disabled]="store.detailLoading()"
+							(pressed)="requestArchive(batch)"
+						/>
+					</div>
+				</div>
+				} @else {
+				<div class="elements-content">
+					<pl-button
+						label="Add project elements"
+						variant="outlined"
+						[disabled]="!!batch.archivedAt || store.detailLoading()"
+						(pressed)="openAssignment()"
+					/>
+					<pl-data-table
+						[rows]="elementRows()"
+						[columns]="elementColumns"
+						emptyLabel="No elements assigned"
+					>
+						<ng-template #expandedRow let-row
+							>@if (groupById().get(row.id); as group) {
+							<div class="element-group">
+								<p class="pl-caption pl-text-muted">{{ group.projectName }}</p>
+								@for (element of group.elements; track element.id) {
+								<article class="element">
+									<div>
+										<strong>{{ element.number }}</strong>
+										<p>{{ element.description || 'No description' }}</p>
+										<p class="pl-caption pl-text-muted">
+											{{ element.buildingLocation || 'No building location' }}
+											@if (element.isExcluded) { · Excluded }
+										</p>
+									</div>
+									<pl-button
+										label="Remove"
+										variant="text"
+										severity="danger"
+										[disabled]="store.saving() || !!batch.archivedAt || !!element.position.archivedAt || !!element.position.project.archivedAt"
+										(pressed)="requestUnassign(batch, element)"
+									/>
+								</article>
+								}
+							</div>
+							}</ng-template
+						>
+					</pl-data-table>
+				</div>
+				}</ng-template
+			>
+			} @else {
+			<p class="notice">Select a batch to view its details and elements.</p>
+			}
+		</aside>
+	</pl-workspace-layout>
+</section>
+<dialog
+	#editor
+	aria-labelledby="batch-editor-title"
+	(cancel)="store.saving() ? $event.preventDefault() : closeEditor()"
+>
+	<form (submit)="save($event)">
+		<header class="dialog-header">
+			<h2 id="batch-editor-title" class="pl-heading-md">
+				{{ editing() ? 'Edit fabrication batch' : 'New fabrication batch' }}
+			</h2>
+			<pl-button
+				label="Close"
+				variant="text"
+				[disabled]="store.saving()"
+				(pressed)="closeEditor()"
+			/>
+		</header>
+		<div class="form-body form-grid">
+			<pl-input-field [field]="batchForm.name" label="Name" /><pl-input-field
+				[field]="batchForm.responsiblePerson"
+				label="Responsible person"
+			/><label
+				>Status<select [formField]="batchForm.status">
+					@for (option of catalog.options()['fabricationBatchStatuses'] ?? [];
+					track option.value) {
+					<option [value]="option.value">{{ option.label }}</option>
+					}
+				</select></label
+			><label
+				>Deployment date<input
+					type="date"
+					[formField]="batchForm.deploymentDate" /></label
+			><label class="full"
+				>Description<textarea
+					[formField]="batchForm.description"
+					rows="4"
+				></textarea></label
+			>@if (store.error(); as error) {
+			<p class="error full" role="alert">{{ error.message }}</p>
+			}
+		</div>
+		<footer class="dialog-actions">
+			<pl-button
+				label="Cancel"
+				variant="outlined"
+				[disabled]="store.saving()"
+				(pressed)="closeEditor()"
+			/><pl-button
+				label="Save batch"
+				type="submit"
+				[loading]="store.saving()"
+			/>
+		</footer>
+	</form>
+</dialog>
+<dialog
+	#assignment
+	aria-labelledby="batch-assignment-title"
+	(cancel)="store.saving() ? $event.preventDefault() : closeAssignment()"
+>
+	<form (submit)="assign($event)">
+		<div class="form-body">
+			<h2 id="batch-assignment-title" class="pl-heading-md">
+				Add project elements
+			</h2>
+			<p>
+				Only existing, unassigned, non-excluded elements will be added. Other
+				batch assignments remain intact.
+			</p>
+			<div class="toolbar">
+				<pl-input-field
+					[field]="assignmentSearchForm.query"
+					label="Find a project"
+				/><pl-button
+					label="Search projects"
+					variant="outlined"
+					(pressed)="searchAssignment()"
+				/>
+			</div>
+			<label
+				>Project<select [formField]="assignmentForm.projectId">
+					<option value="">Select a project</option>
+					@for (project of projects.items(); track project.id) {
+					<option [value]="project.id">
+						{{ project.number }} · {{ project.name }}
+					</option>
+					}
+				</select></label
+			>
+			<div class="pagination">
+				<pl-button
+					label="Previous projects"
+					variant="text"
+					[disabled]="(projects.query().page??1)<=1||projects.loading()"
+					(pressed)="searchAssignment((projects.query().page??1)-1)"
+				/><span
+					>Page {{projects.query().page??1}} · {{projects.total()}}
+					projects</span
+				><pl-button
+					label="Next projects"
+					variant="text"
+					[disabled]="(projects.query().page??1)*25>=projects.total()||projects.loading()"
+					(pressed)="searchAssignment((projects.query().page??1)+1)"
+				/>
+			</div>
+			@if (projects.loading()) {
+			<p role="status">Loading projects…</p>
+			}@if (store.error(); as error) {
+			<p class="error" role="alert">{{ error.message }}</p>
+			}
+		</div>
+		<footer class="dialog-actions">
+			<pl-button
+				label="Cancel"
+				variant="outlined"
+				[disabled]="store.saving()"
+				(pressed)="closeAssignment()"
+			/><pl-button
+				label="Add elements"
+				type="submit"
+				[loading]="store.saving()"
+			/>
+		</footer>
+	</form>
+</dialog>
+<dialog
+	#confirmation
+	aria-labelledby="batch-confirmation-title"
+	(cancel)="store.saving() ? $event.preventDefault() : closeConfirmation()"
+>
+	<form (submit)="confirm($event)">
+		<div class="form-body">
+			<h2 id="batch-confirmation-title" class="pl-heading-md">
+				Confirm change
+			</h2>
+			@if (pendingAction(); as action) { @if (action.kind === 'archive') {
+			<p>
+				{{ action.batch.archivedAt ? 'Restore' : 'Archive' }} {{
+				action.batch.name }}? Its element assignments will be preserved.
+			</p>
+			} @else {
+			<p>
+				Remove {{ action.element.number }} from this fabrication batch? The
+				element itself will be preserved.
+			</p>
+			} }@if (store.error(); as error) {
+			<p class="error" role="alert">{{ error.message }}</p>
+			}
+		</div>
+		<footer class="dialog-actions">
+			<pl-button
+				label="Cancel"
+				variant="outlined"
+				[disabled]="store.saving()"
+				(pressed)="closeConfirmation()"
+			/><pl-button label="Confirm" type="submit" [loading]="store.saving()" />
+		</footer>
+	</form>
+</dialog>

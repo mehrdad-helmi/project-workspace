@@ -1,0 +1,555 @@
+{
+	"changes": [
+		{
+			"path": "apps/planicam-web/src/app/app.component.html",
+			"baseline": "92ccccd7f59f0792e16ff6634cc660dcfc02ea19bdf563dd2a413f4fafba9a6c",
+			"current": "c2a0ef85b37a94d9184c65a23e9c78041d2bacb0965da3c46176c6a1f422c6af"
+		},
+		{
+			"path": "apps/planicam-web/src/app/app.component.ts",
+			"baseline": "aebbf6c0befbb4eb633443a31b841c5155564da0f58069be5d14488f7bcbc7f6",
+			"current": "ba7f369414896ed42b0ffd232275d016fe9120f6de90fee5164934539a3a12c4"
+		},
+		{
+			"path": "apps/planicam-web/src/app/app.routes.ts",
+			"baseline": "c729d70a11850e4f111c368c4694a975525c8612a0402e2c08e6aa4197ff18a8",
+			"current": "b0ad1671cace0ccb0027ea03d7a939cb3532b18511df3a933183c747af5142f4"
+		},
+		{
+			"path": "libs/shared/ui/README.md",
+			"baseline": "c5360d1147437d00232bfaac444739e769b6fc028808d48e5582b0393af170f0",
+			"current": "935fc560916cda62055f5a8d34b1578b2d2527ba5619e03231c2a4de783286ce"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/action-menu/action-menu.component.ts",
+			"baseline": "a2f54ee5e5248a89cd64945bd95f2ae328230268f15fcd9f41b80c4ad9566911",
+			"current": "76333afbbe656c7fb05288d3e32a0e335b31f3201cb8ddc80894e6a17576cfb8"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/data-table/data-table.component.html",
+			"baseline": "c0a718378497012d78a8b283a83ce102ada3c50de177b55bc74637de577c36b1",
+			"current": "ef1491f8dd402bf4977a573a6f098aa9405e876b9a18c9ed9789d6d442e9daa5"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/data-table/data-table.component.ts",
+			"baseline": "dbb3228edb3fc35e6b5b21dbd821400651f0210393f19eda18d6afd830385c29",
+			"current": "daad3bdf1e39210532e4a97e8aab89994f994b6ee871b949d7b8e81e33d32e4f"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/popover/popover.component.ts",
+			"baseline": "3d212afb93ff7ff22108ebe4e5217eac55e7f87984c4c7d6b60fc4a09bb67205",
+			"current": "32a51aa56d843f71da0c79d7c0d45b0e1d00a1b489f6209d099f8ef4a05947b7"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/stepper/stepper.component.ts",
+			"baseline": "fb240b5eed3198dbb83ea9766e523d895ffc83c02dedfe2ba91523d58b59c40f",
+			"current": "03438c55f8e07d4320a809bc265569c5482dc238fdcc4a29c73c67e3e27c5ce9"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/tree/tree.component.ts",
+			"baseline": "969c3625c0e994d3ec4baa4c50a0a6384d5eeb2b96dc032628e78607a9d543a1",
+			"current": "af7309aae95d23d8fb94e93fb26cebb4e98574330543daf9491d2d2ff3d8af0a"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/providers/ui.provider.ts",
+			"baseline": "83b1190401d3696099e5cd14f4b1b59b057c6df15b31ef040ac6308a866e8615",
+			"current": "51f43f1d9a74003df537237d682551d68c489221cc33dafad899e5256c318189"
+		},
+		{
+			"path": "libs/hub/data-access/README.md",
+			"baseline": "95c44763c0a0c3a0897eafedf09be2634d3575138aae59a8fc20c9b1445a9f21",
+			"current": "e2bf1edaa5a2d5e7549d0e27f50699b285cb6b746ef18f13a91adef5a5c97f1c"
+		},
+		{
+			"path": "libs/hub/data-access/src/index.ts",
+			"baseline": "4e34b82b989395de55b42f6a577151c43b8e9f74bf56444340bd1dea0ab89a81",
+			"current": "6e3db8cba9bcdaea89472cab5a9dd92dff976a4c6c26af8fc80af497ed805811"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/cloud-printout-context.gateway.ts",
+			"baseline": "c7804e4e1cbd1d99c066c609d7a62290a7604641b180f3ef96176c8f46323efc",
+			"current": "cdde5dfac8b2894a96ee3600d4a67c72c7393f8cd491e49d6cb2648fcd6ccea3"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/hub-catalog.gateway.ts",
+			"baseline": "98468e37e3cee377ecf2264e3e62a6927fd1ad4fb3d9f057cb307931dda9279b",
+			"current": "3b260451ae983a30cc3e0280c4cfe6cef6a83827e0216d07b480217d74ec1f5c"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/hub-catalog.model.ts",
+			"baseline": "63622d69246748acad42a475f289619d29b3a97f2cf722c4012b94aad8019658",
+			"current": "27ac5aff1a1e2d7c1a91600bd84dee21402752b0a941fe2ff2618d04d083999b"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/hub-printout-selection.service.ts",
+			"baseline": "b67af938c86f958b002a33df72d0747c8595f0e97ba18dd3337ed9dbc8f00ffe",
+			"current": "5bd0ca3412a6b53f8bb2818b5526fd173791828362df8bc49afc8e8cd1d4fe6f"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/printout-selection.model.ts",
+			"baseline": "0d66f827a4dd1861f1c11976f839c6fa248e072fff32aa16992be29117d7fd16",
+			"current": "909369f706bdad145a84337d8d5f08812e8c65744b389fe7d42dfaf8cdf9581a"
+		},
+		{
+			"path": "libs/hub/feature/README.md",
+			"baseline": "3615674066bf29f4960ddd294246fd7dc2e320444ce8f21635360ff191c2b6e2",
+			"current": "6581068f49239cb1862ae630781dadec78d84fa3b9996bb8e05edc80cd1efcf6"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/configuration-fields/configuration-fields.component.ts",
+			"baseline": "91048eb3e11a2c278979b643066f178d9234dd3e2a54e841b92544b9334a605d",
+			"current": "5da68d365202fee08f828489a05fea3f6ee0a9d86ab12e7f90ff34ed942d5e4e"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/estimation-dataset/estimation-dataset.component.html",
+			"baseline": "762042b4285f5bc528224ab1cfdf48d1df55bfba042a71b4af7d2cc572c84e46",
+			"current": "cf25d15b3077d644b0dffaac84c3cb5bc48107bad452ca7e1750ff1134a9184b"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/estimation-dataset/estimation-dataset.component.ts",
+			"baseline": "a53d74a1439181430b86276bb9754ccd89ce1f7c2f6cd734a0c823412bdae4e5",
+			"current": "0737e78efadafbb69ad4653cb6a56a043828bf6da3b979b2afc532bf5962d1cd"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/labor-hours/labor-hours.component.html",
+			"baseline": "1047946e8ceee185c21f3f42cc8c4454d9c9c3d3c58953eaed122bc2f944eaa2",
+			"current": "9ea7083fe7d74456ff8d7fb42a0927c0762791955806bda784bb60ae5cfdff2d"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/labor-hours/labor-hours.component.ts",
+			"baseline": "a1b609385d95fb92c343af01d9c19ba123a056ea4a0acf3b7e879561c9255012",
+			"current": "9035af2aa88a8f9120d60683091b4d6fb5558195781035ba3282b4ebc801e4e7"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/organization-settings.page.html",
+			"baseline": "96f31666073a4c42d755b27954c007519ebb76318f087c7f88a3b9b888ba3b07",
+			"current": "a57aef2b1431bf9f7cf6d5997b4d050a6a83f3f333dbfc3b8be98ba2ae1018de"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/organization-settings.page.scss",
+			"baseline": "c71d1aae2b2ca996e0b5b5cf8ea883d6dea937c0a58327d6bb0bbc12d6553bd6",
+			"current": "b747394120db0e8a35f292c8d9086b301cc6d3a16f5b0a710210c776c33263b4"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/organization-settings/organization-settings.page.ts",
+			"baseline": "d9334593f161703d374e789a240a3f53fd6696410ec67cec9539c98eec856d28",
+			"current": "ec06c0d21b6254ad2ac9f4f220f7c68792d3140c02ed801c0ecf7819f4f09629"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/printouts/printouts.page.html",
+			"baseline": "dc15eb64a90011637865f2d5e59697b4a9a10374f32aa96dbf7f544b71732edd",
+			"current": "326dabb38f7fad8264517885c8b0d56b382c1944c618a13480d261fc861f3840"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/printouts/printouts.page.scss",
+			"baseline": "b06fd03028e76bd3a37b65fb19ae3690dcde140f4f6ec404d7a325c418348115",
+			"current": "f0890575d37f86bf70f0e6fa9adbeb2a3f68bb5135f4d4377d7d85763b6f23db"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/pages/printouts/printouts.page.ts",
+			"baseline": "8d6340fea9bcade872ed128b5b83708388397ef4dc236e39df2d5d6246fde6e2",
+			"current": "391e357493ec212d4edf09017a34bb694a841b211d14824f4991057f724bec7c"
+		},
+		{
+			"path": "libs/hub/shell/src/lib/config/hub-navigation.config.ts",
+			"baseline": "03a7fd6c8e6deb0db5b436b2063e9dd6029eba841de9312efe9984ad6cae0004",
+			"current": "90f6b1587932e055f71261fa6fd7f5642749a3fd19d71f96707c9372b9208b81"
+		},
+		{
+			"path": "libs/hub/state/README.md",
+			"baseline": "33baa02a92e8533bb3e5e018bc4cea3955798c0762c247c9480b4d1c84b3dad1",
+			"current": "f3a245d9afb4ec29ca0221b6bc72d7b9bb1f2a12b453c0da41d15a0cc24adfd1"
+		},
+		{
+			"path": "libs/hub/state/src/index.ts",
+			"baseline": "343a6f5c79530db93d10c8a39595eee67d39b1c1dac3b7ccd146080fbeb6c5ad",
+			"current": "4e18d874c5661049696f7bceb97a9f053c03e715a7eac5b5cf5852e1b15a3410"
+		},
+		{
+			"path": "libs/hub/state/src/lib/hub-printout-selection.store.ts",
+			"baseline": "64faeca409cf9d62a0971cef2dd8ed484a97b190644dd8241a7da683bfc2624e",
+			"current": "ed9019a5ebab865395c2aee673b7626cf2a5be1a548d8365865910e61454e610"
+		},
+		{
+			"path": "libs/project-management/data-access/README.md",
+			"baseline": "444a17bb1da7292584de3ae62b9258d82e8572be7d1c8367cbd5089975d5a0f3",
+			"current": "0dedc297a2653c3ad9384e2d2596a051f3fb829abc7b800acc5b446e331a4c15"
+		},
+		{
+			"path": "libs/project-management/data-access/src/lib/project.model.ts",
+			"baseline": "028f54cfe77e5925025d1b538e42c18277e3fa8e2198bc123f87262e4fe60d33",
+			"current": "e42364cae8235e5e5d5c9f02c738e86b1556b87d1dae447b4293fec9fb2bf7ac"
+		},
+		{
+			"path": "libs/project-management/data-access/src/lib/project.service.ts",
+			"baseline": "ed7aee407246fb74d3a5fe6cbbd67c3180fa0b835523401df2d3abcd9d135737",
+			"current": "b3db02788e6de7a7dd63271162746622752859d351249ab2be8db1ba007a349e"
+		},
+		{
+			"path": "libs/project-management/feature/README.md",
+			"baseline": "2361b6f8363b0c235a4cf97e79117f58062542c6e5fd943e285e19c005773757",
+			"current": "bac259d0007d966134f3af1c8ca60bf48e49f768eacbc4756af6e83b45d0a736"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/batch-assignment/batch-assignment.component.ts",
+			"baseline": "b541d3b392f65c882dbec750466a92001bd667f283b5edbd3f70ed884b52481c",
+			"current": "b34cd56cc5da90b8bce16436b10013567f54aa6a7db159cbc1fac2038e663beb"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/customer-selector/customer-selector.component.ts",
+			"baseline": "089d13a8a85859083d1e523860cf033771de9dbd620e2008af9cbba4c5412a5a",
+			"current": "3c8b1cbaea0b19ab31c8d6f1b28e7ec38208b5a7393e45fa41372616848b4945"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/position-form/position-form.component.ts",
+			"baseline": "36d1341d20a3b611f8903cbc65650cd8f06bd2efc8178b0e3b82ebada5c42891",
+			"current": "39fc109fcb025b4c759e99c1e79d0995f42342b67327bf38c9ad97507d2dc1e3"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-attachments/project-attachments.component.html",
+			"baseline": "e8c0f61e377aa1b3bf080db6a8143e9e459ce666a3372261a99af8479a7d3395",
+			"current": "28c0fba9fb018a98de5605df4e84bec93bd65e61c867c962ed8bc7267107250b"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-attachments/project-attachments.component.ts",
+			"baseline": "f36200c80f4184498f79020611d4354c407da2bc529cea1ce95a0bc8e200b8a4",
+			"current": "5be2e80470f6938ac00e8dcc677000b780332bfa5a7c98cd2aa450c72b4c7504"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-configuration/configuration-fields/configuration-fields.component.html",
+			"baseline": "f6017c03096dc530b2b1858f14b3cb770feccf862079226928776722f35f28ec",
+			"current": "2f44745e047a6986706fb21f7ec944870e5b9ab470cc64dfa7d70fb8f57f3872"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-configuration/configuration-fields/configuration-fields.component.ts",
+			"baseline": "c4131f91149cdbf458131ca4a06fba6d032b0e5d1435c81da88a9452b93baa65",
+			"current": "c9c58fc581955cceeb042f38d99fef0cbb91180062583cb905ba961939938fbb"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-configuration/configuration-lookup/configuration-lookup.component.ts",
+			"baseline": "36e7f86a85a80532cc378e599030cb7e2f3311467d33d97371bcebc356f934c5",
+			"current": "8817cae81e8a0723eca69f4e8db53edd2997b8e3564ec1d945b862e900fe3153"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-configuration/project-configuration.component.html",
+			"baseline": "4ec145e75e4608c3c934d65d735eb6e792fa1bf28eb377d2b48aeb820e78a31d",
+			"current": "b3e08e030058e87bdb11e829bec8db47df0037d971ab9635f5c615639b970542"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-configuration/project-configuration.component.scss",
+			"baseline": "37b40b139bbee969935dc19756c26c6ca648d52171d3e71d87635f7b654401db",
+			"current": "450d7b099131d76e3da01676c6a782dbbe31c33098443b6cef17fbba976f19f5"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-configuration/project-configuration.component.ts",
+			"baseline": "6f0566125469a33d7379a97fcf2a6b133e1209d50f2bb2e1b1d6bb1789789158",
+			"current": "8a07c90eb66f93149717cbf5ea534e4f8602a8f5aa907172ce5b25c66806b0b0"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-form/project-form.component.html",
+			"baseline": "a5986429d19c96ca0561a8cdf72e25ffccc7dd7c57ec99b10071c9a9b83d903e",
+			"current": "c3bc2a0f98a34bd81b80c95fdb7c8cd98531533cba2a1f30f93b60186bb90d5f"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-form/project-form.component.scss",
+			"baseline": "1edacea9b91ce0f7af94bb28070635a549ab6ae2dea0d0f8263e6315db0b66b9",
+			"current": "946ad05d492860ebd348e770db21b57dc435df3d81bf13a99d77c0b15ccc3ca0"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/project-form/project-form.component.ts",
+			"baseline": "1afcd9a1ad8a603d36f5fc02ff476fad23aad9a4ba621387f564177000a1c36e",
+			"current": "21edba3b40c2ebb400714d4776e5143b0efdaa9f6b3359621123c2a79833f595"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/pages/project-management/project-management.page.html",
+			"baseline": "1d3fd0c7c24c78c7c4aea3fc6fc4fff5b2cce0f6676f176b138fa7b7c3dde411",
+			"current": "9f5c55ce060573a71c6f9a362efdc1ca14867549be66162ddb611cb6a9a8b5c2"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/pages/project-management/project-management.page.scss",
+			"baseline": "7c6293871c7967b016647f183546801853ec49955aa2d2d5e751ed2011309a0a",
+			"current": "a8d600bdeaaa2de716e2429d79fc8fa4ebc8f6f43e539112dd92c9531bf387f9"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/pages/project-management/project-management.page.ts",
+			"baseline": "a3dc76f99c63d53f8d60c186fb12c6b0cda78458d621b785f3caae696881b3a2",
+			"current": "f256249bec77d154b6a598d637cc89e2dd2b4925ebdd9620d3731afaa514cfe2"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/pages/project-positions/project-positions.page.html",
+			"baseline": "98eaaa0863169d65464b69f4fa76d6407243a53f5c2ba828d7fffd9bac6db597",
+			"current": "447962eedeb64b50dd0adf43699aa0ce29354ecab0cde37cb77f2909255912e6"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/pages/project-positions/project-positions.page.ts",
+			"baseline": "917cf470515afcd51f02ff426a49c264aeb5e67192d69e56916ea3e518ce159b",
+			"current": "cd181b808425f1705c8ce22909cedf79f2b15b9dea73cfd9b294156c8524ed44"
+		},
+		{
+			"path": "libs/fabrication/data-access/README.md",
+			"baseline": "7737d3807957a7dcd72b4afecf20460a1ab2e2be1261e73486393ec9eae73fc3",
+			"current": "42fa9135a52a04c9ce3c1aa7b04c20ff0cd346068c7ed05a8d32700285c617f7"
+		},
+		{
+			"path": "libs/fabrication/data-access/src/lib/fabrication.service.ts",
+			"baseline": "79291670c0cb40a4b7ab2d698fb30d8c92d56a163ae37dc3d4c11cffd9b783bc",
+			"current": "3f8ad889d03d542e61913717be5e3508322f92a0bbc776ee8d27286f9652f052"
+		},
+		{
+			"path": "libs/fabrication/feature/README.md",
+			"baseline": "b7b47c08cf8dbc58bfa2ab82e6531eec5016efa381610d02bc7ee5cc08280649",
+			"current": "3881f7c4541f9c2befac9b2f0b3ba54d7e3aa526a2664673514e80097828e4dd"
+		},
+		{
+			"path": "libs/fabrication/feature/src/index.ts",
+			"baseline": "d81231da49e4b3673065889733c46e9fcc12732d1d461c34659be9c00d39aea6",
+			"current": "fd5d1d486c4e490c70bb054b89fa36f5a5d1f4f7fb8762ab6e6e8d2411ba53c9"
+		},
+		{
+			"path": "libs/fabrication/feature/src/lib/pages/fabrication/fabrication.page.html",
+			"baseline": "04018128628e4db825e1a41bea69c70ed909cd3333dbad4440056624de696011",
+			"current": "ee8d85574b52be317c1f228321136c38e45a8e283a993c600094d0a882b9acbf"
+		},
+		{
+			"path": "libs/fabrication/feature/src/lib/pages/fabrication/fabrication.page.scss",
+			"baseline": "00dee42770f2cd8989a4c947f2471db9d24f59f42e2f8b436cde7cce28816680",
+			"current": "19de385a44552aa82f6e1716634935bb252c7f056be8cabc131a3003491267fa"
+		},
+		{
+			"path": "libs/fabrication/feature/src/lib/pages/fabrication/fabrication.page.ts",
+			"baseline": "1639aad54dabee8cce5b92d1d44018fd5b561a13fb5a05111ed8aee41e2bbb7a",
+			"current": "01d39e1c127342ae5a11c59ab4ed22e83bc5d2ba8f5fd1d14f0ded5375dff28c"
+		},
+		{
+			"path": "libs/fabrication/state/README.md",
+			"baseline": "dc5147b7f88a2b1b48648d804fcbb1206db59945b8aa6af2654e38c666b3a2e2",
+			"current": "73eba82b2933cae9fc0f19b9dad42a387417ecd99e1af977c9d153f3950c20a8"
+		},
+		{
+			"path": "libs/fabrication/state/src/lib/fabrication.store.ts",
+			"baseline": "b913adb7054218a575447e20175c0114a1b39f63492f5c81c2213ee94dfd3ef0",
+			"current": "b23305e0242b600e5eec43a87248453c999cf3e0df1efc27638b4692a37dcd48"
+		},
+		{
+			"path": "libs/contacts/data-access/src/lib/contacts.service.ts",
+			"baseline": "7c637aacf83470f1bb0982c23218a624eb693d5d1d5ff8317a71871fc4e67ed5",
+			"current": "66f76945dcd85a1b348676a1c14c6d11d004d31c5eae9d0ebeb5c30953c2426e"
+		},
+		{
+			"path": "libs/contacts/feature/src/lib/pages/contacts/contacts.page.html",
+			"baseline": "223d014d39e8e5cc62ef1c5cdcb99d2199d66da6a459c0ca7a02e7a59eda0831",
+			"current": "00159efd0c2ebd1cae23e8b9128553676cb411e51dc72600358def40c0725ae3"
+		},
+		{
+			"path": "libs/contacts/feature/src/lib/pages/contacts/contacts.page.ts",
+			"baseline": "8bbdad9168b30b8066d8a28c9a0b1daa61927478fea6847c1b64f4b4beaa2c7e",
+			"current": "735838715f4566875ae513ecf05fc8a90c256ddb69e37b0e690450b529c9704a"
+		},
+		{
+			"path": "libs/position-editor/feature/src/lib/pages/position-editor/position-editor.page.ts",
+			"baseline": "70816cdd17dabc11cbd36eef8de357af8038651934ae046325b85a4e97a36adb",
+			"current": "391f0703f2d271e5c46101d7de58967c4b9556425c78f3ac14a53e85eed150df"
+		},
+		{
+			"path": "package.json",
+			"baseline": "afb452357bfe8641ae061ab56772e3136b95fa673188410e48d015f82c563176",
+			"current": "4fad3a33022fa7e155b99170d6ff5d974f3fc65f95b08a40855564eba5de5415"
+		},
+		{
+			"path": "bun.lock",
+			"baseline": "245021d9cca31aaa263346755eae8980935b19a2e552ddc941cecc24fc482d8b",
+			"current": "af7d9ad85f2e3ca0a30c88b1ddec5860162ce0c22c1410b275932bbea58453c4"
+		},
+		{
+			"path": "tsconfig.base.json",
+			"baseline": "830035f4c9d4f0ce0fdeeef0dd3b0531b929883c789c591c43abfa837a4a87c8",
+			"current": "7701dae86eda2ac0b332f4dfd02c7b666a2c3a930e4355887dc89e6669033980"
+		},
+		{
+			"path": "docs/architecture/frontend-architecture.md",
+			"baseline": "ef9595aa9ce3d2ad86fa56d15acedcee8daf9b6e510f88f9639397bb46030456",
+			"current": "e39d1dd4f498026a26c1ebc99c49228aae4f3a43e3fd16ba7af45fd8616ebb54"
+		},
+		{
+			"path": "docs/development/state-management.md",
+			"baseline": "0daf87e7dd10d7cbf5e802de55ace4a17bb8c84adcf3baccd966edcecf3ca04b",
+			"current": "955e2144a7e851c8c22c0b39a0db3aa693ab58832c8350995b430b17b60f7249"
+		},
+		{
+			"path": ".changeset/cycle1-reworks.md",
+			"baseline": null,
+			"current": "0ec84e02e5965124e769b39086af653e5159fc6a2133b14674454934942411bd"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/dialog/dialog.component.ts",
+			"baseline": null,
+			"current": "8fcecef6cb7e8c7422b603c66a5179fc3ad7376ea4a86265f67396efd186cbb1"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/dialog/index.ts",
+			"baseline": null,
+			"current": "7e30f74c626ba44ec57bbb26a4442de465fb7251022775e9d9de71719c80ed03"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/select/select.component.ts",
+			"baseline": null,
+			"current": "a6bef7d26d8d247f7c345cf10e8f6b701997ea6c42b331f7a2a9315005d5ce10"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/select/index.ts",
+			"baseline": null,
+			"current": "0aa32acce6503e91b428b69044542f7ad1e68a7787718ae6a9efd62603ef175f"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/confirmation/confirmation.service.ts",
+			"baseline": null,
+			"current": "bb6341ef3ba62aabb75fdd10c2b00f9bf268962c80e6bd113a085f6491e6839c"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/confirmation/confirmation-host.component.ts",
+			"baseline": null,
+			"current": "b5f77f2ec5880f215ffae5d671c647a1992a39d447a539c3c4da5f61a741445d"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/confirmation/index.ts",
+			"baseline": null,
+			"current": "643220d34bfce3bf6890cf5a0534863e6e90a0e68404a59db8b54ade16c21237"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/accordion/accordion.component.ts",
+			"baseline": null,
+			"current": "048d114f9cf7f19429b34e40370c6e75b62f80729ae34703de902f241b992709"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/accordion/index.ts",
+			"baseline": null,
+			"current": "bb88af092be619d1c6773c477a64bf6d0c9df973b43dc5b2f808c99fd6846bf7"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/options-control/options-control.component.ts",
+			"baseline": null,
+			"current": "9acb844536604424895bb6e81f265b32c07c1af8bd5704b4ce6f7a456c9da79a"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/options-control/index.ts",
+			"baseline": null,
+			"current": "92e381ef502395d7818b5b8eb9113d3fcc3ec88ec0f741e6afed741bdcd69c7c"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/status/status.component.ts",
+			"baseline": null,
+			"current": "539b2dab77e227fc16db8ef333e62de38d1ec7a437465de037e3d81bf7dfa2b4"
+		},
+		{
+			"path": "libs/shared/ui/src/lib/components/status/index.ts",
+			"baseline": null,
+			"current": "ebe538e303fd907a85ba7c6d829d6e09c0aae3b19412205d564a865211b32cec"
+		},
+		{
+			"path": "libs/shared/data-access/src/lib/read-all-pages.ts",
+			"baseline": null,
+			"current": "add6615040430f203d21482d5b26f02a9a73af5d283055b8087241d6b9b0664e"
+		},
+		{
+			"path": "libs/shared/data-access/src/index.ts",
+			"baseline": "bf1bb54cc56d8a1e201009758060161f0a0117fd7538322e8b959e88750b23ad",
+			"current": "3a914de1ef319fd069921c5c33b1955dd121c55e409e63d8cbddf994af4818af"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/customer-summary/customer-summary.component.ts",
+			"baseline": null,
+			"current": "3b5b2d5e9dc57e61eba669fb875f4f4c7929e983eb198116f438dfd94e13101b"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/customer-summary/index.ts",
+			"baseline": null,
+			"current": "806755639f75dc04f26d8c1318b39a77686df82b8256dcff59a287c6c30d58e1"
+		},
+		{
+			"path": "libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.ts",
+			"baseline": null,
+			"current": "9d0de2bd8d2c59addc6ad135e2933016a40d8b125aa22960ff447fd802156bcd"
+		},
+		{
+			"path": "libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.html",
+			"baseline": null,
+			"current": "59af94d4ea6af4fbb969197ec09a3ac702c0c0a78513de70155aeaf6cec719dd"
+		},
+		{
+			"path": "libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.scss",
+			"baseline": null,
+			"current": "e8998984a61cd248bf63ebe6c5216786ee66967cda543a63b37b21f2c6f69af1"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/components/printout-options/printout-options.component.ts",
+			"baseline": null,
+			"current": "64b3add6b9989053f370adc06f933476bf79eee0dae97f49491312623873c4f6"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/components/printout-options/printout-options.component.html",
+			"baseline": null,
+			"current": "d188b309e0cfb093d6b1a60a31d375f25249e43c55fd7688eccf681348b83662"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/components/printout-options/printout-options.component.scss",
+			"baseline": null,
+			"current": "0a27da53a786cff8d651297770baf7628310f074ea9a6fa8814c6e48f5bc422e"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/printout-definition.model.ts",
+			"baseline": null,
+			"current": "03669971d39ac4ff6076d0be6da80175ce4b7ab58bfddb49f2329aeaa2598d89"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/printout-options.validation.ts",
+			"baseline": null,
+			"current": "c9a36f21dae23f662ede6e3e75e2e02c48b7d0d2a58c93bda069f5f876fc0afa"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/position-form/position-form.component.html",
+			"baseline": null,
+			"current": "174c094f1adc990bfd85fd9fe47b0b1231b924edf6d26d07380f072e358766cb"
+		},
+		{
+			"path": "libs/project-management/feature/src/lib/components/position-form/position-form.component.scss",
+			"baseline": null,
+			"current": "ce68c034b7087d9d6624873df92d85074ee767ab65cbe9a003dc5e2e50d3cb6b"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/printout-workflow.gateway.ts",
+			"baseline": null,
+			"current": "165ffac3658fda370c1b22b64780a23b0b8c67dd634dfd7571d25e421396f76b"
+		},
+		{
+			"path": "libs/hub/feature/src/lib/components/printout-options/index.ts",
+			"baseline": null,
+			"current": "b889553901a64cd1626e7ed02a50cdcf4860b2737a299b19a0f23230095feb71"
+		},
+		{
+			"path": "libs/hub/data-access/src/lib/printout-options.validation.spec.ts",
+			"baseline": null,
+			"current": "9c4f67bf726d49b6c47bba3550b0059edd211d22bf15f2c954b6fcf8d2e5b57e"
+		},
+		{
+			"path": "libs/shared/data-access/src/lib/read-all-pages.spec.ts",
+			"baseline": null,
+			"current": "a9b58452e3390adab4c96ef92b87a221e0ff37667556c12a6afd97a78a6e5fb9"
+		},
+		{
+			"path": "libs/hub/state/src/lib/hub-printout-selection.store.spec.ts",
+			"baseline": null,
+			"current": "836f4730b86afae8003c740b8e38dd7332369ece55e7201b3073138e33c6cc2c"
+		},
+		{
+			"path": "libs/shared/data-access/src/lib/api-response.ts",
+			"baseline": "972a9fd03dc435708405db7975aa1528e76f78dee9a934cd32be5f1acf39f33c",
+			"current": "c383f7fddb39935b851811f4c3cfd4a84bc276b9d6af838471f01fc574f10699"
+		},
+		{
+			"path": "libs/fabrication/state/src/lib/fabrication.store.spec.ts",
+			"baseline": null,
+			"current": "27d5f288ee2a6c08b522bdda54eb5634220743ec98221dc49980a0ec694f2c3a"
+		}
+	],
+	"outside": []
+}

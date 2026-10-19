@@ -1,0 +1,49 @@
+- generic [ref=f1e2]:
+  - main [ref=f1e7]:
+    - generic [ref=f1e8]:
+      - generic [ref=f1e10]:
+        - img "Planicam" [ref=f1e11]
+        - generic [ref=f1e14]:
+          - generic [ref=f1e15]:
+            - heading "Welcome back" [level=1] [ref=f1e16]
+            - paragraph [ref=f1e17]: Enter your credentials to access your account
+          - form "Welcome back" [ref=f1e18]:
+            - generic [ref=f1e19]:
+              - generic [ref=f1e21]:
+                - generic [ref=f1e22]:
+                  - text: Organization Identifier
+                  - generic [aria-hidden] [ref=f1e23]: "*"
+                - textbox "Organization Identifier" [ref=f1e28]:
+                  - /placeholder: Enter your organization identifier
+              - generic [ref=f1e30]:
+                - generic [ref=f1e31]:
+                  - text: Email
+                  - generic [aria-hidden] [ref=f1e32]: "*"
+                - textbox "Email" [ref=f1e37]:
+                  - /placeholder: example@yourmail.com
+              - generic [ref=f1e38]:
+                - generic [ref=f1e40]:
+                  - generic [ref=f1e41]:
+                    - text: Password
+                    - generic [aria-hidden] [ref=f1e42]: "*"
+                  - generic [ref=f1e43]:
+                    - textbox "Password" [ref=f1e47]:
+                      - /placeholder: Enter your password
+                    - button "Show password" [ref=f1e49] [cursor=pointer]
+                - link "Forgot password?" [ref=f1e52] [cursor=pointer]:
+                  - /url: /auth/forgot-password
+              - generic [ref=f1e54] [cursor=pointer]:
+                - checkbox "Remember me" [ref=f1e56]
+                - generic [ref=f1e58]: Remember me
+            - button "Login" [ref=f1e60] [cursor=pointer]
+          - paragraph [ref=f1e62]:
+            - text: Don't have an account?
+            - link "Signup" [ref=f1e63] [cursor=pointer]:
+              - /url: /auth/signup
+      - generic [ref=f1e64]:
+        - generic [ref=f1e65]: © Planicam 2026 · Version 0.2.0
+        - link "help@planicam.com" [ref=f1e66] [cursor=pointer]:
+          - /url: mailto:help@planicam.com
+  - generic:
+    - generic:
+      - alertdialog

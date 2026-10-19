@@ -1,0 +1,92 @@
+<fieldset
+	[disabled]="disabled()"
+	class="fields"
+	(input)="publish()"
+	(change)="publish()"
+>
+	@for (field of fields(); track field.key) {
+		@if (field.kind === 'supplier' || field.kind === 'group') {
+			@if (field.kind === 'group' && !hasSupplierField()) {
+				<planicam-configuration-lookup
+					label="Find groups by supplier"
+					[field]="controls.values['_lookupSupplierId']"
+					path="suppliers"
+					[disabled]="disabled()"
+					(change)="clearGroup()"
+				/>
+			}
+			<planicam-configuration-lookup
+				[label]="field.label"
+				[field]="controls.values[field.key]"
+				[disabled]="disabled()"
+				[path]="field.kind === 'supplier' ? 'suppliers' : groupPath()"
+			/>
+			@if (field.kind === 'group' && !groupPath()) {
+				<small>Choose a supplier to load discount groups.</small>
+			}
+		} @else if (
+			field.kind === 'choice' ||
+			field.kind === 'boolean' ||
+			field.kind === 'system' ||
+			field.kind === 'currency' ||
+			field.kind === 'reference'
+		) {
+			<label
+				>{{ field.label
+				}}<select [formField]="controls.values[field.key]">
+					<option value="">{{ field.required ? 'Choose…' : 'Not set' }}</option>
+					@if (missingChoice(field)) {
+						<option [value]="model().values[field.key]">
+							Current selection
+						</option>
+					}
+					@if (field.kind === 'boolean') {
+						<option value="true">Yes</option>
+						<option value="false">No</option>
+					}
+					@if (field.kind === 'choice') {
+						@for (choice of field.choices; track choice) {
+							<option [value]="choice">{{ choice }}</option>
+						}
+					}
+					@if (field.kind === 'system') {
+						@for (system of systems(); track system.id) {
+							<option [value]="system.id">{{ system.name }}</option>
+						}
+					}
+					@if (field.kind === 'currency') {
+						@for (currency of currencies(); track currency.code) {
+							<option [value]="currency.code">{{ currency.code }}</option>
+						}
+					}
+					@if (field.kind === 'reference' && model().values[field.key]) {
+						<option [value]="model().values[field.key]">
+							Current selection
+						</option>
+					}
+				</select>
+				@if (field.kind === 'reference') {
+					<small
+						>New choices require a catalog lookup that is not available yet.
+						Existing selections are preserved.</small
+					>
+				}
+			</label>
+		} @else {
+			<pl-input-field
+				[field]="controls.values[field.key]"
+				[label]="field.label"
+				[unit]="
+					field.key.endsWith('Percentage')
+						? '%'
+						: field.key === 'minimumSurfaceAreaSquareMeters'
+							? 'm²'
+							: ''
+				"
+				[hint]="
+					field.kind === 'decimal' ? 'Decimal value; no exponent notation.' : ''
+				"
+			/>
+		}
+	}
+</fieldset>

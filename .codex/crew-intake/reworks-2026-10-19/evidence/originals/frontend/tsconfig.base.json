@@ -1,0 +1,85 @@
+{
+	"compileOnSave": false,
+	"compilerOptions": {
+		"types": ["node"],
+		"rootDir": ".",
+		"sourceMap": true,
+		"declaration": false,
+		"moduleResolution": "bundler",
+		"emitDecoratorMetadata": false,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"target": "es2022",
+		"module": "esnext",
+		"resolveJsonModule": true,
+		"lib": ["es2022", "dom"],
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"paths": {
+			"@planicam/auth/feature": ["./libs/auth/feature/src/index.ts"],
+			"@planicam/hub/shell": ["./libs/hub/shell/src/index.ts"],
+			"@planicam/project-management/feature": [
+				"./libs/project-management/feature/src/index.ts"
+			],
+			"@planicam/database-browser/feature": [
+				"./libs/database-browser/feature/src/index.ts"
+			],
+			"@planicam/position-editor/feature": [
+				"./libs/position-editor/feature/src/index.ts"
+			],
+			"@planicam/calc/wasm-client": ["./libs/calc/wasm-client/src/index.ts"],
+			"@planicam/shared/ui": ["./libs/shared/ui/src/index.ts"],
+			"@planicam/shared/ui/icons": ["./libs/shared/ui/src/lib/icons"],
+			"@planicam/shared/ui/*": ["./libs/shared/ui/src/lib/components/*"],
+			"@planicam/shared/data-access": [
+				"./libs/shared/data-access/src/index.ts"
+			],
+			"@planicam/platform/runtime": ["./libs/platform/runtime/src/index.ts"],
+			"@planicam/shared/models": ["./libs/shared/models/src/index.ts"],
+			"@planicam/shared/utils": ["./libs/shared/util/src/index.ts"],
+			"@planicam/auth/data-access": ["./libs/auth/data-access/src/index.ts"],
+			"@planicam/auth/state": ["./libs/auth/state/src/index.ts"],
+			"@planicam/auth/state/session": ["./libs/auth/state/src/session.api.ts"],
+			"@planicam/users/data-access": ["./libs/users/data-access/src/index.ts"],
+			"@planicam/users/state": ["./libs/users/state/src/index.ts"],
+			"@planicam/shared/config": ["./libs/shared/config/src/index.ts"],
+			"@planicam/project-management/data-access": [
+				"./libs/project-management/data-access/src/index.ts"
+			],
+			"@planicam/project-management/state": [
+				"./libs/project-management/state/src/index.ts"
+			],
+			"@planicam/contacts/data-access": [
+				"./libs/contacts/data-access/src/index.ts"
+			],
+			"@planicam/contacts/state": ["./libs/contacts/state/src/index.ts"],
+			"@planicam/contacts/feature": ["./libs/contacts/feature/src/index.ts"],
+			"@planicam/fabrication/data-access": [
+				"./libs/fabrication/data-access/src/index.ts"
+			],
+			"@planicam/fabrication/state": ["./libs/fabrication/state/src/index.ts"],
+			"@planicam/fabrication/feature": [
+				"./libs/fabrication/feature/src/index.ts"
+			],
+			"@planicam/hub/data-access": ["./libs/hub/data-access/src/index.ts"],
+			"@planicam/hub/state": ["./libs/hub/state/src/index.ts"],
+			"@planicam/calc/temporary-engine": [
+				"./libs/calc/temporary-engine/src/index.ts"
+			],
+			"@planicam/hub/feature": ["./libs/hub/feature/src/index.ts"],
+			"@planicam/position-editor/state": [
+				"./libs/position-editor/state/src/index.ts"
+			],
+			"@planicam/position-editor/data-access": [
+				"./libs/position-editor/data-access/src/index.ts"
+			]
+		}
+	},
+	"exclude": ["node_modules", "tmp"]
+}

@@ -1,0 +1,296 @@
+<section class="contacts-page" aria-labelledby="contacts-title">
+	<pl-workspace-layout [showSidebar]="false">
+		<pl-workspace-header
+			workspace-header
+			title="Contacts"
+			headingId="contacts-title"
+			description="Your organization’s customers and business contacts"
+			[hasSelection]="store.selected() !== null"
+		>
+			<div workspace-actions>
+				<pl-button
+					label="New contact"
+					icon="newProject"
+					size="large"
+					(pressed)="openEditor()"
+				/>
+			</div>
+		</pl-workspace-header>
+		<section
+			workspace-main
+			class="collection"
+			aria-label="Contact list"
+			[attr.aria-busy]="store.loading()"
+		>
+			<div class="toolbar">
+				<pl-input-field
+					[field]="searchForm.query"
+					type="search"
+					ariaLabel="Search contacts"
+					placeholder="Search contacts"
+				/><pl-button label="Search" variant="outlined" (pressed)="search()" />
+			</div>
+			@if (store.error(); as error) {
+			<p class="error" role="alert">{{ error.message }}</p>
+			} @if (store.loading()) {
+			<p class="notice" role="status">Loading contacts…</p>
+			}
+			<pl-data-table
+				[rows]="rows()"
+				[columns]="columns"
+				[serverSorting]="true"
+				[sort]="sort()"
+				(sortChanged)="changeSort($event)"
+				[selectedId]="store.selectedId()"
+				emptyLabel="No contacts match this search"
+				(selected)="store.select($event)"
+			/>
+			<footer class="pagination">
+				<span>{{ store.total() }} contacts</span
+				><pl-button
+					label="Previous"
+					variant="text"
+					[disabled]="(store.query().page ?? 1) <= 1 || store.loading()"
+					(pressed)="page(-1)"
+				/><span>Page {{ store.query().page ?? 1 }}</span
+				><pl-button
+					label="Next"
+					variant="text"
+					[disabled]="(store.query().page ?? 1) * (store.query().pageSize ?? 25) >= store.total() || store.loading()"
+					(pressed)="page(1)"
+				/>
+			</footer>
+		</section>
+		<aside
+			workspace-properties
+			class="properties"
+			aria-label="Contact details"
+			[attr.aria-busy]="store.detailLoading()"
+		>
+			@if (store.selected(); as contact) {
+			<header>
+				<p class="pl-caption pl-text-muted">{{ contact.number }}</p>
+				<h2 class="pl-heading-md">{{ contact.name }}</h2>
+			</header>
+			<dl>
+				@for (field of textFields; track field.key) { @if (contact[field.key]) {
+				<div>
+					<dt>{{ field.label }}</dt>
+					<dd>{{ contact[field.key] }}</dd>
+				</div>
+				} }
+			</dl>
+			@if (contact.notes) {
+			<h3 class="pl-label">Notes</h3>
+			<p class="plain-text">{{ contact.notes }}</p>
+			}
+			<h3 class="pl-label">Projects using this contact</h3>
+			<ul class="project-links">
+				@for (project of contact.projects ?? []; track project.id) {
+				<li>
+					<a [routerLink]="['/hub/projects', project.id, 'positions']"
+						>{{ project.number }} · {{ project.name }}</a
+					>
+				</li>
+				} @empty {
+				<li class="pl-text-muted">No projects</li>
+				}
+			</ul>
+			<div class="detail-actions">
+				<pl-button
+					label="Edit contact"
+					icon="edit"
+					variant="outlined"
+					[disabled]="store.detailLoading()"
+					(pressed)="openEditor(contact)"
+				/><pl-button
+					label="Remove"
+					severity="danger"
+					variant="text"
+					[disabled]="store.detailLoading()"
+					(pressed)="confirmRemove(contact)"
+				/>
+			</div>
+			} @else {
+			<p class="notice">Select a contact to view its details.</p>
+			}
+		</aside>
+	</pl-workspace-layout>
+</section>
+<dialog
+	#editor
+	aria-labelledby="contact-editor-title"
+	(cancel)="store.saving() ? $event.preventDefault() : closeEditor()"
+>
+	<form (submit)="save($event)">
+		<header class="dialog-header">
+			<div>
+				<h2 id="contact-editor-title" class="pl-heading-md">
+					{{ editing() ? 'Edit contact' : 'New contact' }}
+				</h2>
+				<p class="pl-body-sm pl-text-muted">
+					Contact details remain available to linked projects.
+				</p>
+			</div>
+			<pl-button
+				label="Close"
+				variant="text"
+				[disabled]="store.saving()"
+				(pressed)="closeEditor()"
+			/>
+		</header>
+		<div class="form-body">
+			<div class="form-grid">
+				<pl-input-field [field]="contactForm.name" label="Name" />
+				<label
+					>Kind<select [formField]="contactForm.kind">
+						@for (option of catalog.options()['contactKinds'] ?? []; track
+						option.value) {
+						<option [value]="option.value">{{ option.label }}</option>
+						}
+					</select></label
+				>
+				<label
+					>Type<select [formField]="contactForm.type">
+						@for (option of catalog.options()['contactTypes'] ?? []; track
+						option.value) {
+						<option [value]="option.value">{{ option.label }}</option>
+						}
+					</select></label
+				>
+				@for (field of textFields; track field.key) {
+				<pl-input-field
+					[field]="contactForm[field.key]"
+					[label]="field.label"
+					[type]="field.type"
+				/>
+				}
+				<label class="full"
+					>Default estimation dataset<select
+						[formField]="contactForm.defaultEstimationDataSetId"
+					>
+						<option value="">Organization Standard</option>
+						@for (dataset of catalog.estimationDataSets(); track dataset.id) {
+						<option [value]="dataset.id">{{ dataset.name }}</option>
+						}
+					</select></label
+				>
+				<label class="full"
+					>Default conditions<textarea
+						[formField]="contactForm.conditions"
+						rows="3"
+					></textarea>
+				</label>
+				<label class="full"
+					>Notes<textarea [formField]="contactForm.notes" rows="3"></textarea>
+				</label>
+			</div>
+			<section class="form-section">
+				<h3 class="pl-label">Free data</h3>
+				@for (row of model().freeData; track $index; let index = $index) {
+				<div class="repeated-row">
+					<pl-input-field
+						[field]="contactForm.freeData[index].label"
+						label="Label"
+					/><pl-input-field
+						[field]="contactForm.freeData[index].value"
+						label="Value"
+					/><pl-button
+						label="Remove field"
+						variant="text"
+						(pressed)="removeFreeData(index)"
+					/>
+				</div>
+				}<pl-button
+					label="Add field"
+					variant="text"
+					(pressed)="addFreeData()"
+				/>
+			</section>
+			<section class="form-section">
+				<h3 class="pl-label">Default pricing adjustments</h3>
+				<p class="pl-caption pl-text-muted">
+					Applied in order. Each cap uses the project’s estimation currency.
+				</p>
+				@for (row of model().adjustments; track $index; let index = $index) {
+				<div class="adjustment-row">
+					<pl-input-field
+						[field]="contactForm.adjustments[index].label"
+						label="Label"
+					/><label
+						>Direction<select
+							[formField]="contactForm.adjustments[index].direction"
+						>
+							<option value="DISCOUNT">Discount</option>
+							<option value="SURCHARGE">Surcharge</option>
+						</select></label
+					><pl-input-field
+						[field]="contactForm.adjustments[index].percentage"
+						label="Percentage"
+						unit="%"
+					/><pl-input-field
+						[field]="contactForm.adjustments[index].cap"
+						label="Maximum amount"
+					/><pl-button
+						label="Remove adjustment"
+						variant="text"
+						(pressed)="removeAdjustment(index)"
+					/>
+				</div>
+				}<pl-button
+					label="Add adjustment"
+					variant="text"
+					(pressed)="addAdjustment()"
+				/>
+			</section>
+			@if (formError()) {
+			<p class="error" role="alert">{{ formError() }}</p>
+			} @if (store.error(); as error) {
+			<p class="error" role="alert">{{ error.message }}</p>
+			}
+		</div>
+		<footer class="dialog-actions">
+			<pl-button
+				label="Cancel"
+				variant="outlined"
+				[disabled]="store.saving()"
+				(pressed)="closeEditor()"
+			/><pl-button
+				label="Save contact"
+				type="submit"
+				[loading]="store.saving()"
+			/>
+		</footer>
+	</form>
+</dialog>
+<dialog
+	#removal
+	aria-labelledby="contact-removal-title"
+	(cancel)="store.saving() ? $event.preventDefault() : closeRemoval()"
+>
+	<form (submit)="remove($event)">
+		<div class="form-body">
+			<h2 id="contact-removal-title" class="pl-heading-md">Remove contact?</h2>
+			<p>
+				{{ deleteTarget()?.name }} will be removed from the directory. Existing
+				project references will be preserved.
+			</p>
+			@if (store.error(); as error) {
+			<p class="error" role="alert">{{ error.message }}</p>
+			}
+		</div>
+		<footer class="dialog-actions">
+			<pl-button
+				label="Cancel"
+				variant="outlined"
+				[disabled]="store.saving()"
+				(pressed)="closeRemoval()"
+			/><pl-button
+				label="Remove contact"
+				severity="danger"
+				type="submit"
+				[loading]="store.saving()"
+			/>
+		</footer>
+	</form>
+</dialog>

@@ -1,0 +1,15 @@
+[     382ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[   62257ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[   62738ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/vat-rates:0
+[   62741ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/estimation-data-sets:0
+[   63756ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/vat-rates:0
+[   63756ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/estimation-data-sets:0
+[   66771ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/vat-rates:0
+[   66771ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/estimation-data-sets:0
+[  822570ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  823092ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/vat-rates:0
+[  823101ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/estimation-data-sets:0
+[  824101ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/vat-rates:0
+[  824108ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/estimation-data-sets:0
+[  827115ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/vat-rates:0
+[  827115ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/organization/estimation-data-sets:0

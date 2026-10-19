@@ -1,0 +1,29 @@
+[     700ms] SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document.
+    at <anonymous>:2:430
+    at <anonymous>:3:7
+[    1321ms] SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document.
+    at <anonymous>:2:430
+    at <anonymous>:3:7
+[   97630ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  120505ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  123756ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  127455ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  132214ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  153536ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  157571ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  162232ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  189217ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  192833ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[  196840ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5191304ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5291427ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5491113ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5504396ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5600684ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5713212ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 5764883ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 6116510ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 8386689ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 8395421ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 8440335ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151
+[ 8500898ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=0ebf9ed3:9151

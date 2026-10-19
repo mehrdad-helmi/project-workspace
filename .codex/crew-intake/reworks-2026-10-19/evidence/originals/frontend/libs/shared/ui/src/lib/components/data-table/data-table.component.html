@@ -1,0 +1,195 @@
+<p-table
+	[value]="values()"
+	selectionMode="single"
+	[selection]="selection()"
+	dataKey="id"
+	[lazy]="serverSorting()"
+	[lazyLoadOnInit]="false"
+	[metaKeySelection]="false"
+	[scrollable]="true"
+	scrollHeight="flex"
+	(onRowSelect)="selectRow($event.data)"
+	(onRowUnselect)="selected.emit(null)"
+>
+	<ng-template #header>
+		<tr>
+			@if (expansionTemplate()) {
+				<th class="expansion-column">
+					<span class="sr-only">Expand row</span>
+				</th>
+			}
+			@for (column of columns(); track column.key) {
+				@if (serverSorting()) {
+					<th
+						[attr.aria-sort]="
+							sort()?.field === column.key
+								? sort()?.direction === 'asc'
+									? 'ascending'
+									: 'descending'
+								: null
+						"
+					>
+						@if (column.sortable !== false) {
+							<button
+								class="sort-button"
+								type="button"
+								(click)="sortColumn(column.key)"
+							>
+								{{ column.label }}
+								<span aria-hidden="true">{{
+									sort()?.field === column.key
+										? sort()?.direction === 'asc'
+											? '↑'
+											: '↓'
+										: '↕'
+								}}</span>
+							</button>
+						} @else {
+							<span>{{ column.label }}</span>
+						}
+					</th>
+				} @else {
+					<th
+						[pSortableColumn]="'cells.' + column.key"
+						[pSortableColumnDisabled]="column.sortable === false"
+					>
+						<span>{{ column.label }}</span
+						><p-sort-icon [field]="'cells.' + column.key" />
+					</th>
+				}
+			}
+			@if (actionsTemplate()) {
+				<th class="actions-column"><span class="sr-only">Actions</span></th>
+			}
+		</tr>
+	</ng-template>
+	<ng-template #body let-row let-expanded="expanded">
+		<tr [pSelectableRow]="row" [attr.aria-label]="row.cells['name']">
+			@if (expansionTemplate()) {
+				<td class="expansion-column">
+					<button
+						type="button"
+						class="expansion-toggle"
+						[pRowToggler]="row"
+						[attr.aria-label]="
+							(expanded ? 'Collapse ' : 'Expand ') + row.cells['name']
+						"
+						[attr.aria-expanded]="expanded"
+						(click)="$event.stopPropagation()"
+					>
+						<svg
+							plIcon="next"
+							[size]="12"
+							[class.is-expanded]="expanded"
+							aria-hidden="true"
+						/>
+					</button>
+				</td>
+			}
+			@for (column of columns(); track column.key) {
+				<td>
+					@if (
+						column.editable &&
+						editing()?.rowId === row.id &&
+						editing()?.column === column.key
+					) {
+						<input
+							#cellEditor
+							pInputText
+							[formField]="editForm.value"
+							[attr.aria-label]="
+								'Edit ' + column.label + ' for ' + row.cells['name']
+							"
+							class="cell-editor"
+							[attr.aria-invalid]="invalidEdit()"
+							[attr.aria-describedby]="
+								invalidEdit() ? 'pl-table-edit-error' : null
+							"
+							(click)="$event.stopPropagation()"
+							(keydown.enter)="
+								$event.preventDefault();
+								$event.stopPropagation();
+								finishEdit(true)
+							"
+							(keydown.escape)="cancelEdit($event)"
+							(blur)="finishEdit()"
+						/>
+						@if (invalidEdit()) {
+							<span class="cell-error" id="pl-table-edit-error" role="alert"
+								>Enter a value.</span
+							>
+						}
+					} @else {
+						<div [class.editable-cell]="column.editable">
+							@if (row.links?.[column.key]; as link) {
+								<a
+									class="cell-link"
+									[routerLink]="link"
+									(click)="$event.stopPropagation()"
+									(keydown)="$event.stopPropagation()"
+									>{{ row.cells[column.key] }}</a
+								>
+							} @else if (cellTemplate(); as cell) {
+								<ng-container
+									[ngTemplateOutlet]="cell"
+									[ngTemplateOutletContext]="{ $implicit: row, column }"
+								/>
+							} @else {
+								<span>{{ row.cells[column.key] ?? '–' }}</span>
+							}
+							@if (column.editable) {
+								<button
+									#editButton
+									[attr.data-row-id]="row.id"
+									[attr.data-column]="column.key"
+									type="button"
+									class="cell-edit-button"
+									[attr.aria-label]="
+										'Edit ' + column.label + ' for ' + row.cells['name']
+									"
+									(click)="startEdit($event, row, column)"
+								>
+									<svg plIcon="edit" [size]="12" aria-hidden="true" />
+								</button>
+							}
+						</div>
+					}
+				</td>
+			}
+			@if (actionsTemplate(); as actions) {
+				<td class="actions-column" (click)="$event.stopPropagation()">
+					<ng-container
+						[ngTemplateOutlet]="actions"
+						[ngTemplateOutletContext]="{ $implicit: row }"
+					/>
+				</td>
+			}
+		</tr>
+	</ng-template>
+	<ng-template #expandedrow let-row>
+		@if (expansionTemplate(); as expansion) {
+			<tr>
+				<td [attr.colspan]="columns().length + 1 + (actionsTemplate() ? 1 : 0)">
+					<ng-container
+						[ngTemplateOutlet]="expansion"
+						[ngTemplateOutletContext]="{ $implicit: row }"
+					/>
+				</td>
+			</tr>
+		}
+	</ng-template>
+	<ng-template #emptymessage
+		><tr>
+			<td
+				[attr.colspan]="
+					columns().length +
+					(actionsTemplate() ? 1 : 0) +
+					(expansionTemplate() ? 1 : 0)
+				"
+				class="empty-message"
+			>
+				{{ emptyLabel() }}
+			</td>
+		</tr></ng-template
+	>
+</p-table>

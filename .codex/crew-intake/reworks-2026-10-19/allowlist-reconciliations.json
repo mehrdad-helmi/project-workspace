@@ -1,0 +1,266 @@
+[
+	{
+		"repository": "backend",
+		"path": "src/modules/printouts/definitions/printout-definitions.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "src/modules/printouts/types/printout-definition.contracts.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "src/modules/printouts/types/printout-workflow.types.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "src/modules/printouts/api/dto/printout.dto.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "src/modules/printouts/api/dto/printout-response.dto.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "src/modules/printouts/application/printout-definition-validator.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "prisma/migrations/20261019090000_printout_definitions/migration.sql",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "test/reworks.e2e-spec.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.033Z"
+	},
+	{
+		"repository": "backend",
+		"path": "src/infrastructure/database/prisma/prisma-json.d.ts",
+		"original": "captured",
+		"at": "2026-10-19T05:54:20.079Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/dialog/dialog.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/dialog/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/select/select.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/select/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/confirmation/confirmation.service.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/confirmation/confirmation-host.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/confirmation/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/accordion/accordion.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/accordion/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/options-control/options-control.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/options-control/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/status/status.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/ui/src/lib/components/status/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/data-access/src/lib/read-all-pages.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/data-access/src/index.ts",
+		"original": "captured",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/project-management/feature/src/lib/components/customer-summary/customer-summary.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/project-management/feature/src/lib/components/customer-summary/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.html",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/fabrication/feature/src/lib/pages/fabrication-batch/fabrication-batch.page.scss",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/feature/src/lib/components/printout-options/printout-options.component.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.118Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/feature/src/lib/components/printout-options/printout-options.component.html",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.119Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/feature/src/lib/components/printout-options/printout-options.component.scss",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.119Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/data-access/src/lib/printout-definition.model.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.119Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/data-access/src/lib/printout-options.validation.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:54:20.119Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/project-management/feature/src/lib/components/position-form/position-form.component.html",
+		"original": "absent",
+		"at": "2026-10-19T05:59:00.211Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/project-management/feature/src/lib/components/position-form/position-form.component.scss",
+		"original": "absent",
+		"at": "2026-10-19T05:59:00.211Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/data-access/src/lib/printout-workflow.gateway.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:59:00.211Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/feature/src/lib/components/printout-options/index.ts",
+		"original": "absent",
+		"at": "2026-10-19T05:59:00.211Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/data-access/src/lib/printout-options.validation.spec.ts",
+		"original": "absent",
+		"at": "2026-10-19T13:27:39.770Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/data-access/src/lib/read-all-pages.spec.ts",
+		"original": "absent",
+		"at": "2026-10-19T13:27:39.770Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/hub/state/src/lib/hub-printout-selection.store.spec.ts",
+		"original": "absent",
+		"at": "2026-10-19T13:27:39.770Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/data-access/src/lib/api-response.ts",
+		"recovery": "preserved-initial-index-blob-matches-initial-working-hash",
+		"at": "2026-10-19T13:27:39.806Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/shared/data-access/src/lib/api-response.ts",
+		"original": "captured",
+		"at": "2026-10-19T13:27:39.806Z"
+	},
+	{
+		"repository": "frontend",
+		"path": "libs/fabrication/state/src/lib/fabrication.store.spec.ts",
+		"original": "absent",
+		"at": "2026-10-19T15:15:19.841Z"
+	}
+]

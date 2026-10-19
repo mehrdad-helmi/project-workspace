@@ -1,0 +1,2195 @@
+
+# Task path backend:src/modules/printouts/api/printouts.controller.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\api\\printouts.controller.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\api\\printouts.controller.ts"
+index 30f4271..b71ba14 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\api\\printouts.controller.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\api\\printouts.controller.ts"
+@@ -1,20 +1,40 @@
+ import { HubApiResponse } from '../../hub/api/hub-api-response.decorator';
+-import { HubJsonDataDto } from '../../hub/api/dto/hub-response.dto';
+-import { Controller, Get, UseInterceptors } from '@nestjs/common';
++import {
++	Body as RequestBody,
++	Controller,
++	Get,
++	HttpCode,
++	Post,
++	UseInterceptors,
++} from '@nestjs/common';
+ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+ import { CurrentActor } from '@planicam/auth';
+ import type { AuthenticatedActor } from '@planicam/auth';
+ import { PrintoutsService } from '../application/printouts.service';
+ import { HubSerializationInterceptor } from '../../hub/api/hub-serialization.interceptor';
++import { ValidatePrintoutsDto } from './dto/printout.dto';
++import {
++	PrintoutTypeDataDto,
++	PrintoutValidationDataDto,
++} from './dto/printout-response.dto';
+ @ApiTags('Printouts')
+ @ApiBearerAuth()
+ @UseInterceptors(HubSerializationInterceptor)
+-@Controller('printout-types')
++@Controller()
+ export class PrintoutsController {
+ 	constructor(private readonly service: PrintoutsService) {}
+-	@HubApiResponse(HubJsonDataDto, 200, true)
+-	@Get()
++	@HubApiResponse(PrintoutTypeDataDto, 200, true)
++	@Get('printout-types')
+ 	list(@CurrentActor() actor: AuthenticatedActor) {
+ 		return this.service.listTypes(actor);
+ 	}
++	@HubApiResponse(PrintoutValidationDataDto, 200)
++	@HttpCode(200)
++	@Post('printouts/validate')
++	validate(
++		@CurrentActor() actor: AuthenticatedActor,
++		@RequestBody() body: ValidatePrintoutsDto,
++	) {
++		return this.service.validate(actor, body);
++	}
+ }
+
+# Task path backend:src/modules/printouts/application/printouts.service.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\application\\printouts.service.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\application\\printouts.service.ts"
+index c154b55..cadd3af 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\application\\printouts.service.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\application\\printouts.service.ts"
+@@ -1,19 +1,119 @@
+-import { Injectable } from '@nestjs/common';
++import {
++	BadRequestException,
++	ConflictException,
++	Injectable,
++} from '@nestjs/common';
+ import { PrintoutsRepository } from '../infrastructure/printouts.repository';
++import {
++	PRINTOUT_DEFINITIONS,
++	printoutDefinition,
++} from '../definitions/printout-definitions';
++import { PrintoutDefinitionValidator } from './printout-definition-validator';
++import type { HubActor } from '../../hub/types/hub-persistence.types';
++import type {
++	PrintoutValidationInput,
++	PrintoutValidationResult,
++} from '../types/printout-workflow.types';
+ @Injectable()
+ export class PrintoutsService {
+-	constructor(private readonly repository: PrintoutsRepository) {}
++	constructor(
++		private readonly repository: PrintoutsRepository,
++		private readonly validator: PrintoutDefinitionValidator,
++	) {
++		for (const definition of PRINTOUT_DEFINITIONS)
++			validator.assertDefinition(definition);
++	}
+ 	async listTypes(...args: Parameters<PrintoutsRepository['listTypes']>) {
+ 		const rows = await this.repository.listTypes(...args);
+-		return rows.map((row) => ({
+-			...row,
+-			canGenerate: false,
+-			badge:
+-				row.status === 'AVAILABLE'
+-					? 'Available'
+-					: row.status === 'NEXT'
+-						? 'Next'
+-						: 'Planned',
+-		}));
++		return rows.map((row) => {
++			const definition = printoutDefinition(row.code);
++			return {
++				id: row.id,
++				code: row.code,
++				name: row.name,
++				category: row.category,
++				description: row.description,
++				scope: row.scope,
++				status: row.status,
++				// No implementation is registered. A stored badge/address cannot enable execution.
++				endpoint: null,
++				icon: row.icon,
++				definitionVersion: definition?.definitionVersion ?? null,
++				supportedFormats: definition?.supportedFormats ?? [],
++				optionsSchema: definition?.optionsSchema ?? null,
++				optionsUi: definition?.optionsUi ?? null,
++				initialValues: definition?.initialValues ?? null,
++			};
++		});
++	}
++	async validate(actor: HubActor, input: PrintoutValidationInput) {
++		if (!(await this.repository.hasEligibleElements(actor, input.elementIds)))
++			throw new BadRequestException({
++				message: 'One or more selected elements are unavailable',
++				error: { code: 'PRINTOUT_INPUTS_UNAVAILABLE' },
++			});
++		const stale = input.printouts.flatMap((item) => {
++			const definition = printoutDefinition(item.code);
++			return definition &&
++				definition.definitionVersion !== item.definitionVersion
++				? [
++						{
++							code: item.code,
++							receivedVersion: item.definitionVersion,
++							currentVersion: definition.definitionVersion,
++						},
++					]
++				: [];
++		});
++		if (stale.length)
++			throw new ConflictException({
++				message: 'Reload the changed printout definitions',
++				error: { code: 'PRINT_OUT_DEFINITION_STALE', printouts: stale },
++			});
++		const printouts: PrintoutValidationResult[] = input.printouts.map(
++			(item) => {
++				const definition = printoutDefinition(item.code);
++				if (!definition)
++					return {
++						code: item.code,
++						valid: false,
++						errors: [
++							{
++								path: '/code',
++								keyword: 'definition',
++								message: 'No option definition is registered for this printout',
++							},
++						],
++					};
++				const errors = this.validator.errors(definition, item.options);
++				if (!item.formats.length)
++					errors.push({
++						path: '/formats',
++						keyword: 'minItems',
++						message: 'Select at least one supported output format',
++					});
++				if (new Set(item.formats).size !== item.formats.length)
++					errors.push({
++						path: '/formats',
++						keyword: 'uniqueItems',
++						message: 'Output formats must be unique',
++					});
++				if (
++					item.formats.some(
++						(format) =>
++							!definition.supportedFormats.some(
++								(supported) => supported === format,
++							),
++					)
++				)
++					errors.push({
++						path: '/formats',
++						keyword: 'enum',
++						message: 'An output format is not supported by this definition',
++					});
++				return { code: item.code, valid: errors.length === 0, errors };
++			},
++		);
++		return { valid: printouts.every((item) => item.valid), printouts };
+ 	}
+ }
+
+# Task path backend:src/modules/printouts/infrastructure/printouts.repository.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\infrastructure\\printouts.repository.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\infrastructure\\printouts.repository.ts"
+index 79754a6..352c072 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\infrastructure\\printouts.repository.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\infrastructure\\printouts.repository.ts"
+@@ -7,9 +7,31 @@ export class PrintoutsRepository {
+ 	constructor(private readonly database: DatabaseService) {}
+ 	async listTypes(_actor: HubActor) {
+ 		const rows = await this.database.printoutType.findMany({
+-			where: { status: { not: 'DEPRECATED' } },
++			where: { status: { in: ['PLANNED', 'AVAILABLE'] } },
+ 			orderBy: [{ category: 'asc' }, { name: 'asc' }],
+ 		});
+-		return rows.map((row) => ({ ...row, canGenerate: false }));
++		return rows;
++	}
++	async hasEligibleElements(actor: HubActor, ids: string[]): Promise<boolean> {
++		return (
++			(await this.database.positionElement.count({
++				where: {
++					id: { in: ids },
++					organizationId: actor.organizationId,
++					deletedAt: null,
++					isExcluded: false,
++					position: {
++						organizationId: actor.organizationId,
++						deletedAt: null,
++						archivedAt: null,
++						project: {
++							organizationId: actor.organizationId,
++							deletedAt: null,
++							archivedAt: null,
++						},
++					},
++				},
++			})) === ids.length
++		);
+ 	}
+ }
+
+# Task path backend:src/modules/printouts/printouts.module.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\printouts.module.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\printouts.module.ts"
+index 2e456f5..4162be0 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\printouts.module.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\printouts.module.ts"
+@@ -2,8 +2,13 @@ import { Module } from '@nestjs/common';
+ import { PrintoutsRepository } from './infrastructure/printouts.repository';
+ import { PrintoutsService } from './application/printouts.service';
+ import { PrintoutsController } from './api/printouts.controller';
++import { PrintoutDefinitionValidator } from './application/printout-definition-validator';
+ @Module({
+ 	controllers: [PrintoutsController],
+-	providers: [PrintoutsRepository, PrintoutsService],
++	providers: [
++		PrintoutsRepository,
++		PrintoutsService,
++		PrintoutDefinitionValidator,
++	],
+ })
+ export class PrintoutsModule {}
+
+# Task path backend:src/modules/positions/api/dto/position.dto.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\positions\\api\\dto\\position.dto.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\positions\\api\\dto\\position.dto.ts"
+index 7852223..671cf1f 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\positions\\api\\dto\\position.dto.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\positions\\api\\dto\\position.dto.ts"
+@@ -1,5 +1,6 @@
+ import { ApiProperty } from '@nestjs/swagger';
+ import { IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
++import { Type } from 'class-transformer';
+ import {
+ 	IsBoolean,
+ 	IsEnum,
+@@ -13,10 +14,23 @@ import {
+ 	Min,
+ 	MinLength,
+ 	ValidateIf,
++	ValidateNested,
+ } from 'class-validator';
+ import { PositionType } from '@planicam/prisma';
+ import { PreserveJsonValue } from '../../../../common/validation/json-contract.validators';
+ import { VersionDto } from '../../../hub/api/dto/hub.dto';
++export class InitialPositionDesignDto {
++	@ApiProperty({ minimum: 1 })
++	@PreserveJsonValue()
++	@IsInt()
++	@Min(1)
++	schemaVersion!: number;
++
++	@ApiProperty({ type: Object })
++	@IsObject()
++	@PreserveJsonValue()
++	input!: PrismaJson.DeferredEngineeringInput;
++}
+ export class CreatePositionDto {
+ 	@ApiProperty({ required: true, type: String })
+ 	@IsUUID()
+@@ -31,12 +45,23 @@ export class CreatePositionDto {
+ 	@ApiProperty({ required: true, type: String })
+ 	@IsString()
+ 	@MinLength(1)
+-	@MaxLength(255)
++	@MaxLength(50)
+ 	name!: string;
+-	@ValidateIf((_o: unknown, v: unknown) => v !== undefined)
+ 	@IsEnum(PositionType)
+-	@ApiProperty({ required: false, type: String })
+-	type?: PositionType;
++	@ApiProperty({ required: true, enum: PositionType })
++	type!: PositionType;
++	@ApiProperty({ required: false, minimum: 1, maximum: 10000, default: 1 })
++	@ValidateIf((_o: unknown, v: unknown) => v !== undefined)
++	@PreserveJsonValue()
++	@IsInt()
++	@Min(1)
++	@Max(10000)
++	quantity?: number;
++	@ApiProperty({ required: false, type: InitialPositionDesignDto })
++	@ValidateIf((_o: unknown, v: unknown) => v !== undefined)
++	@ValidateNested()
++	@Type(() => InitialPositionDesignDto)
++	initialDesign?: InitialPositionDesignDto;
+ 	@ApiProperty({ required: false, type: String })
+ 	@IsOptional()
+ 	@IsString()
+@@ -50,7 +75,13 @@ export class CreatePositionDto {
+ }
+ export class UpdatePositionDto extends IntersectionType(
+ 	PartialType(
+-		OmitType(CreatePositionDto, ['projectId', 'systemId', 'type'] as const),
++		OmitType(CreatePositionDto, [
++			'projectId',
++			'systemId',
++			'type',
++			'quantity',
++			'initialDesign',
++		] as const),
+ 		{ skipNullProperties: false },
+ 	),
+ 	VersionDto,
+
+# Task path backend:src/modules/positions/infrastructure/positions.repository.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\positions\\infrastructure\\positions.repository.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\positions\\infrastructure\\positions.repository.ts"
+index 3fb8cfa..3361413 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\positions\\infrastructure\\positions.repository.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\positions\\infrastructure\\positions.repository.ts"
+@@ -169,6 +169,22 @@ export class PositionsRepository {
+ 	}
+ 
+ 	async create(actor: HubActor, input: CreatePositionInput) {
++		const { quantity = 1, initialDesign, ...metadata } = input;
++		if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10000)
++			throw new BadRequestException(
++				'Initial quantity must be an integer from 1 to 10000',
++			);
++		if (
++			initialDesign &&
++			(!Number.isInteger(initialDesign.schemaVersion) ||
++				initialDesign.schemaVersion < 1 ||
++				!initialDesign.input ||
++				typeof initialDesign.input !== 'object' ||
++				Array.isArray(initialDesign.input))
++		)
++			throw new BadRequestException(
++				'A versioned engineering input object is required',
++			);
+ 		const row = await this.database.runSerializableTransaction(async (tx) => {
+ 			await requireProject(tx, actor, input.projectId);
+ 			await this.validatePhase(tx, input.projectId, input.phaseId);
+@@ -183,8 +199,9 @@ export class PositionsRepository {
+ 			});
+ 			const position = await tx.position.create({
+ 				data: {
+-					...input,
++					...metadata,
+ 					...numbering,
++					status: initialDesign ? 'IN_PROGRESS' : 'CREATED',
+ 					organizationId: actor.organizationId,
+ 					createdByUserId: actor.userId,
+ 					thumbnailKey:
+@@ -196,7 +213,7 @@ export class PositionsRepository {
+ 				positionId: position.id,
+ 				type: 'ELEMENT',
+ 			});
+-			await this.addElements(tx, actor, position.id, 1);
++			await this.addElements(tx, actor, position.id, quantity);
+ 			await this.activity(
+ 				tx,
+ 				actor,
+@@ -204,6 +221,19 @@ export class PositionsRepository {
+ 				'CREATED',
+ 				'Position created',
+ 			);
++			if (initialDesign) {
++				await tx.positionDesign.create({
++					data: { positionId: position.id, ...initialDesign },
++				});
++				await this.activity(
++					tx,
++					actor,
++					position.id,
++					'DESIGN_INITIALIZED',
++					'Design initialized',
++					{ designSchemaVersion: initialDesign.schemaVersion },
++				);
++			}
+ 			return position;
+ 		});
+ 		return this.findById(actor, row.id);
+
+# Task path backend:src/modules/positions/types/positions-repository.types.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\positions\\types\\positions-repository.types.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\positions\\types\\positions-repository.types.ts"
+index 2db14c0..185bcf6 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\positions\\types\\positions-repository.types.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\positions\\types\\positions-repository.types.ts"
+@@ -5,7 +5,12 @@ export type CreatePositionInput = {
+ 	phaseId?: string | null;
+ 	systemId: string;
+ 	name: string;
+-	type?: PositionType;
++	type: PositionType;
++	quantity?: number;
++	initialDesign?: {
++		schemaVersion: number;
++		input: PrismaJson.DeferredEngineeringInput;
++	};
+ 	briefDescription?: string | null;
+ 	modelDescription?: string | null;
+ };
+
+# Task path backend:prisma/seeds/printouts.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\prisma\\seeds\\printouts.ts" "b/D:\\Planicam\\planicam-backend\\prisma\\seeds\\printouts.ts"
+index 28525ac..09279a1 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\prisma\\seeds\\printouts.ts"
++++ "b/D:\\Planicam\\planicam-backend\\prisma\\seeds\\printouts.ts"
+@@ -1,4 +1,9 @@
+-import type { PrintoutCategory, PrintoutTypeStatus } from '@planicam/prisma';
++import {
++	Prisma,
++	type PrintoutCategory,
++	type PrintoutTypeStatus,
++} from '@planicam/prisma';
++import { requiredOptionsProjection } from '../../src/modules/printouts/definitions/printout-definitions';
+ 
+ const rows: readonly [PrintoutCategory, string, PrintoutTypeStatus][] = [
+ 	['ESTIMATION', 'Estimation', 'AVAILABLE'],
+@@ -52,13 +57,24 @@ const rows: readonly [PrintoutCategory, string, PrintoutTypeStatus][] = [
+ 	['FABRICATION', 'Cross Section Plan', 'PLANNED'],
+ ];
+ 
+-export const PRINTOUT_SEEDS = rows.map(([category, name, status]) => ({
+-	code: `${category.toLowerCase()}-${name
++export const PRINTOUT_SEEDS = rows.map(([category, name, status]) => {
++	const code = `${category.toLowerCase()}-${name
+ 		.toLowerCase()
+ 		.replace(/[^a-z0-9]+/gu, '-')
+-		.replace(/^-|-$/gu, '')}`,
+-	category,
+-	name,
+-	status,
+-	scope: 'POSITIONS' as const,
+-}));
++		.replace(/^-|-$/gu, '')}`;
++	return {
++		code,
++		category,
++		name,
++		status,
++		scope: 'POSITIONS' as const,
++		endpoint: null,
++		icon:
++			code === 'estimation-estimation'
++				? 'estimation'
++				: code === 'estimation-material-analysis'
++					? 'articleList'
++					: 'printout',
++		requiredOptions: requiredOptionsProjection(code) ?? Prisma.DbNull,
++	};
++});
+
+# Task path backend:prisma/models/printouts.prisma
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\prisma\\models\\printouts.prisma" "b/D:\\Planicam\\planicam-backend\\prisma\\models\\printouts.prisma"
+index f70d57e..11254fd 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\prisma\\models\\printouts.prisma"
++++ "b/D:\\Planicam\\planicam-backend\\prisma\\models\\printouts.prisma"
+@@ -34,6 +34,10 @@ model PrintoutType {
+ 	description String?            @map("description") @db.Text
+ 	scope       PrintoutScope      @map("scope")
+ 	status      PrintoutTypeStatus @default(PLANNED) @map("status")
++	endpoint    String?            @map("endpoint") @db.Text
++	icon        String             @default("printout") @map("icon") @db.Text
++	/// [PrintoutRequiredOptions]
++	requiredOptions Json?          @map("required_options") @db.JsonB
+ 
+ 	/// One-to-many relation between PrintoutType and GeneratedPrintout.
+ 	generations GeneratedPrintout[] @relation("GeneratedPrintoutPrintoutType")
+
+# Task path backend:package.json
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\package.json" "b/D:\\Planicam\\planicam-backend\\package.json"
+index 487eab7..90ae28a 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\package.json"
++++ "b/D:\\Planicam\\planicam-backend\\package.json"
+@@ -45,6 +45,7 @@
+ 		"@nestjs/swagger": "^11.4.5",
+ 		"@prisma/adapter-pg": "^7.8.0",
+ 		"@prisma/client": "^7.8.0",
++		"ajv": "^8",
+ 		"argon2": "^0.44.0",
+ 		"class-transformer": "^0.5.1",
+ 		"class-validator": "^0.15.1",
+
+# Task path backend:bun.lock
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\bun.lock" "b/D:\\Planicam\\planicam-backend\\bun.lock"
+index 5b78d13..6148a31 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\bun.lock"
++++ "b/D:\\Planicam\\planicam-backend\\bun.lock"
+@@ -17,6 +17,7 @@
+         "@nestjs/swagger": "^11.4.5",
+         "@prisma/adapter-pg": "^7.8.0",
+         "@prisma/client": "^7.8.0",
++        "ajv": "^8",
+         "argon2": "^0.44.0",
+         "class-transformer": "^0.5.1",
+         "class-validator": "^0.15.1",
+@@ -854,7 +855,7 @@
+ 
+     "acorn-walk": ["acorn-walk@8.3.5", "", { "dependencies": { "acorn": "^8.11.0" } }, "sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw=="],
+ 
+-    "ajv": ["ajv@6.15.0", "", { "dependencies": { "fast-deep-equal": "^3.1.1", "fast-json-stable-stringify": "^2.0.0", "json-schema-traverse": "^0.4.1", "uri-js": "^4.2.2" } }, "sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw=="],
++    "ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
+ 
+     "ajv-formats": ["ajv-formats@3.0.1", "", { "dependencies": { "ajv": "^8.0.0" } }, "sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ=="],
+ 
+@@ -1500,7 +1501,7 @@
+ 
+     "json-schema-ref-resolver": ["json-schema-ref-resolver@3.0.0", "", { "dependencies": { "dequal": "^2.0.3" } }, "sha512-hOrZIVL5jyYFjzk7+y7n5JDzGlU8rfWDuYyHwGa2WA8/pcmMHezp2xsVwxrebD/Q9t8Nc5DboieySDpCp4WG4A=="],
+ 
+-    "json-schema-traverse": ["json-schema-traverse@0.4.1", "", {}, "sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg=="],
++    "json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+ 
+     "json-stable-stringify-without-jsonify": ["json-stable-stringify-without-jsonify@1.0.1", "", {}, "sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw=="],
+ 
+@@ -2236,6 +2237,8 @@
+ 
+     "@eslint-community/eslint-utils/eslint-visitor-keys": ["eslint-visitor-keys@3.4.3", "", {}, "sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag=="],
+ 
++    "@eslint/eslintrc/ajv": ["ajv@6.15.0", "", { "dependencies": { "fast-deep-equal": "^3.1.1", "fast-json-stable-stringify": "^2.0.0", "json-schema-traverse": "^0.4.1", "uri-js": "^4.2.2" } }, "sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw=="],
++
+     "@eslint/eslintrc/globals": ["globals@14.0.0", "", {}, "sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ=="],
+ 
+     "@fastify/ajv-compiler/ajv": ["ajv@8.18.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A=="],
+@@ -2288,8 +2291,6 @@
+ 
+     "@prisma/get-platform/@prisma/debug": ["@prisma/debug@7.2.0", "", {}, "sha512-YSGTiSlBAVJPzX4ONZmMotL+ozJwQjRmZweQNIq/ER0tQJKJynNkRB3kyvt37eOfsbMCXk3gnLF6J9OJ4QWftw=="],
+ 
+-    "@prisma/streams-local/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
+-
+     "@prisma/streams-local/env-paths": ["env-paths@3.0.0", "", {}, "sha512-dtJUTepzMW3Lm/NPxRf3wP4642UWhjL2sQxc+ym2YMj1m/H2zDNQOlezafzkHwn6sMstjHTwG6iQQsctDW/b1A=="],
+ 
+     "@swc/cli/commander": ["commander@8.3.0", "", {}, "sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww=="],
+@@ -2324,6 +2325,8 @@
+ 
+     "encoding-sniffer/iconv-lite": ["iconv-lite@0.6.3", "", { "dependencies": { "safer-buffer": ">= 2.1.2 < 3.0.0" } }, "sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw=="],
+ 
++    "eslint/ajv": ["ajv@6.15.0", "", { "dependencies": { "fast-deep-equal": "^3.1.1", "fast-json-stable-stringify": "^2.0.0", "json-schema-traverse": "^0.4.1", "uri-js": "^4.2.2" } }, "sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw=="],
++
+     "express/content-type": ["content-type@1.0.5", "", {}, "sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA=="],
+ 
+     "express/cookie": ["cookie@0.7.2", "", {}, "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w=="],
+@@ -2394,6 +2397,8 @@
+ 
+     "restore-cursor/signal-exit": ["signal-exit@3.0.7", "", {}, "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="],
+ 
++    "schema-utils/ajv": ["ajv@6.15.0", "", { "dependencies": { "fast-deep-equal": "^3.1.1", "fast-json-stable-stringify": "^2.0.0", "json-schema-traverse": "^0.4.1", "uri-js": "^4.2.2" } }, "sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw=="],
++
+     "seek-bzip/commander": ["commander@6.2.1", "", {}, "sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA=="],
+ 
+     "sirv/@polka/url": ["@polka/url@1.0.0-next.29", "", {}, "sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww=="],
+@@ -2426,16 +2431,12 @@
+ 
+     "wrap-ansi-cjs/ansi-styles": ["ansi-styles@4.3.0", "", { "dependencies": { "color-convert": "^2.0.1" } }, "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg=="],
+ 
+-    "@angular-devkit/core/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+     "@angular-devkit/core/chokidar/readdirp": ["readdirp@4.1.2", "", {}, "sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg=="],
+ 
+     "@angular-devkit/schematics-cli/@angular-devkit/schematics/magic-string": ["magic-string@0.30.17", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0" } }, "sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA=="],
+ 
+     "@angular-devkit/schematics-cli/@angular-devkit/schematics/rxjs": ["rxjs@7.8.1", "", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg=="],
+ 
+-    "@angular-devkit/schematics/@angular-devkit/core/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
+-
+     "@angular-devkit/schematics/@angular-devkit/core/picomatch": ["picomatch@4.0.4", "", {}, "sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A=="],
+ 
+     "@angular-devkit/schematics/ora/chalk": ["chalk@5.6.2", "", {}, "sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA=="],
+@@ -2460,7 +2461,7 @@
+ 
+     "@compodoc/ngd-transformer/fs-extra/universalify": ["universalify@2.0.1", "", {}, "sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw=="],
+ 
+-    "@fastify/ajv-compiler/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
++    "@eslint/eslintrc/ajv/json-schema-traverse": ["json-schema-traverse@0.4.1", "", {}, "sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg=="],
+ 
+     "@isaacs/cliui/string-width/emoji-regex": ["emoji-regex@9.2.2", "", {}, "sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg=="],
+ 
+@@ -2500,16 +2501,12 @@
+ 
+     "@nestjs/schematics/@angular-devkit/schematics/rxjs": ["rxjs@7.8.1", "", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg=="],
+ 
+-    "@prisma/streams-local/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+     "@swc/cli/minimatch/brace-expansion": ["brace-expansion@2.1.1", "", { "dependencies": { "balanced-match": "^1.0.0" } }, "sha512-WR1cURNjuvBLMZBMbqM0UoE+WAfdUcEV1ccD8PVBVOI+Z3ND4+SZbN8RsfT2bMuG1qwz5RFvPukSZm5fF2D5eA=="],
+ 
+     "@ts-morph/common/minimatch/brace-expansion": ["brace-expansion@5.0.7", "", { "dependencies": { "balanced-match": "^4.0.2" } }, "sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA=="],
+ 
+     "@typescript-eslint/typescript-estree/minimatch/brace-expansion": ["brace-expansion@5.0.7", "", { "dependencies": { "balanced-match": "^4.0.2" } }, "sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA=="],
+ 
+-    "ajv-formats/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+     "binary-version/execa/get-stream": ["get-stream@8.0.1", "", {}, "sha512-VaUJspBffn/LMCJVoMvSAdmscJyS1auj5Zulnn5UoYcY531UWmdwhRWkcGKnGU93m5HSXP9LP2usOryrBtQowA=="],
+ 
+     "binary-version/execa/human-signals": ["human-signals@5.0.0", "", {}, "sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ=="],
+@@ -2524,7 +2521,7 @@
+ 
+     "cliui/wrap-ansi/ansi-styles": ["ansi-styles@4.3.0", "", { "dependencies": { "color-convert": "^2.0.1" } }, "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg=="],
+ 
+-    "fast-json-stringify/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
++    "eslint/ajv/json-schema-traverse": ["json-schema-traverse@0.4.1", "", {}, "sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg=="],
+ 
+     "fork-ts-checker-webpack-plugin/chokidar/readdirp": ["readdirp@4.1.2", "", {}, "sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg=="],
+ 
+@@ -2574,6 +2571,8 @@
+ 
+     "read-yaml-file/js-yaml/argparse": ["argparse@1.0.10", "", { "dependencies": { "sprintf-js": "~1.0.2" } }, "sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg=="],
+ 
++    "schema-utils/ajv/json-schema-traverse": ["json-schema-traverse@0.4.1", "", {}, "sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg=="],
++
+     "terser-webpack-plugin/schema-utils/ajv": ["ajv@8.18.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A=="],
+ 
+     "terser-webpack-plugin/schema-utils/ajv-formats": ["ajv-formats@2.1.1", "", { "dependencies": { "ajv": "^8.0.0" } }, "sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA=="],
+@@ -2588,8 +2587,6 @@
+ 
+     "webpack/schema-utils/ajv-keywords": ["ajv-keywords@5.1.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3" }, "peerDependencies": { "ajv": "^8.8.2" } }, "sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw=="],
+ 
+-    "@angular-devkit/schematics/@angular-devkit/core/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+     "@angular-devkit/schematics/ora/cli-cursor/restore-cursor": ["restore-cursor@5.1.0", "", { "dependencies": { "onetime": "^7.0.0", "signal-exit": "^4.1.0" } }, "sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA=="],
+ 
+     "@angular-devkit/schematics/ora/string-width/strip-ansi": ["strip-ansi@7.2.0", "", { "dependencies": { "ansi-regex": "^6.2.2" } }, "sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w=="],
+@@ -2602,8 +2599,6 @@
+ 
+     "@manypkg/find-root/find-up/locate-path/p-locate": ["p-locate@4.1.0", "", { "dependencies": { "p-limit": "^2.2.0" } }, "sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A=="],
+ 
+-    "@nestjs/schematics/@angular-devkit/core/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+     "@nestjs/schematics/@angular-devkit/core/chokidar/readdirp": ["readdirp@4.1.2", "", {}, "sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg=="],
+ 
+     "@ts-morph/common/minimatch/brace-expansion/balanced-match": ["balanced-match@4.0.4", "", {}, "sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA=="],
+@@ -2630,10 +2625,6 @@
+ 
+     "pkg-dir/find-up/locate-path/p-locate": ["p-locate@4.1.0", "", { "dependencies": { "p-limit": "^2.2.0" } }, "sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A=="],
+ 
+-    "terser-webpack-plugin/schema-utils/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+-    "webpack/schema-utils/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+-
+     "@angular-devkit/schematics/ora/cli-cursor/restore-cursor/onetime": ["onetime@7.0.0", "", { "dependencies": { "mimic-function": "^5.0.0" } }, "sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ=="],
+ 
+     "@angular-devkit/schematics/ora/string-width/strip-ansi/ansi-regex": ["ansi-regex@6.2.2", "", {}, "sha512-Bq3SmSpyFHaWjPk8If9yc6svM8c56dB5BAtW4Qbw5jHTwwXXcTLoRMkpDJp6VL0XzlWaCHTXrkFURMYmD0sLqg=="],
+
+# Task path backend:docs/ai/hub-api.md
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\hub-api.md" "b/D:\\Planicam\\planicam-backend\\docs\\ai\\hub-api.md"
+index 0e0995f..00d317c 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\hub-api.md"
++++ "b/D:\\Planicam\\planicam-backend\\docs\\ai\\hub-api.md"
+@@ -49,11 +49,31 @@ The source of request field names is each feature's `api/dto/` folder. The estim
+ 
+ Project creation validates the directory Contact and copies addresses/commercial values and organization configuration atomically. The response retains canonical `customer: {id,name,number}` alongside independent snapshots. Replacing a snapshot requires `confirmed:true`, checks the current local version, revalidates the source tenant, and advances provenance. Organization edits never update existing Project copies automatically. Standard and built-in records retain their protected identities.
+ 
+-New Positions are CREATED, have one initial Element, and have no design. Initialization reuses that Element. The backend stores versioned design input and records activity; it does not calculate engineering output. The approved temporary frontend engine remains a frontend concern. Thumbnail keys refer to the independent read-only development thumbnail service.
++`POST /positions` requires explicit `type` (`DOOR_WINDOW`, `CURTAIN_WALL`, or `SLIDER`) and accepts `quantity?: number` (integer 1–10000, default 1), plus `initialDesign?: {schemaVersion: positive-integer, input: object}`. Name length is 1–50 characters. Create the Position, its numbering counter, requested Elements, optional design and activities in one serializable transaction. Supplied initial design starts IN_PROGRESS; omission retains CREATED without a design. The new rectangular UI always supplies client-produced input. Independent initialization reuses Elements and returns conflict if already initialized. The backend validates the envelope, stores versioned input and never calculates or claims structural engineering validation. No automatic write replay/idempotency guarantee is introduced. The approved temporary frontend engine remains a frontend concern. Thumbnail keys refer to the independent read-only development thumbnail service.
+ 
+ Batch assignment is one-time bulk selection: only active, unassigned, nonexcluded Elements are assigned. Already assigned, excluded, or archived candidates are reported in `skipped` with explicit reasons. Future Elements are not automatically enrolled. Batch deletion unassigns existing Elements transactionally.
+ 
+-Rates are directional positive decimal values; no inverse or triangulated rates are invented. A first rate or system labor override is created without `expectedVersion`; replacing an existing row requires it. Printout registry entries return literal badges and `canGenerate:false`; no report generation route is implied.
++Rates are directional positive decimal values; no inverse or triangulated rates are invented. A first rate or system labor override is created without `expectedVersion`; replacing an existing row requires it.
++
++## Printout definitions and pure validation
++
++`GET /printout-types` returns only PLANNED and AVAILABLE rows in the normal success envelope. Every item has `{id,code,name,category,description,scope,status,endpoint,icon,definitionVersion,supportedFormats,optionsSchema,optionsUi,initialValues}`. `endpoint` is null until an actual generator is registered; `icon` is a semantic frontend registry key. There is no `canGenerate` property. `requiredOptions` is a database-only, code-owned projection and is omitted from the response.
++
++For a defined report, `definitionVersion` is a positive integer, `supportedFormats` is an array of `pdf|docx|xlsx`, `optionsSchema` is JSON Schema 2020-12, `optionsUi` is `{sections:[{id,label,fields:[{path,control,suffix?}]}]}`, and `initialValues` is an object. Fields use JSON Pointer paths. The control allowlist is `text|textarea|number|select|multiSelect|selectButton|checkbox|switch|date`; metadata contains no executable code, HTML, selectors or CSS. Unsupported definitions fail the consistency gate before exposure. Initial values can intentionally omit required properties; schema defaults are never inserted, types never coerced, and extra option properties never removed silently.
++
++The three source-backed planned definitions are `estimation-estimation`, `estimation-material-analysis` and `estimation-labour-hours`. Their output formats are not established by an implemented generator, so `supportedFormats: []` and `endpoint: null`. Other inventory entries have `definitionVersion: null`, `optionsSchema: null`, `optionsUi: null`, `initialValues: null`, and `supportedFormats: []`. Null metadata means requirements are absent, not an empty valid form.
++
++Choice controls use closed nonempty `oneOf` entries with primitive `const` values, or `enum` values, matching scalar `type` (`string`, `number`, `integer`). Array selection controls use the same contract on `items`; no object/boolean choices or implicit string conversion. Numeric zero remains a number. Array uniqueness is enforced when declared by the schema. The semantic date control requires `{type:"string",format:"date"}`. Both validators register the same strict calendar-date format: exactly `YYYY-MM-DD` and a valid Luxon ISO date that round-trips unchanged; timestamps and impossible dates are rejected. This uses existing Luxon with no additional format dependency.
++
++Protected `POST /printouts/validate` performs read-only validation; it does not generate, save or download files. All authenticated active organization roles may use it. Request values only:
++
++```json
++{"elementIds":["uuid"],"printouts":[{"code":"estimation-estimation","definitionVersion":1,"formats":["pdf"],"options":{}}]}
++```
++
++The envelope requires 1–10000 unique UUID Element IDs and 1–49 unique report codes, positive integer definition versions, an array of string formats and an option object. The backend resolves its own code-owned definition, validates the unchanged options with Ajv 2020-12, and checks nonempty/unique/supported formats independently. Required means present: false and zero remain valid when allowed by the schema. All selected Elements must belong to the actor's tenant, be included/nondeleted, and have active/nondeleted Position and Project parents. The supplied physical subset is retained exactly, without expanding siblings or deduplicating it into Position IDs.
++
++Success is `200` with data `{valid:boolean,printouts:[{code,valid,errors:[{path,keyword,message}]}]}`. Option paths are JSON Pointers relative to the option object; format errors use `/formats`, unknown definitions `/code`. Invalid options/formats are validation results, not generation results. Current empty-format planned definitions cannot validate a ready generation submission. Envelope violations return `400`; unavailable input selection returns `400` with `error.code = PRINTOUT_INPUTS_UNAVAILABLE` without disclosing foreign tenant records. Stale known versions return `409` with `error:{code:"PRINT_OUT_DEFINITION_STALE",printouts:[{code,receivedVersion,currentVersion}]}` so clients reload definitions while retaining drafts. No generation/run/download/ZIP endpoint exists in this workflow-only scope.
+ 
+ Signup now calls Organizations provisioning inside its existing serializable account-creation transaction. Normal seeding remains separate from the explicitly development-only `bun run seed:demo` command.
+ 
+
+# Task path backend:docs/ai/data-model-contracts.md
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\data-model-contracts.md" "b/D:\\Planicam\\planicam-backend\\docs\\ai\\data-model-contracts.md"
+index ce01d03..731eee3 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\data-model-contracts.md"
++++ "b/D:\\Planicam\\planicam-backend\\docs\\ai\\data-model-contracts.md"
+@@ -36,7 +36,7 @@ The existing multi-file schema discovery and generated-client output are retaine
+ 
+ ## Schema guarantees and application boundaries
+ 
+-The schema contains 49 models and 28 JSON fields, including 27 annotated domain JSON fields. Existing UUIDv7 defaults, native UUID FKs, explicit snake_case database names, UTC timestamptz timestamps and relation-cardinality comments are used. Fabrication deploymentDate is SQL date-only. Decimal amounts/percentages use Decimal(24,8); exchange rates use Decimal(38,18). Display precision does not change stored arithmetic precision.
++The schema contains 49 models and 29 JSON fields, including 28 annotated domain JSON fields. Existing UUIDv7 defaults, native UUID FKs, explicit snake_case database names, UTC timestamptz timestamps and relation-cardinality comments are used. Fabrication deploymentDate is SQL date-only. Decimal amounts/percentages use Decimal(24,8); exchange rates use Decimal(38,18). Display precision does not change stored arithmetic precision.
+ 
+ Hub adds `Position.archivedAt`, per-user `PositionFavorite`, and a required stable `thumbnailKey` constrained to `window-1`, `window-2`, `door-1`, `sliding-1`, or `curtain-1`. Creation chooses the key randomly once; reads and updates retain it. Thumbnails are presentation assets, not engineering output. Project archive hides child Positions and rejects their direct edits without changing their own archive, exclusion, or Batch values. Batch archive preserves membership and blocks direct batch mutation until restoration.
+ 
+@@ -70,10 +70,11 @@ Feature-owned decorated classes live under the actual owning feature's types dir
+ | Each Organization/Project preference config | Matching System/Color/Filling/OtherPreferencesDto |
+ | GeneratedPrintout.generationInputs | Raw PrintoutGenerationInputDto[] |
+ | GeneratedPrintout.generationOptions | never until concrete registered report contracts exist |
++| PrintoutType.requiredOptions | Nullable PrintoutRequiredOptionsDto: code-owned version/formats/2020-12 schema/semantic UI/initial values projection |
+ | PositionDesign.input | DeferredEngineeringInput = unknown |
+ | Position.calculationSummary | DeferredCalculationSummary = unknown |
+ 
+-The last two types are explicitly approved pending Planicore contracts. Do not claim their engineering shape is validated or invent geometry models. PositionDesign.schemaVersion versions its eventual canonical document. No implemented report generator exists in this phase, so the union of supported generation-option contracts is empty (never). Replace it with concrete decorated report option classes when actual implementations are added; never add an unrestricted options bag.
++The last two types are explicitly approved pending Planicore contracts. Do not claim their engineering shape is validated or invent geometry models. PositionDesign.schemaVersion versions its eventual canonical document. No implemented report generator exists, so stored generationOptions remains never. The approved printout definition envelope is decorated and annotated, while option leaf constraints use its JSON Schema exclusively instead of duplicated decorators. Planned definitions do not enable storing generation history or an unrestricted option bag. See [printout workflow](domain-workflows.md#printouts--printoutsmodule-17) and [wire contracts](hub-api.md#printout-definitions-and-pure-validation).
+ 
+ The generator is pinned to prisma-json-types-generator 4.1.0 for Prisma 7.8 / TypeScript 5.9 compatibility. allowAny=true tells this generator version to leave unannotated legacy storage metadata untouched with Prisma's original JSON types; every new JSON field has an explicit annotation. Do not add unannotated new JSON fields. Prisma generation changes generated files only; never edit them manually.
+ 
+
+# Task path backend:docs/ai/domain-workflows.md
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\domain-workflows.md" "b/D:\\Planicam\\planicam-backend\\docs\\ai\\domain-workflows.md"
+index a4b7f52..a18c431 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\domain-workflows.md"
++++ "b/D:\\Planicam\\planicam-backend\\docs\\ai\\domain-workflows.md"
+@@ -50,7 +50,7 @@ There is no persistent Project↔Batch association or automatic membership rule.
+ 
+ Each Position has one required primary SystemProfile, immutable after creation. The temporary profile has only id/name/category; Standard—Always is a labor baseline, not an eighth category. Keep all seven category names, including Lift-and-Slide Doors. Position numbering is Project-wide, independent of Phase.
+ 
+-CREATED means engineering has not been initialized. New Position creation atomically produces metadata, no design, an Element counter, and exactly one Element with sequence 1. First initialization creates PositionDesign and sets IN_PROGRESS while reusing existing Elements. It never creates a duplicate Element 1. Later Element count can reach zero without deleting the design, reverting initialization or recreating Element 1. Engineering input remains an explicitly deferred opaque contract; persistence stores the supplied versioned document without claiming engineering validation or server calculation.
++CREATED means engineering has not been initialized. Position creation requires explicit type and accepts positive quantity (default 1, maximum 10000) and optional initialDesign. One serializable transaction creates metadata, the Element counter, requested fresh contiguous Elements and activities. With initialDesign it also stores PositionDesign and starts IN_PROGRESS; metadata-only callers omit design and start CREATED. The new rectangular UI always supplies client-produced input. Independent initialization reuses existing Elements and rejects already-initialized Positions. Later Element count can reach zero without deleting the design, reverting initialization or recreating Element 1. Engineering input remains an explicitly deferred opaque contract: persistence validates the versioned envelope without engineering validation or server calculation. Atomicity prevents partial graphs but does not guarantee duplicate-free replay after a lost committed response.
+ 
+ IN_PROGRESS means initialized/editable, possibly incomplete. READY means engineering checking succeeded; it does not mean quoted, ordered, manufactured or completed. Engineering status and calculation freshness are independent. Door/Window engineering is initially required; schema recognition of Curtain Wall/Slider does not promise their implementation.
+ 
+@@ -128,7 +128,13 @@ Ordinary catalog browsing is allowed without rates. If display conversion is una
+ 
+ PrintoutType is a global registry of actual code-owned generators with stable code, category and declared input scope. Layout/content/algorithm remain application code, not SQL-defined report logic. PLANNED is unusable; AVAILABLE permits new generation and regeneration;NEXT means going to be available in next major version; DEPRECATED is hidden for new generation and normally cannot regenerate unless compatibility behavior is explicitly added. Retain access to prior files.
+ 
+-Hub's explicitly approved inventory now seeds 49 types, all scope POSITIONS. AVAILABLE/NEXT/PLANNED remain the literal approved display badges, with effective generator capability separately returned as canGenerate=false for every row. No generator or generation-option contract is registered, so no badge enables generation or regeneration. Future real generators must implement the requirements below before capability is enabled.
++Hub's inventory seeds 49 types, all scope POSITIONS. The registry API returns only PLANNED and AVAILABLE; NEXT and DEPRECATED remain stored for inventory/history. Every endpoint remains null until an actual generator exists. Endpoint is the sole capability signal; canGenerate is removed. A semantic icon key is stored per type. Code-owned requiredOptions JSONB is a deterministic seed projection of version/formats/schema/UI/initial values, not editable report logic. The API flattens that definition and omits its persisted mirror; absent definitions expose null metadata and empty formats. Literal status badges never enable execution.
++
++The approved rework is workflow/contracts only. Estimation, Material Analysis and Labour Hours have planned version-1 option definitions in `src/modules/printouts/definitions/printout-definitions.ts`. No generator or production file format has been established: supportedFormats stays empty and endpoints null. Other report requirements remain absent rather than invented empty forms. Protected read-only `/printouts/validate` checks its own registered schemas/options and formats separately, plus each explicit physical Element's tenant/inclusion/active-parent eligibility. It never broadens the selection, calculates, persists history, generates, downloads or ZIPs files. See [API/error contracts](hub-api.md#printout-definitions-and-pure-validation).
++
++JSON Schema 2020-12 is the sole authority for option leaf constraints, using direct Ajv 8 validation. Decorated contracts own definition/request/UI envelopes and the PrismaJson annotation; leaf constraints are not duplicated in DTOs. Definitions pass schema/envelope/JSON Pointer/control checks before exposure. Initial values may intentionally omit required fields. Defaults never populate values, strings never coerce into numbers/booleans, and extra keys fail validation. Only semantic allowlisted controls are transmitted. Stale versions are recognizable and clients preserve drafts. Valid options are distinct from generation capability and output format support. Run/output/retry identities are future transport types, with no production handlers.
++
++Evidence inspected 19 October 2026: supplied `ui-references/logikal-printout/estimation.png`, `Material analyse.png`, `labor hours.png` (matched by actual titles), and official [Estimation](https://help.orgadata.com/en/documentation/printouts/estimation-printouts/estimation/), [Material analysis](https://help.orgadata.com/en/documentation/printouts/estimation-printouts/material-analysis/), [Labour hours](https://help.orgadata.com/en/documentation/printouts/estimation-printouts/labour-hours/). Screenshots establish starting toggle values; the latter pages establish their closed select choices. Estimation's Ventilator, sightline and fixed 1:5 drawing settings come specifically from its screenshot; a positive denominator is Planicam structural validation, not a claimed source bound. Total's Estimation data checkbox remains an option; the separate navigation button and disabled Recalculate do not. These planned option requirements introduce no selected-article storage, alternate-Position behavior or calculation workflow.
+ 
+ Selection UI and generator scope differ: choosing a whole Project/Phase may simply produce a Position input list for POSITIONS. Only truly Project/Phase/Batch-specific generators use those scopes.
+ 
+
+# Task path backend:docs/ai/provisioning.md
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\provisioning.md" "b/D:\\Planicam\\planicam-backend\\docs\\ai\\provisioning.md"
+index 3cd1893..4c3042d 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\provisioning.md"
++++ "b/D:\\Planicam\\planicam-backend\\docs\\ai\\provisioning.md"
+@@ -61,7 +61,7 @@ Enforce source/destination tenant consistency in the transaction for snapshot re
+ 
+ | Trigger | Required transaction behavior |
+ | --- | --- |
+-| New Position | Allocate Project-scoped Position number; required immutable SystemProfile; CREATED; no PositionDesign; create ELEMENT counter, allocate Element sequence 1 in the same transaction, leaving nextValue=2; choose stable random thumbnailKey |
++| New Position | Allocate Project-scoped Position number; explicit type and immutable SystemProfile; positive initial quantity defaults to 1 (maximum 10000); allocate all Elements and counter atomically; optional client-produced initialDesign creates PositionDesign/IN_PROGRESS and activity in the same transaction, otherwise CREATED/no design; choose stable random thumbnailKey |
+ | First successful design initialization | Create versioned PositionDesign, reuse existing Elements, set IN_PROGRESS and append activity atomically |
+ | Later quantity changes | Allocate fresh Element values or soft-delete only safely empty instances; explicit management for populated removals; zero allowed without losing initialization |
+ | New Project Phase | Allocate Project-scoped PH number, enforce Project-unique name |
+@@ -74,7 +74,7 @@ All allocation is authoritative PostgreSQL transaction work, never MAX(number) o
+ 
+ - Platform test/development Suppliers use source=PLATFORM, ownerOrganizationId=null, isPublic=true and an explicit baseCurrencyCode. Optional Discount Groups may reference them. No detailed full catalog models are required.
+ - Organization-owned Suppliers require owner and remain private; cross-tenant grants are not a sharing mechanism.
+-- The approved Hub inventory seeds exactly 49 PrintoutType rows in Estimation, Quotation / Invoice, Order, and Fabrication, all scope POSITIONS. Their literal AVAILABLE/NEXT/PLANNED badges reproduce the approved inventory. Generator capability is separate: every returned type has canGenerate=false while no concrete generator/options contract exists. Seeding an AVAILABLE badge never enables a generation endpoint.
++- The Hub inventory seeds 49 PrintoutType rows in Estimation, Quotation / Invoice, Order, and Fabrication, all scope POSITIONS. Seeds deterministically copy code-owned requiredOptions and semantic icon keys. Only three supplied report option definitions exist; all other projections are SQL null. All endpoint addresses are null and output formats remain empty because no generator is implemented. The API exposes only PLANNED/AVAILABLE, omits canGenerate and flattens definition metadata. Apply the new additive migration and rerun normal registry seeding; no legacy backfill or data-preservation transition is introduced.
+ - SystemProfile contains only id/name/category. Catalog IDs in JSON do not require additional catalog tables now.
+ 
+ ## Isolated development demo
+
+# Task path backend:docs/ai/project-map.md
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\project-map.md" "b/D:\\Planicam\\planicam-backend\\docs\\ai\\project-map.md"
+index 7121271..13fc7a1 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\docs\\ai\\project-map.md"
++++ "b/D:\\Planicam\\planicam-backend\\docs\\ai\\project-map.md"
+@@ -1,6 +1,6 @@
+ # Planicam Backend Project Map
+ 
+-Last inspected: 2026-10-18 for Hub integration.
++Last inspected: 2026-10-19 for approved Hub rework contracts.
+ 
+ Use this file for current repository facts. Read the topic documents linked from [`index.md`](./index.md) for detailed rules instead of loading every AI document.
+ 
+@@ -128,7 +128,7 @@ The English-only signup template is [`src/resources/templates/email/signup-email
+ - Split schema root: [`prisma/schema.prisma`](../../prisma/schema.prisma) plus [`prisma/models`](../../prisma/models).
+ - Migrations: [`prisma/migrations`](../../prisma/migrations).
+ - The schema includes projects, positions, fabrication, contacts, estimation, labor, preferences, suppliers, currencies and printouts alongside the existing account/auth/storage models. See [data models, contracts and ownership](data-model-contracts.md) for the complete file map and coverage checklist.
+-- Prisma JSON types are generated with prisma-json-types-generator 4.1.0. All 27 new JSON fields are annotated; two Planicore payload shapes remain explicitly pending. Legacy storage metadata retains its existing generic JSON contract.
++- Prisma JSON types are generated with prisma-json-types-generator 4.1.0. All 28 domain JSON fields are annotated, including PrintoutType.requiredOptions; two Planicore payload shapes remain explicitly pending. Legacy storage metadata retains its existing generic JSON contract.
+ - The global currency registry is seeded with 165 ISO entries plus custom IRT. Run `bun run prisma:seed` after migrations and before signup; no rates are seeded.
+ - Signup supplies Organization.projectNumberPrefix and initial preferredCurrencyCode USD. Other Organization/Project provisioning, numbering services, APIs and calculations remain deferred; schema presence does not register future NestJS modules.
+ 
+
+# Task path backend:.changeset/cycle1-reworks.md
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\.changeset\\cycle1-reworks.md" "b/D:\\Planicam\\planicam-backend\\.changeset\\cycle1-reworks.md"
+index e69de29..ef99c44 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\.changeset\\cycle1-reworks.md"
++++ "b/D:\\Planicam\\planicam-backend\\.changeset\\cycle1-reworks.md"
+@@ -0,0 +1,13 @@
++---
++"planicam-backend": minor
++---
++
++**Add printout definitions and atomic Position initialization**
++
++Provide validated printout configuration contracts and create requested Position quantities with their initial design in one transaction. Report generation remains disabled until a real generator is implemented.
++
++- Publish eligible printout types with semantic icons, nullable endpoints, and code-owned option definitions projected into JSONB; remove `canGenerate`.
++- Define Estimation, Material Analysis, and Labour Hours options from the supplied references without inventing supported output formats.
++- Validate values-only printout submissions against JSON Schema 2020-12, including tenant-qualified physical Elements, supported formats, and stale definition versions.
++- Require explicit Position types and atomically persist quantity, numbered Elements, initial design, status, counters, and activities while retaining metadata-only creation.
++- Document the contracts and verify validation, access boundaries, concurrency, and rollback with isolated focused checks.
+
+# Task path backend:src/modules/printouts/definitions/printout-definitions.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\definitions\\printout-definitions.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\definitions\\printout-definitions.ts"
+index e69de29..bd19ce5 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\definitions\\printout-definitions.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\definitions\\printout-definitions.ts"
+@@ -0,0 +1,219 @@
++import type {
++	PrintoutControl,
++	PrintoutDefinition,
++	PrintoutRequiredOptionsDto,
++} from '../types/printout-definition.contracts';
++
++type Field = {
++	key: string;
++	title: string;
++	initial: unknown;
++	schema: Record<string, unknown>;
++	control: PrintoutControl;
++};
++const flag = (key: string, title: string, initial: boolean): Field => ({
++	key,
++	title,
++	initial,
++	schema: { type: 'boolean' },
++	control: 'checkbox',
++});
++const choice = (
++	key: string,
++	title: string,
++	initial: string,
++	choices: readonly [string, string][],
++): Field => ({
++	key,
++	title,
++	initial,
++	schema: {
++		type: 'string',
++		oneOf: choices.map(([value, label]) => ({ const: value, title: label })),
++	},
++	control: 'select',
++});
++function define(
++	code: string,
++	sections: { id: string; label: string; fields: Field[] }[],
++): PrintoutDefinition {
++	const fields = sections.flatMap((section) => section.fields);
++	return {
++		code,
++		definitionVersion: 1,
++		// These are planned option requirements, not implemented export capabilities.
++		supportedFormats: [],
++		optionsSchema: {
++			$schema: 'https://json-schema.org/draft/2020-12/schema',
++			type: 'object',
++			additionalProperties: false,
++			required: fields.map((field) => field.key),
++			properties: Object.fromEntries(
++				fields.map((field) => [
++					field.key,
++					{ ...field.schema, title: field.title },
++				]),
++			),
++		},
++		optionsUi: {
++			sections: sections.map((section) => ({
++				id: section.id,
++				label: section.label,
++				fields: section.fields.map((field) => ({
++					path: `/${field.key}`,
++					control: field.control,
++				})),
++			})),
++		},
++		initialValues: Object.fromEntries(
++			fields.map((field) => [field.key, field.initial]),
++		),
++	};
++}
++
++/** Sources and screenshot-only details are documented in docs/ai/domain-workflows.md. */
++export const PRINTOUT_DEFINITIONS: readonly PrintoutDefinition[] = [
++	define('estimation-estimation', [
++		{
++			id: 'positionInformation',
++			label: 'Position information',
++			fields: [
++				flag('description', 'Description', true),
++				flag('profilesGlazingBeads', 'Profiles / Glazing beads', true),
++				flag('hardware', 'Hardware', true),
++				flag('accessoriesGaskets', 'Accessories / Gaskets', true),
++				flag('glass', 'Glass', true),
++				flag('rollerShutter', 'Roller shutter', true),
++				flag('ventilator', 'Ventilator', true),
++				flag('colour', 'Colour', true),
++				flag('discountGroups', 'Discount groups', true),
++				flag('summary', 'Summary', true),
++			],
++		},
++		{
++			id: 'total',
++			label: 'Total',
++			fields: [
++				flag('totalPositionOverview', 'Position overview', true),
++				flag('totalCosts', 'Costs', true),
++				flag('totalColour', 'Colour', true),
++				flag('totalDiscountGroups', 'Discount groups', true),
++				flag('totalSums', 'Sums', true),
++				flag('totalEstimationData', 'Estimation data', true),
++				flag('totalDiscounts', 'Discounts', true),
++			],
++		},
++		{
++			id: 'drawing',
++			label: 'Position drawing',
++			fields: [
++				choice('drawingSightline', 'Sightline', 'interior', [
++					['interior', 'Interior view'],
++					['exterior', 'Exterior view'],
++				]),
++				choice('drawingScaleMode', 'Scale', 'fixed', [
++					['automatic', 'Automatic'],
++					['fixed', 'Fixed scale'],
++				]),
++				{
++					key: 'drawingScaleDenominator',
++					title: 'Scale denominator (1 : value)',
++					initial: 5,
++					schema: { type: 'number', exclusiveMinimum: 0 },
++					control: 'number',
++				},
++			],
++		},
++	]),
++	define('estimation-material-analysis', [
++		{
++			id: 'takeOff',
++			label: 'Material take-off',
++			fields: [
++				flag('selectedArticlesOnly', 'Selected articles only', false),
++				flag('selectedProfilesOnly', 'Only selected profiles', false),
++			],
++		},
++		{
++			id: 'selection',
++			label: 'Selection',
++			fields: [
++				flag('profiles', 'Profiles', true),
++				flag('hardware', 'Hardware', true),
++				flag('accessories', 'Accessories', true),
++				flag('rollerShutter', 'Roller shutter', true),
++				flag('glass', 'Glass', true),
++				flag('gaskets', 'Gaskets', true),
++				choice('gasketFrame', 'Gasket frame', 'summary', [
++					['hidden', "Don't display"],
++					['jobPositionFields', 'Job + Position + Fields'],
++					['jobPosition', 'Job + Position'],
++					['summary', 'Summary'],
++				]),
++			],
++		},
++		{
++			id: 'display',
++			label: 'Display options',
++			fields: [
++				flag('displayRequiredQuantities', 'Display required quantities', true),
++				flag('displayArticleDrawing', 'Display article drawing', false),
++				flag('displayResidualLength', 'Display residual length', false),
++				flag('displayResidualQuantities', 'Display residual quantities', false),
++				choice('sortProfiles', 'Sort profiles', 'articleNumber', [
++					['articleNumber', 'Article number'],
++					['colour', 'Colour'],
++					['groupByColour', 'Group by: Colour'],
++				]),
++				choice('priceWeight', 'Price / Weight', 'pricePackingTotalPrices', [
++					['hidden', "Don't display"],
++					['priceTotalPrices', 'Price / Total prices'],
++					['pricePackingTotalPrices', 'Price-Packing / Total prices'],
++					['weightTotalWeight', 'Weight / Total weight'],
++					['requiredPricesTotalPrices', 'Required prices / Total prices'],
++					['discountsPrice', 'Display discounts + Price'],
++					['requiredWeightsTotalWeight', 'Required weights / Total weight'],
++				]),
++			],
++		},
++	]),
++	define('estimation-labour-hours', [
++		{
++			id: 'display',
++			label: 'Display options',
++			fields: [
++				choice('sorting', 'Sorting', 'positions', [
++					['positions', 'Positions'],
++					['profileSystem', 'Profile system'],
++				]),
++				choice('phases', 'Phases', 'hidden', [
++					['hidden', "Don't display"],
++					['display', 'Display'],
++					['newPage', 'Display + New page'],
++				]),
++				choice('labourHours', 'Labour hours', 'minutes', [
++					['minutes', 'Minutes'],
++					['hours', 'Hours'],
++				]),
++				flag('areaTotal', 'Area total', false),
++				flag('labourCost', 'Labour cost', false),
++				flag('hourlyWage', 'Hourly wage', false),
++				flag('alternativePositions', 'Alternative positions', false),
++			],
++		},
++	]),
++];
++
++export function printoutDefinition(
++	code: string,
++): PrintoutDefinition | undefined {
++	return PRINTOUT_DEFINITIONS.find((definition) => definition.code === code);
++}
++export function requiredOptionsProjection(
++	code: string,
++): PrintoutRequiredOptionsDto | undefined {
++	const definition = printoutDefinition(code);
++	if (!definition) return undefined;
++	const { code: _code, ...projection } = definition;
++	return projection;
++}
+
+# Task path backend:src/modules/printouts/types/printout-definition.contracts.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\types\\printout-definition.contracts.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\types\\printout-definition.contracts.ts"
+index e69de29..69254ba 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\types\\printout-definition.contracts.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\types\\printout-definition.contracts.ts"
+@@ -0,0 +1,65 @@
++import { Type } from 'class-transformer';
++import {
++	ArrayUnique,
++	IsArray,
++	IsIn,
++	IsInt,
++	IsObject,
++	IsOptional,
++	IsString,
++	Matches,
++	Min,
++	MinLength,
++	ValidateNested,
++} from 'class-validator';
++import { PreserveJsonValue } from '../../../common/validation/json-contract.validators';
++
++export const PRINTOUT_FORMATS = ['pdf', 'docx', 'xlsx'] as const;
++export type PrintoutFormat = (typeof PRINTOUT_FORMATS)[number];
++export const PRINTOUT_CONTROLS = [
++	'text',
++	'textarea',
++	'number',
++	'select',
++	'multiSelect',
++	'selectButton',
++	'checkbox',
++	'switch',
++	'date',
++] as const;
++export type PrintoutControl = (typeof PRINTOUT_CONTROLS)[number];
++
++export class PrintoutOptionFieldDto {
++	@IsString() @Matches(/^\/(?:[^~]|~[01])+$/u) path!: string;
++	@IsIn(PRINTOUT_CONTROLS) control!: PrintoutControl;
++	@IsOptional() @IsString() suffix?: string;
++}
++export class PrintoutOptionSectionDto {
++	@IsString() @MinLength(1) id!: string;
++	@IsString() @MinLength(1) label!: string;
++	@IsArray()
++	@ValidateNested({ each: true })
++	@Type(() => PrintoutOptionFieldDto)
++	fields!: PrintoutOptionFieldDto[];
++}
++export class PrintoutOptionsUiDto {
++	@IsArray()
++	@ValidateNested({ each: true })
++	@Type(() => PrintoutOptionSectionDto)
++	sections!: PrintoutOptionSectionDto[];
++}
++/** Code-owned JSONB projection. Option leaf constraints belong exclusively to optionsSchema. */
++export class PrintoutRequiredOptionsDto {
++	@PreserveJsonValue() @IsInt() @Min(1) definitionVersion!: number;
++	@IsArray()
++	@ArrayUnique()
++	@IsIn(PRINTOUT_FORMATS, { each: true })
++	supportedFormats!: PrintoutFormat[];
++	@PreserveJsonValue() @IsObject() optionsSchema!: Record<string, unknown>;
++	@ValidateNested()
++	@Type(() => PrintoutOptionsUiDto)
++	optionsUi!: PrintoutOptionsUiDto;
++	@PreserveJsonValue() @IsObject() initialValues!: Record<string, unknown>;
++}
++
++export type PrintoutDefinition = PrintoutRequiredOptionsDto & { code: string };
+
+# Task path backend:src/modules/printouts/types/printout-workflow.types.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\types\\printout-workflow.types.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\types\\printout-workflow.types.ts"
+index e69de29..162e2c5 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\types\\printout-workflow.types.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\types\\printout-workflow.types.ts"
+@@ -0,0 +1,38 @@
++import type { PrintoutFormat } from './printout-definition.contracts';
++
++/** Application input, deliberately independent from HTTP DTO and persistence representations. */
++export type PrintoutValidationInput = {
++	elementIds: string[];
++	printouts: {
++		code: string;
++		definitionVersion: number;
++		formats: string[];
++		options: Record<string, unknown>;
++	}[];
++};
++
++export type PrintoutFieldError = {
++	path: string;
++	keyword: string;
++	message: string;
++};
++export type PrintoutValidationResult = {
++	code: string;
++	valid: boolean;
++	errors: PrintoutFieldError[];
++};
++/** Future run transport contracts only. No production generator/run/download handlers exist. */
++export type PrintoutOutput = {
++	id: string;
++	code: string;
++	format: PrintoutFormat;
++	status: 'pending' | 'generating' | 'ready' | 'failed';
++	error: { code: string; message: string } | null;
++	download: { endpoint: string; filename: string } | null;
++};
++export type PrintoutRun = {
++	id: string;
++	requestId: string;
++	outputs: PrintoutOutput[];
++};
++export type PrintoutRetry = { runId: string; outputIds: string[] };
+
+# Task path backend:src/modules/printouts/api/dto/printout.dto.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\api\\dto\\printout.dto.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\api\\dto\\printout.dto.ts"
+index e69de29..9bb2d88 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\api\\dto\\printout.dto.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\api\\dto\\printout.dto.ts"
+@@ -0,0 +1,51 @@
++import { ApiProperty } from '@nestjs/swagger';
++import { Type } from 'class-transformer';
++import {
++	ArrayMaxSize,
++	ArrayMinSize,
++	ArrayUnique,
++	IsArray,
++	IsInt,
++	IsObject,
++	IsString,
++	IsUUID,
++	MaxLength,
++	Min,
++	MinLength,
++	ValidateNested,
++} from 'class-validator';
++import { PreserveJsonValue } from '../../../../common/validation/json-contract.validators';
++
++export class PrintoutSubmissionDto {
++	@ApiProperty() @IsString() @MinLength(1) @MaxLength(200) code!: string;
++	@ApiProperty({ minimum: 1 })
++	@PreserveJsonValue()
++	@IsInt()
++	@Min(1)
++	definitionVersion!: number;
++	@ApiProperty({ type: [String] })
++	@IsArray()
++	@IsString({ each: true })
++	formats!: string[];
++	@ApiProperty({ type: Object })
++	@PreserveJsonValue()
++	@IsObject()
++	options!: Record<string, unknown>;
++}
++export class ValidatePrintoutsDto {
++	@ApiProperty({ type: [String], format: 'uuid' })
++	@IsArray()
++	@ArrayMinSize(1)
++	@ArrayMaxSize(10000)
++	@ArrayUnique()
++	@IsUUID(undefined, { each: true })
++	elementIds!: string[];
++	@ApiProperty({ type: [PrintoutSubmissionDto] })
++	@IsArray()
++	@ArrayMinSize(1)
++	@ArrayMaxSize(49)
++	@ArrayUnique((item: PrintoutSubmissionDto) => item.code)
++	@ValidateNested({ each: true })
++	@Type(() => PrintoutSubmissionDto)
++	printouts!: PrintoutSubmissionDto[];
++}
+
+# Task path backend:src/modules/printouts/api/dto/printout-response.dto.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\api\\dto\\printout-response.dto.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\api\\dto\\printout-response.dto.ts"
+index e69de29..8fab48c 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\api\\dto\\printout-response.dto.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\api\\dto\\printout-response.dto.ts"
+@@ -0,0 +1,37 @@
++import { ApiProperty } from '@nestjs/swagger';
++import type { PrintoutOptionsUiDto } from '../../types/printout-definition.contracts';
++import type { PrintoutValidationResult } from '../../types/printout-workflow.types';
++
++export class PrintoutTypeDataDto {
++	@ApiProperty() id!: string;
++	@ApiProperty() code!: string;
++	@ApiProperty() name!: string;
++	@ApiProperty() category!: string;
++	@ApiProperty({ nullable: true, type: String }) description!: string | null;
++	@ApiProperty() scope!: string;
++	@ApiProperty({ enum: ['PLANNED', 'AVAILABLE'] }) status!:
++		'PLANNED' | 'AVAILABLE';
++	@ApiProperty({ nullable: true, type: String }) endpoint!: string | null;
++	@ApiProperty() icon!: string;
++	@ApiProperty({ nullable: true, type: Number }) definitionVersion!:
++		number | null;
++	@ApiProperty({ type: [String] }) supportedFormats!: string[];
++	@ApiProperty({ nullable: true, type: Object }) optionsSchema!: Record<
++		string,
++		unknown
++	> | null;
++	@ApiProperty({ nullable: true, type: Object })
++	optionsUi!: PrintoutOptionsUiDto | null;
++	@ApiProperty({ nullable: true, type: Object }) initialValues!: Record<
++		string,
++		unknown
++	> | null;
++}
++export class PrintoutValidationDataDto {
++	@ApiProperty() valid!: boolean;
++	@ApiProperty({
++		type: 'array',
++		items: { type: 'object', additionalProperties: true },
++	})
++	printouts!: PrintoutValidationResult[];
++}
+
+# Task path backend:src/modules/printouts/application/printout-definition-validator.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\application\\printout-definition-validator.ts" "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\application\\printout-definition-validator.ts"
+index e69de29..18da7eb 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\modules\\printouts\\application\\printout-definition-validator.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\modules\\printouts\\application\\printout-definition-validator.ts"
+@@ -0,0 +1,182 @@
++import { Injectable } from '@nestjs/common';
++import Ajv2020 from 'ajv/dist/2020';
++import type { AnySchema, ErrorObject, ValidateFunction } from 'ajv';
++import { DateTime } from 'luxon';
++import {
++	isContractValue,
++	isPlainRecord,
++} from '../../../common/validation/json-contract.validators';
++import {
++	PrintoutRequiredOptionsDto,
++	type PrintoutDefinition,
++} from '../types/printout-definition.contracts';
++import type { PrintoutFieldError } from '../types/printout-workflow.types';
++
++const escapePointer = (value: string) =>
++	value.replace(/~/gu, '~0').replace(/\//gu, '~1');
++function fieldError(error: ErrorObject): PrintoutFieldError {
++	const property =
++		error.keyword === 'required'
++			? (error.params as { missingProperty: string }).missingProperty
++			: error.keyword === 'additionalProperties'
++				? (error.params as { additionalProperty: string }).additionalProperty
++				: undefined;
++	return {
++		path: `${error.instancePath}${property === undefined ? '' : `/${escapePointer(property)}`}`,
++		keyword: error.keyword,
++		message: error.message ?? 'Invalid value',
++	};
++}
++
++function propertyAt(
++	schema: Record<string, unknown>,
++	path: string,
++): Record<string, unknown> | undefined {
++	if (!path.startsWith('/') || /~(?![01])/u.test(path)) return undefined;
++	let current = schema;
++	for (const encoded of path.slice(1).split('/')) {
++		const key = encoded.replace(/~1/gu, '/').replace(/~0/gu, '~');
++		if (
++			['__proto__', 'prototype', 'constructor'].includes(key) ||
++			!isPlainRecord(current.properties) ||
++			!Object.hasOwn(current.properties, key)
++		)
++			return undefined;
++		const next: unknown = current.properties[key];
++		if (!isPlainRecord(next)) return undefined;
++		current = next;
++	}
++	return current;
++}
++function leafPaths(schema: Record<string, unknown>, prefix = ''): string[] {
++	if (schema.type !== 'object' || !isPlainRecord(schema.properties))
++		return [prefix];
++	return Object.entries(schema.properties).flatMap(([key, value]) =>
++		isPlainRecord(value)
++			? leafPaths(value, `${prefix}/${escapePointer(key)}`)
++			: [],
++	);
++}
++
++function validChoices(schema: Record<string, unknown>): boolean {
++	const type = schema.type;
++	if (!['string', 'number', 'integer'].includes(type as string)) return false;
++	const choices: unknown[] | undefined = Array.isArray(schema.oneOf)
++		? schema.oneOf.map((choice: unknown) =>
++				isPlainRecord(choice) && Object.hasOwn(choice, 'const')
++					? choice.const
++					: undefined,
++			)
++		: Array.isArray(schema.enum)
++			? schema.enum
++			: undefined;
++	return (
++		Boolean(choices?.length) &&
++		choices!.every((choice) =>
++			type === 'string'
++				? typeof choice === 'string'
++				: typeof choice === 'number' &&
++					Number.isFinite(choice) &&
++					(type !== 'integer' || Number.isInteger(choice)),
++		) &&
++		new Set(choices).size === choices!.length
++	);
++}
++
++/** Compiles only application-owned schemas; never accepts executable client definitions. */
++@Injectable()
++export class PrintoutDefinitionValidator {
++	private readonly ajv = new Ajv2020({
++		allErrors: true,
++		strict: true,
++		coerceTypes: false,
++		useDefaults: false,
++		removeAdditional: false,
++	}).addFormat('date', (value: string) => {
++		if (!/^\d{4}-\d{2}-\d{2}$/u.test(value)) return false;
++		const date = DateTime.fromISO(value);
++		return date.isValid && date.toISODate() === value;
++	});
++	private readonly compiled = new WeakMap<
++		PrintoutDefinition,
++		ValidateFunction
++	>();
++
++	assertDefinition(definition: PrintoutDefinition): void {
++		if (this.compiled.has(definition)) return;
++		const { code, ...projection } = definition;
++		if (
++			!/^[a-z][a-z0-9-]*$/u.test(code) ||
++			!isContractValue(PrintoutRequiredOptionsDto, projection)
++		)
++			throw new Error(`Invalid printout definition envelope: ${code}`);
++		const schema = definition.optionsSchema;
++		if (
++			schema.$schema !== 'https://json-schema.org/draft/2020-12/schema' ||
++			schema.type !== 'object' ||
++			schema.additionalProperties !== false ||
++			schema.$async !== undefined
++		)
++			throw new Error(`Unsupported printout schema: ${code}`);
++		const validate = this.ajv.compile(schema as AnySchema);
++		const fields = definition.optionsUi.sections.flatMap(
++			(section) => section.fields,
++		);
++		const paths = new Set<string>();
++		const sectionIds = new Set<string>();
++		for (const section of definition.optionsUi.sections) {
++			if (sectionIds.has(section.id))
++				throw new Error(`Duplicate printout section: ${code}`);
++			sectionIds.add(section.id);
++		}
++		for (const field of fields) {
++			const target = propertyAt(schema, field.path);
++			if (
++				!target ||
++				paths.has(field.path) ||
++				typeof target.title !== 'string' ||
++				!target.title.trim()
++			)
++				throw new Error(`Invalid printout option path: ${code}${field.path}`);
++			paths.add(field.path);
++			const types: Record<string, string[]> = {
++				text: ['string'],
++				textarea: ['string'],
++				date: ['string'],
++				number: ['number', 'integer'],
++				select: ['string', 'number', 'integer'],
++				multiSelect: ['array'],
++				selectButton: ['string', 'number', 'integer', 'array'],
++				checkbox: ['boolean'],
++				switch: ['boolean'],
++			};
++			if (!types[field.control]?.includes(target.type as string))
++				throw new Error(`Incompatible printout control: ${code}${field.path}`);
++			if (field.control === 'date' && target.format !== 'date')
++				throw new Error(
++					`Date control requires a calendar-date schema: ${code}${field.path}`,
++				);
++			if (['select', 'selectButton', 'multiSelect'].includes(field.control)) {
++				const choices = target.type === 'array' ? target.items : target;
++				if (!isPlainRecord(choices) || !validChoices(choices))
++					throw new Error(`Missing printout choices: ${code}${field.path}`);
++			}
++		}
++		if (leafPaths(schema).some((path) => !paths.has(path)))
++			throw new Error(`Unrendered printout field: ${code}`);
++		validate(definition.initialValues);
++		if (validate.errors?.some((error) => error.keyword !== 'required'))
++			throw new Error(`Invalid printout initial values: ${code}`);
++		this.compiled.set(definition, validate);
++	}
++
++	errors(
++		definition: PrintoutDefinition,
++		values: Record<string, unknown>,
++	): PrintoutFieldError[] {
++		this.assertDefinition(definition);
++		const validate = this.compiled.get(definition)!;
++		validate(values);
++		return (validate.errors ?? []).map(fieldError);
++	}
++}
+
+# Task path backend:prisma/migrations/20261019090000_printout_definitions/migration.sql
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\prisma\\migrations\\20261019090000_printout_definitions\\migration.sql" "b/D:\\Planicam\\planicam-backend\\prisma\\migrations\\20261019090000_printout_definitions\\migration.sql"
+index e69de29..0443fc1 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\prisma\\migrations\\20261019090000_printout_definitions\\migration.sql"
++++ "b/D:\\Planicam\\planicam-backend\\prisma\\migrations\\20261019090000_printout_definitions\\migration.sql"
+@@ -0,0 +1,10 @@
++BEGIN;
++ALTER TABLE "printout_types"
++	ADD COLUMN "endpoint" TEXT,
++	ADD COLUMN "icon" TEXT NOT NULL DEFAULT 'printout',
++	ADD COLUMN "required_options" JSONB;
++ALTER TABLE "printout_types"
++	ADD CONSTRAINT "chk_printout_types_endpoint_relative" CHECK ("endpoint" IS NULL OR "endpoint" ~ '^/[a-zA-Z0-9][a-zA-Z0-9/_-]*$'),
++	ADD CONSTRAINT "chk_printout_types_icon_key" CHECK ("icon" ~ '^[a-zA-Z][a-zA-Z0-9]*$'),
++	ADD CONSTRAINT "chk_printout_types_required_options_object" CHECK ("required_options" IS NULL OR jsonb_typeof("required_options") = 'object');
++COMMIT;
+
+# Task path backend:test/reworks.e2e-spec.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\test\\reworks.e2e-spec.ts" "b/D:\\Planicam\\planicam-backend\\test\\reworks.e2e-spec.ts"
+index e69de29..c4c940d 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\test\\reworks.e2e-spec.ts"
++++ "b/D:\\Planicam\\planicam-backend\\test\\reworks.e2e-spec.ts"
+@@ -0,0 +1,691 @@
++/* eslint-disable
++	@typescript-eslint/no-unsafe-member-access,
++	@typescript-eslint/no-unsafe-argument,
++	@typescript-eslint/no-unsafe-return,
++	@typescript-eslint/no-unsafe-call
++*/
++import { Test } from '@nestjs/testing';
++import {
++	FastifyAdapter,
++	type NestFastifyApplication,
++} from '@nestjs/platform-fastify';
++import {
++	DatabaseService,
++	InMemoryMailTransport,
++	MAIL_TRANSPORT,
++} from '@planicam/infra';
++import { randomUUID } from 'node:crypto';
++import { execFileSync } from 'node:child_process';
++import { Client } from 'pg';
++import { AppModule } from '../src/app.module';
++import { configureValidation } from '../src/bootstrap/configure-validation';
++import { PrintoutDefinitionValidator } from '../src/modules/printouts/application/printout-definition-validator';
++import { PRINTOUT_DEFINITIONS } from '../src/modules/printouts/definitions/printout-definitions';
++import type { PrintoutDefinition } from '../src/modules/printouts/types/printout-definition.contracts';
++
++// Real PostgreSQL + JWT + Fastify. All migrations/data live in this disposable database only.
++describe('Approved reworks contracts (isolated PostgreSQL)', () => {
++	const databaseName = `planicam_reworks_${randomUUID().replace(/-/gu, '')}`;
++	let admin: Client;
++	let createdDatabase = false;
++	let sourceUrl: string;
++	let app: NestFastifyApplication;
++	let db: DatabaseService;
++	let mail: InMemoryMailTransport;
++	let owner: string;
++	let other: string;
++	let systemId: string;
++	let projectId: string;
++	let elementId: string;
++	let orgId: string;
++
++	async function request(
++		method: any,
++		path: string,
++		payload?: any,
++		token = owner,
++	) {
++		return app.inject({
++			method,
++			url: `/v1${path}`,
++			payload,
++			headers: token ? { authorization: `Bearer ${token}` } : {},
++		});
++	}
++	async function data(
++		method: any,
++		path: string,
++		payload?: any,
++		token = owner,
++		status = 200,
++	): Promise<any> {
++		const response = await request(method, path, payload, token);
++		if (response.statusCode !== status)
++			throw new Error(
++				`${method} ${path}: expected ${status}, actual ${response.statusCode}: ${response.body.slice(0, 500)}`,
++			);
++		return response.json().data;
++	}
++	async function signup(label: string): Promise<string> {
++		const email = `reworks-${label}@example.test`;
++		await data(
++			'POST',
++			'/auth/signup',
++			{ firstName: 'Reworks', lastName: label, email },
++			'',
++			202,
++		);
++		const verify = new URL(
++			mail.messages.at(-1)!.html.match(/href="([^"]+)"/u)![1],
++		).searchParams.get('token');
++		const verified = await request(
++			'GET',
++			`/auth/signup/verify-email?token=${verify}`,
++			undefined,
++			'',
++		);
++		expect(verified.statusCode).toBe(303);
++		const completion = new URLSearchParams(
++			new URL(verified.headers.location as string).hash.slice(1),
++		).get('token');
++		const response = await app.inject({
++			method: 'POST',
++			url: '/v1/auth/signup/complete',
++			headers: { authorization: `Signup ${completion}` },
++			payload: {
++				password: 'Violet!Orbit#7264',
++				organizationName: `Reworks ${label}`,
++			},
++		});
++		expect(response.statusCode).toBe(201);
++		if (label === 'owner') orgId = response.json().data.actor.organizationId;
++		return response.json().data.accessToken as string;
++	}
++	const createBody = (extra = {}) => ({
++		projectId,
++		systemId,
++		name: 'Contract position',
++		type: 'DOOR_WINDOW',
++		...extra,
++	});
++	const validateBody = (extra = {}) => ({
++		elementIds: [elementId],
++		printouts: [
++			{
++				code: PRINTOUT_DEFINITIONS[0].code,
++				definitionVersion: 1,
++				formats: [],
++				options: structuredClone(PRINTOUT_DEFINITIONS[0].initialValues),
++				...extra,
++			},
++		],
++	});
++
++	beforeAll(async () => {
++		sourceUrl = process.env.DATABASE_URL!;
++		const source = new URL(sourceUrl);
++		if (
++			!['localhost', '127.0.0.1', '::1', '[::1]'].includes(source.hostname) ||
++			!/^planicam_reworks_[a-f0-9]{32}$/u.test(databaseName)
++		)
++			throw new Error(
++				'Isolated reworks checks require a local PostgreSQL server',
++			);
++		admin = new Client({ connectionString: sourceUrl });
++		await admin.connect();
++		await admin.query(`CREATE DATABASE "${databaseName}"`);
++		createdDatabase = true;
++		const isolated = new URL(sourceUrl);
++		isolated.pathname = `/${databaseName}`;
++		process.env.DATABASE_URL = isolated.toString();
++		// Never print connection strings or credentials. Both commands target only the new database.
++		for (const script of ['prisma:deploy', 'prisma:seed'])
++			execFileSync('bun', ['run', script], {
++				cwd: process.cwd(),
++				env: { ...process.env },
++				stdio: 'pipe',
++				timeout: 60000,
++				windowsHide: true,
++			});
++		mail = new InMemoryMailTransport();
++		const module = await Test.createTestingModule({ imports: [AppModule] })
++			.overrideProvider(MAIL_TRANSPORT)
++			.useValue(mail)
++			.compile();
++		app = module.createNestApplication<NestFastifyApplication>(
++			new FastifyAdapter({ logger: false }),
++		);
++		app.setGlobalPrefix('v1');
++		configureValidation(app);
++		await app.init();
++		await app.getHttpAdapter().getInstance().ready();
++		db = app.get(DatabaseService);
++		owner = await signup('owner');
++		other = await signup('other');
++		systemId = (
++			await db.systemProfile.create({
++				data: {
++					name: 'Isolated test system',
++					category: 'ALUMINIUM_WINDOWS_DOORS',
++				},
++			})
++		).id;
++		const contact = await data(
++			'POST',
++			'/contacts',
++			{ name: 'Test customer', kind: 'COMPANY', type: 'CUSTOMER' },
++			owner,
++			201,
++		);
++		projectId = (
++			await data(
++				'POST',
++				'/projects',
++				{ name: 'Test project', customerId: contact.id, positionPrefix: 'RW' },
++				owner,
++				201,
++			)
++		).id;
++		elementId = (await data('POST', '/positions', createBody(), owner, 201))
++			.elements[0].id;
++	}, 120000);
++	afterAll(async () => {
++		try {
++			if (app) await app.close();
++		} finally {
++			if (sourceUrl) process.env.DATABASE_URL = sourceUrl;
++			if (
++				createdDatabase &&
++				/^planicam_reworks_[a-f0-9]{32}$/u.test(databaseName)
++			)
++				await admin.query(`DROP DATABASE "${databaseName}" WITH (FORCE)`);
++			if (admin) await admin.end();
++		}
++	});
++
++	it('exposes code-owned nullable metadata and hides NEXT/DEPRECATED without a capability boolean', async () => {
++		const rows = await data('GET', '/printout-types');
++		expect(rows.length).toBeGreaterThan(3);
++		for (const row of rows) {
++			expect(['AVAILABLE', 'PLANNED']).toContain(row.status);
++			expect(row.endpoint).toBeNull();
++			expect(row.supportedFormats).toEqual([]);
++			expect(row).not.toHaveProperty('canGenerate');
++			expect(row).not.toHaveProperty('requiredOptions');
++		}
++		for (const definition of PRINTOUT_DEFINITIONS)
++			expect(
++				rows.find((row: any) => row.code === definition.code),
++			).toMatchObject({
++				definitionVersion: 1,
++				optionsSchema: definition.optionsSchema,
++				optionsUi: definition.optionsUi,
++				initialValues: definition.initialValues,
++			});
++		expect(
++			rows.find((row: any) => row.code === 'quotation_invoice-quotation'),
++		).toMatchObject({
++			definitionVersion: null,
++			optionsSchema: null,
++			optionsUi: null,
++			initialValues: null,
++		});
++		const stored = await db.printoutType.findUniqueOrThrow({
++			where: { code: PRINTOUT_DEFINITIONS[0].code },
++		});
++		expect(stored.requiredOptions).toMatchObject({
++			definitionVersion: 1,
++			initialValues: PRINTOUT_DEFINITIONS[0].initialValues,
++		});
++	});
++	it('rejects omitted type, invalid quantity, lossy coercion and invalid initial envelope', async () => {
++		for (const extra of [
++			{ type: undefined },
++			{ quantity: 0 },
++			{ quantity: 10001 },
++			{ quantity: '3' },
++			{ quantity: null },
++			{ initialDesign: null },
++			{ initialDesign: { schemaVersion: '1', input: {} } },
++			{ initialDesign: { schemaVersion: 1, input: [] } },
++			{ name: 'x'.repeat(51) },
++		])
++			expect(
++				(await request('POST', '/positions', createBody(extra))).statusCode,
++			).toBe(400);
++	});
++	it('atomically creates requested Elements, design, status and both activities without duplicate initialization', async () => {
++		const input = { isolatedFixture: true, widthMm: 1200, heightMm: 1400 };
++		const position = await data(
++			'POST',
++			'/positions',
++			createBody({ quantity: 3, initialDesign: { schemaVersion: 1, input } }),
++			owner,
++			201,
++		);
++		expect(position).toMatchObject({
++			status: 'IN_PROGRESS',
++			quantity: 3,
++			version: 1,
++			design: { schemaVersion: 1, input },
++		});
++		expect(position.elements.map((element: any) => element.sequence)).toEqual([
++			1, 2, 3,
++		]);
++		expect(
++			new Set(position.elements.map((element: any) => element.number)).size,
++		).toBe(3);
++		expect(
++			(
++				await db.numberSequence.findFirstOrThrow({
++					where: { positionId: position.id, type: 'ELEMENT' },
++				})
++			).nextValue,
++		).toBe(4);
++		expect(
++			await db.positionActivity.count({ where: { positionId: position.id } }),
++		).toBe(2);
++		expect(
++			(
++				await request('POST', `/positions/${position.id}/design/initialize`, {
++					expectedVersion: 1,
++					schemaVersion: 1,
++					input,
++				})
++			).statusCode,
++		).toBe(409);
++		expect(
++			await db.positionElement.count({ where: { positionId: position.id } }),
++		).toBe(3);
++	});
++	it('retains the metadata-only CREATED path and independent initialization with existing Elements', async () => {
++		const position = await data(
++			'POST',
++			'/positions',
++			createBody({ quantity: 2 }),
++			owner,
++			201,
++		);
++		expect(position).toMatchObject({
++			status: 'CREATED',
++			quantity: 2,
++			design: null,
++		});
++		const initialized = await data(
++			'POST',
++			`/positions/${position.id}/design/initialize`,
++			{
++				expectedVersion: position.version,
++				schemaVersion: 1,
++				input: { isolatedFixture: true },
++			},
++			owner,
++			201,
++		);
++		expect(initialized.status).toBe('IN_PROGRESS');
++		expect(initialized.elements.map((element: any) => element.id)).toEqual(
++			position.elements.map((element: any) => element.id),
++		);
++	});
++	it('rolls back Elements, counter allocation, Position and activity after a late design-write failure', async () => {
++		const before = {
++			positions: await db.position.count(),
++			elements: await db.positionElement.count(),
++			activities: await db.positionActivity.count(),
++			next: (
++				await db.numberSequence.findFirstOrThrow({
++					where: { projectId, type: 'POSITION' },
++				})
++			).nextValue,
++		};
++		await db.$executeRawUnsafe(
++			"CREATE FUNCTION reworks_reject_design() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'isolated late failure'; END $$",
++		);
++		await db.$executeRawUnsafe(
++			'CREATE TRIGGER reworks_reject_design BEFORE INSERT ON position_designs FOR EACH ROW EXECUTE FUNCTION reworks_reject_design()',
++		);
++		try {
++			expect(
++				(
++					await request(
++						'POST',
++						'/positions',
++						createBody({
++							quantity: 4,
++							initialDesign: { schemaVersion: 1, input: {} },
++						}),
++					)
++				).statusCode,
++			).toBeGreaterThanOrEqual(400);
++		} finally {
++			await db.$executeRawUnsafe(
++				'DROP TRIGGER reworks_reject_design ON position_designs',
++			);
++			await db.$executeRawUnsafe('DROP FUNCTION reworks_reject_design()');
++		}
++		expect(await db.position.count()).toBe(before.positions);
++		expect(await db.positionElement.count()).toBe(before.elements);
++		expect(await db.positionActivity.count()).toBe(before.activities);
++		expect(
++			(
++				await db.numberSequence.findFirstOrThrow({
++					where: { projectId, type: 'POSITION' },
++				})
++			).nextValue,
++		).toBe(before.next);
++	});
++	it('keeps authentication, tenant isolation, role protection and included physical-element selection authoritative', async () => {
++		expect(
++			(await request('GET', '/printout-types', undefined, '')).statusCode,
++		).toBe(401);
++		expect(
++			(await request('POST', '/positions', createBody(), other)).statusCode,
++		).toBe(404);
++		const foreign = await request(
++			'POST',
++			'/printouts/validate',
++			validateBody(),
++			other,
++		);
++		expect(foreign.statusCode).toBe(400);
++		expect(foreign.json().error.code).toBe('PRINTOUT_INPUTS_UNAVAILABLE');
++		await db.organizationMembership.updateMany({
++			where: { organizationId: orgId },
++			data: { role: 'VIEWER' },
++		});
++		try {
++			expect(
++				(await request('POST', '/positions', createBody())).statusCode,
++			).toBe(403);
++			expect(
++				(await request('POST', '/printouts/validate', validateBody()))
++					.statusCode,
++			).toBe(200);
++		} finally {
++			await db.organizationMembership.updateMany({
++				where: { organizationId: orgId },
++				data: { role: 'OWNER' },
++			});
++		}
++		await db.positionElement.update({
++			where: { id: elementId },
++			data: { isExcluded: true },
++		});
++		try {
++			expect(
++				(await request('POST', '/printouts/validate', validateBody()))
++					.statusCode,
++			).toBe(400);
++		} finally {
++			await db.positionElement.update({
++				where: { id: elementId },
++				data: { isExcluded: false },
++			});
++		}
++	});
++	it('returns recognizable stale versions and strict per-printout option/format errors', async () => {
++		const stale = await request(
++			'POST',
++			'/printouts/validate',
++			validateBody({ definitionVersion: 2 }),
++		);
++		expect(stale.statusCode).toBe(409);
++		expect(stale.json().error).toMatchObject({
++			code: 'PRINT_OUT_DEFINITION_STALE',
++			printouts: [{ currentVersion: 1, receivedVersion: 2 }],
++		});
++		const initial = structuredClone(PRINTOUT_DEFINITIONS[0].initialValues);
++		initial.description = false;
++		const preserved = await data(
++			'POST',
++			'/printouts/validate',
++			validateBody({ options: initial }),
++		);
++		expect(preserved.printouts[0].errors).toEqual([
++			{ path: '/formats', keyword: 'minItems', message: expect.any(String) },
++		]);
++		const invalid = await data(
++			'POST',
++			'/printouts/validate',
++			validateBody({
++				formats: ['pdf', 'pdf'],
++				options: {
++					...initial,
++					description: 'false',
++					extra: true,
++					totalCosts: undefined,
++				},
++			}),
++		);
++		expect(invalid.valid).toBe(false);
++		expect(invalid.printouts[0].errors).toEqual(
++			expect.arrayContaining([
++				{ path: '/description', keyword: 'type', message: expect.any(String) },
++				{
++					path: '/extra',
++					keyword: 'additionalProperties',
++					message: expect.any(String),
++				},
++				{
++					path: '/totalCosts',
++					keyword: 'required',
++					message: expect.any(String),
++				},
++				{
++					path: '/formats',
++					keyword: 'uniqueItems',
++					message: expect.any(String),
++				},
++				{ path: '/formats', keyword: 'enum', message: expect.any(String) },
++			]),
++		);
++		for (const extra of [
++			{
++				elementIds: [elementId, elementId],
++				printouts: validateBody().printouts,
++			},
++			{
++				elementIds: [elementId],
++				printouts: [...validateBody().printouts, ...validateBody().printouts],
++			},
++		])
++			expect(
++				(await request('POST', '/printouts/validate', extra)).statusCode,
++			).toBe(400);
++		expect(
++			(
++				await data(
++					'POST',
++					'/printouts/validate',
++					validateBody({ code: 'not-registered' }),
++				)
++			).printouts[0].errors[0].path,
++		).toBe('/code');
++	});
++	it('uses one 2020-12 schema without coercion/default insertion and blocks unsupported definitions', () => {
++		const validator = new PrintoutDefinitionValidator();
++		const fixture: PrintoutDefinition = {
++			code: 'isolated-fixture',
++			definitionVersion: 1,
++			supportedFormats: ['pdf'],
++			optionsSchema: {
++				$schema: 'https://json-schema.org/draft/2020-12/schema',
++				type: 'object',
++				additionalProperties: false,
++				required: ['enabled', 'count', 'label'],
++				properties: {
++					enabled: { type: 'boolean', title: 'Enabled' },
++					count: { type: 'integer', title: 'Count', minimum: 0 },
++					label: {
++						type: 'string',
++						title: 'Label',
++						minLength: 1,
++						default: 'must-not-be-inserted',
++					},
++				},
++			},
++			optionsUi: {
++				sections: [
++					{
++						id: 'general',
++						label: 'General',
++						fields: [
++							{ path: '/enabled', control: 'switch' },
++							{ path: '/count', control: 'number' },
++							{ path: '/label', control: 'text' },
++						],
++					},
++				],
++			},
++			initialValues: {},
++		};
++		expect(
++			validator.errors(fixture, { enabled: false, count: 0, label: 'ok' }),
++		).toEqual([]);
++		const missing = { enabled: false, count: 0 };
++		expect(validator.errors(fixture, missing)).toEqual(
++			expect.arrayContaining([
++				{ path: '/label', keyword: 'required', message: expect.any(String) },
++			]),
++		);
++		expect(missing).not.toHaveProperty('label');
++		expect(
++			validator.errors(fixture, { enabled: false, count: 0, label: '' })[0]
++				.keyword,
++		).toBe('minLength');
++		const unsupported = structuredClone(fixture);
++		(unsupported.optionsUi.sections[0].fields[0] as any).control = 'execute';
++		expect(() => validator.assertDefinition(unsupported)).toThrow();
++		const badPointer = structuredClone(fixture);
++		badPointer.optionsUi.sections[0].fields[0].path = '/missing';
++		expect(() => validator.assertDefinition(badPointer)).toThrow();
++	});
++});
++
++describe('printout control parity (pure fixtures, no database)', () => {
++	function fixture(): PrintoutDefinition {
++		return {
++			code: 'control-parity-fixture',
++			definitionVersion: 1,
++			supportedFormats: ['pdf'],
++			optionsSchema: {
++				$schema: 'https://json-schema.org/draft/2020-12/schema',
++				type: 'object',
++				additionalProperties: false,
++				required: [
++					'text',
++					'note',
++					'count',
++					'choice',
++					'many',
++					'buttons',
++					'enabled',
++					'automatic',
++					'dueDate',
++				],
++				properties: {
++					text: { type: 'string', title: 'Text', minLength: 1 },
++					note: { type: 'string', title: 'Note' },
++					count: { type: 'integer', title: 'Count', minimum: 0 },
++					choice: { type: 'number', title: 'Choice', enum: [0, 1.5] },
++					many: {
++						type: 'array',
++						title: 'Multiple choices',
++						items: { type: 'integer', enum: [0, 1] },
++						uniqueItems: true,
++					},
++					buttons: {
++						type: 'integer',
++						title: 'Buttons',
++						oneOf: [
++							{ const: 0, title: 'Zero' },
++							{ const: 1, title: 'One' },
++						],
++					},
++					enabled: { type: 'boolean', title: 'Enabled' },
++					automatic: { type: 'boolean', title: 'Automatic' },
++					dueDate: { type: 'string', title: 'Date', format: 'date' },
++				},
++			},
++			optionsUi: {
++				sections: [
++					{
++						id: 'controls',
++						label: 'Controls',
++						fields: [
++							{ path: '/text', control: 'text' },
++							{ path: '/note', control: 'textarea' },
++							{ path: '/count', control: 'number' },
++							{ path: '/choice', control: 'select' },
++							{ path: '/many', control: 'multiSelect' },
++							{ path: '/buttons', control: 'selectButton' },
++							{ path: '/enabled', control: 'checkbox' },
++							{ path: '/automatic', control: 'switch' },
++							{ path: '/dueDate', control: 'date' },
++						],
++					},
++				],
++			},
++			initialValues: {},
++		};
++	}
++	const values = {
++		text: 'Label',
++		note: '',
++		count: 0,
++		choice: 0,
++		many: [0, 1],
++		buttons: 0,
++		enabled: false,
++		automatic: false,
++		dueDate: '2024-02-29',
++	};
++	it('compiles all nine controls and validates strict calendar dates without coercing numeric choices', () => {
++		const validator = new PrintoutDefinitionValidator();
++		const definition = fixture();
++		expect(validator.errors(definition, structuredClone(values))).toEqual([]);
++		for (const dueDate of [
++			'2023-02-29',
++			'2024-02-30',
++			'2024-13-01',
++			'2024-2-29',
++			'2024-02-29T00:00:00Z',
++			'',
++		])
++			expect(
++				validator.errors(definition, { ...values, dueDate }),
++			).toContainEqual({
++				path: '/dueDate',
++				keyword: 'format',
++				message: expect.any(String),
++			});
++		for (const invalid of [{ choice: '0' }, { many: ['0'] }, { buttons: '0' }])
++			expect(
++				validator.errors(definition, { ...values, ...invalid }),
++			).not.toEqual([]);
++		expect(values).toMatchObject({ choice: 0, buttons: 0, many: [0, 1] });
++	});
++	it('blocks malformed choice definitions and date controls without date format', () => {
++		for (const choice of [
++			{ type: 'number', title: 'Choice', enum: [] },
++			{ type: 'number', title: 'Choice', enum: ['0'] },
++			{ type: 'string', title: 'Choice', oneOf: [{ type: 'string' }] },
++			{ type: 'string', title: 'Choice', enum: [true] },
++		]) {
++			const definition = fixture();
++			(definition.optionsSchema.properties as Record<string, unknown>).choice =
++				choice;
++			expect(() =>
++				new PrintoutDefinitionValidator().assertDefinition(definition),
++			).toThrow();
++		}
++		const definition = fixture();
++		(
++			(definition.optionsSchema.properties as Record<string, unknown>)
++				.dueDate as Record<string, unknown>
++		).format = undefined;
++		expect(() =>
++			new PrintoutDefinitionValidator().assertDefinition(definition),
++		).toThrow();
++	});
++});
+
+# Task path backend:src/infrastructure/database/prisma/prisma-json.d.ts
+diff --git "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\infrastructure\\database\\prisma\\prisma-json.d.ts" "b/D:\\Planicam\\planicam-backend\\src\\infrastructure\\database\\prisma\\prisma-json.d.ts"
+index 4bc67bb..27d55f4 100644
+--- "a/D:\\Planicam\\planicam-workspace\\.codex\\crew-intake\\reworks-2026-10-19\\evidence\\originals\\backend\\src\\infrastructure\\database\\prisma\\prisma-json.d.ts"
++++ "b/D:\\Planicam\\planicam-backend\\src\\infrastructure\\database\\prisma\\prisma-json.d.ts"
+@@ -18,6 +18,7 @@ import type { PositionActivityDetailsDto as PositionActivityDetailsContract } fr
+ import type { PositionIssueDetailsDto as PositionIssueDetailsContract } from '../../../modules/positions/types/position-json.contracts';
+ import type { PrintoutGenerationInputs as PrintoutGenerationInputsContract } from '../../../modules/printouts/types/printout-json.contracts';
+ import type { PrintoutGenerationOptions as PrintoutGenerationOptionsContract } from '../../../modules/printouts/types/printout-json.contracts';
++import type { PrintoutRequiredOptionsDto } from '../../../modules/printouts/types/printout-definition.contracts';
+ 
+ declare global {
+ 	namespace PrismaJson {
+@@ -38,6 +39,7 @@ declare global {
+ 		type PositionIssueDetails = PositionIssueDetailsContract;
+ 		type PrintoutGenerationInputs = PrintoutGenerationInputsContract;
+ 		type PrintoutGenerationOptions = PrintoutGenerationOptionsContract;
++		type PrintoutRequiredOptions = PrintoutRequiredOptionsDto;
+ 	}
+ }
+ export {};

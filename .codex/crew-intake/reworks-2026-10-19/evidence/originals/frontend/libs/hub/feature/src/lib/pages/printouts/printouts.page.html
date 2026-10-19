@@ -1,0 +1,160 @@
+<section
+	class="printouts-page"
+	aria-labelledby="printouts-title"
+	[attr.aria-busy]="store.loading()"
+>
+	<header class="page-heading">
+		<div>
+			<h1 id="printouts-title" class="pl-heading-md">Printouts</h1>
+			<p class="pl-body pl-text-muted">
+				Choose reports and their position inputs.
+			</p>
+		</div>
+		<pl-button
+			label="Refresh catalog and inputs"
+			variant="outlined"
+			[disabled]="store.loading()"
+			(pressed)="refresh()"
+		/>
+	</header>
+	<p class="generation-notice pl-body-sm" role="note">
+		Generation is deferred for every report, including reports marked AVAILABLE.
+		This page only selects reports and inputs.
+	</p>
+	@if (store.loading()) {
+	<p role="status">Loading printout catalog and position inputs…</p>
+	} @if (store.error(); as error) {
+	<p role="alert" class="error-message">{{ error.message }}</p>
+	}
+	<section class="input-context" aria-labelledby="input-context-title">
+		<h2 id="input-context-title" class="pl-label">Input context</h2>
+		<p class="pl-body-sm">
+			{{ store.resolution()?.label || (store.error() ? 'Input context could not
+			be resolved.' : store.loading() ? 'Resolving input context…' : 'Browse the
+			catalog and choose position inputs below.') }}
+		</p>
+		<p class="pl-caption pl-text-muted">Source: {{ sourceLabel() }}</p>
+		@if (store.resolution(); as context) {
+		<p class="pl-caption pl-text-muted">
+			{{ context.positions.length }} active position inputs resolved. @if
+			(context.elementIds.length) { Original context contains {{
+			context.elementIds.length }} eligible elements. } Archived positions and
+			parents are omitted. Excluded elements are omitted from element and batch
+			contexts.
+		</p>
+		}
+	</section>
+	<div class="selection-layout">
+		<section class="report-selection" aria-labelledby="report-selection-title">
+			<header>
+				<h2 id="report-selection-title" class="pl-label">
+					Reports ({{ store.types().length }})
+				</h2>
+				<span class="pl-caption"
+					>{{ store.selectedReportIds().length }} selected</span
+				>
+			</header>
+			<pl-input-field
+				[field]="searchForm.report"
+				label="Search reports"
+				type="search"
+				size="small"
+			/>
+			<nav class="category-list" aria-label="Printout categories">
+				<button
+					type="button"
+					[class.selected]="category() === null"
+					[attr.aria-pressed]="category() === null"
+					(click)="category.set(null)"
+				>
+					All categories
+				</button>
+				@for (item of categories(); track item) {
+				<button
+					type="button"
+					[class.selected]="category() === item"
+					[attr.aria-pressed]="category() === item"
+					(click)="category.set(item)"
+				>
+					{{ item }}
+				</button>
+				}
+			</nav>
+			<div class="report-list">
+				@for (report of reports(); track report.id) {
+				<label class="report-row"
+					><input
+						type="checkbox"
+						[checked]="store.selectedReportIds().includes(report.id)"
+						[disabled]="store.loading()"
+						(change)="store.toggleReport(report.id)"
+					/><span class="report-description"
+						><strong>{{ report.name }}</strong
+						><small>{{ report.category }} · {{ report.scope }}</small>@if
+						(report.description) {
+						<small>{{ report.description }}</small> }</span
+					><span class="status-badge">{{ report.status }}</span></label
+				>
+				} @empty { @if (!store.loading()) {
+				<p class="pl-body-sm pl-text-muted">No reports match this selection.</p>
+				} }
+			</div>
+		</section>
+		<section
+			class="position-selection"
+			aria-labelledby="position-selection-title"
+		>
+			<header>
+				<h2 id="position-selection-title" class="pl-label">Position inputs</h2>
+				<span class="pl-caption"
+					>{{ store.selectedPositionIds().length }} selected</span
+				>
+			</header>
+			<pl-input-field
+				[field]="searchForm.position"
+				label="Search position inputs"
+				type="search"
+				size="small"
+			/>
+			<div class="position-actions">
+				<pl-button
+					label="Select visible"
+					variant="text"
+					size="small"
+					[disabled]="store.loading() || !positions().length"
+					(pressed)="selectVisible(true)"
+				/><pl-button
+					label="Clear visible"
+					variant="text"
+					size="small"
+					[disabled]="store.loading() || !positions().length"
+					(pressed)="selectVisible(false)"
+				/>
+			</div>
+			<div class="position-list">
+				@for (position of positions(); track position.id) {
+				<label class="position-row"
+					><input
+						type="checkbox"
+						[checked]="store.selectedPositionIds().includes(position.id)"
+						[disabled]="store.loading()"
+						(change)="store.togglePosition(position.id)"
+					/><span
+						><strong>{{ position.number }} · {{ position.name }}</strong
+						><small>{{ position.projectName }}</small></span
+					></label
+				>
+				} @empty { @if (!store.loading()) {
+				<p class="pl-body-sm pl-text-muted">
+					No active position inputs match this context.
+				</p>
+				} }
+			</div>
+		</section>
+	</div>
+	<footer class="selection-summary pl-body-sm" aria-live="polite">
+		{{ store.selectedReportIds().length }} reports · {{
+		store.selectedPositionIds().length }} position inputs selected. Generation
+		deferred.
+	</footer>
+</section>

@@ -1,0 +1,383 @@
+<section class="projects-page" aria-labelledby="projects-title">
+	<pl-workspace-layout>
+		<pl-workspace-header
+			workspace-header
+			title="Projects"
+			headingId="projects-title"
+			description="Manage your project or create new ones"
+			[hasSelection]="selectedProject() !== null"
+		>
+			<div
+				workspace-selection-actions
+				class="project-actions"
+				role="group"
+				aria-label="Selected project actions"
+			>
+				<pl-button
+					label="Printout"
+					(pressed)="print()"
+					icon="printout"
+					variant="outlined"
+					severity="secondary"
+					size="large"
+					[filledOutline]="true"
+				/>
+				<pl-button
+					label="Project Preference"
+					(pressed)="openPreferences()"
+					icon="projectPreferences"
+					variant="outlined"
+					size="large"
+					[filledOutline]="true"
+				/>
+			</div>
+			<div
+				workspace-actions
+				class="project-actions"
+				role="group"
+				aria-label="Project actions"
+			>
+				<pl-button
+					label="New Project"
+					icon="newProject"
+					size="large"
+					(pressed)="openProjectForm()"
+				/>
+				<pl-button
+					label="New Folder"
+					(pressed)="folderForm()"
+					icon="newFolder"
+					variant="outlined"
+					size="large"
+					[filledOutline]="true"
+				/>
+			</div>
+		</pl-workspace-header>
+		<nav workspace-sidebar class="project-filters" aria-label="Project filters">
+			@for (filter of presentation.filters; track filter.id) {
+			<button
+				type="button"
+				class="project-filter"
+				[class.is-active]="filter.id === activeFilter()"
+				[attr.aria-current]="filter.id === activeFilter() ? 'true' : null"
+				(click)="selectFilter(filter.id)"
+			>
+				<svg [plIcon]="filter.icon" [size]="14" aria-hidden="true" />
+				<span class="project-filter-label">{{ filter.label }}</span>
+				@if (filter.count !== null) {
+				<span class="project-count">{{ filterCount(filter.id) }}</span> }
+			</button>
+			}
+			<div class="project-folder-heading"><h2>Folders</h2></div>
+			<button
+				type="button"
+				class="project-filter"
+				[attr.aria-pressed]="recentFolders()"
+				(click)="recentFolders.set(!recentFolders())"
+			>
+				{{recentFolders()?'Show all folders':'Recently modified folders'}}
+			</button>
+			<button
+				type="button"
+				class="project-filter"
+				[class.is-active]="activeFilter() === 'root'"
+				[attr.aria-current]="activeFilter() === 'root' ? 'true' : null"
+				(click)="selectFilter('root')"
+			>
+				<svg plIcon="allProjects" [size]="14" aria-hidden="true" /><span
+					class="project-filter-label project-root-label"
+					>No folder</span
+				><span class="project-count">{{ folderCount(null) }}</span>
+			</button>
+			@for (folder of folders(); track folder.id) {
+			<div
+				class="project-folder-row"
+				[class.is-active]="activeFilter() === 'folder:' + folder.id"
+			>
+				<button
+					type="button"
+					class="project-filter"
+					[class.is-active]="activeFilter() === 'folder:' + folder.id"
+					[attr.aria-current]="activeFilter() === 'folder:' + folder.id ? 'true' : null"
+					(click)="selectFilter('folder:' + folder.id)"
+				>
+					<svg plIcon="folder" [size]="14" aria-hidden="true" /><span
+						class="project-filter-label"
+						>{{ folder.name }}</span
+					><span class="project-count">{{ folderCount(folder.id) }}</span>
+				</button>
+				<button
+					type="button"
+					class="project-folder-rename"
+					[attr.aria-label]="'Rename folder ' + folder.name"
+					title="Rename folder"
+					(click)="folderForm(folder)"
+				>
+					<svg plIcon="edit" [size]="12" aria-hidden="true" />
+				</button>
+			</div>
+			}
+			<div class="project-new-folder">
+				<pl-button
+					label="New Folder"
+					(pressed)="folderForm()"
+					icon="newFolder"
+					variant="outlined"
+					severity="secondary"
+					fluid
+				/>
+			</div>
+		</nav>
+		<section
+			workspace-main
+			class="project-table-area"
+			aria-labelledby="project-list-title"
+		>
+			@if (store.error(); as error) {
+			<p role="alert">{{error.message}}</p>
+			<pl-button label="Refresh" variant="outlined" (pressed)="store.load()" />
+			} @if (store.loading()) {
+			<p role="status">Loading projects…</p>
+			}
+			<h2 id="project-list-title" class="sr-only">Projects list</h2>
+			<div class="project-table-toolbar">
+				<pl-icon-input-field
+					[field]="searchForm.query"
+					leftIcon="search"
+					type="search"
+					placeholder="Search projects"
+					ariaLabel="Search projects"
+				/>
+			</div>
+			<pl-data-table
+				[rows]="rows()"
+				[columns]="columns"
+				[serverSorting]="true"
+				[sort]="sort()"
+				(sortChanged)="changeSort($event)"
+				[selectedId]="selectedProjectId()"
+				emptyLabel="No projects match this view"
+				(selected)="selectProject($event)"
+				(edited)="renameProject($event)"
+			>
+				<ng-template #cell let-row let-column="column">
+					@if(column.key==='customer'){
+					<button
+						type="button"
+						class="customer-link"
+						[disabled]="projectById().get(row.id)?.archived"
+						(click)="$event.stopPropagation();openProjectForm(row.id)"
+					>
+						<svg
+							plIcon="profile"
+							[size]="14"
+							aria-hidden="true"
+						/>{{row.cells['customer']}}
+					</button>
+					} @else if (column.key === 'updatedAt') { {{
+					projectById().get(row.id)?.updatedLabel }} } @else if (column.key ===
+					'warnings' && row.cells['warnings']) {
+					<span class="project-warning"
+						><svg plIcon="warning" [size]="14" aria-hidden="true" />{{
+						row.cells['warnings'] }}</span
+					>
+					} @else { {{ row.cells[column.key] ?? '–' }} }
+				</ng-template>
+				<ng-template #rowActions let-row
+					><pl-action-menu
+						[label]="'More actions for ' + row.cells['name']"
+						[items]="menus().get(row.id) ?? []"
+						(selected)="action(row.id,$event)"
+				/></ng-template>
+			</pl-data-table>
+			<div class="project-pagination">
+				<pl-button
+					label="Previous"
+					variant="outlined"
+					[disabled]="page() === 1"
+					(pressed)="previousPage()"
+				/><span>{{store.total()}} projects · Page {{page()}}</span
+				><pl-button
+					label="Next"
+					variant="outlined"
+					[disabled]="page() * 25 >= store.total()"
+					(pressed)="nextPage()"
+				/>
+			</div>
+		</section>
+		<aside
+			workspace-properties
+			class="project-properties"
+			aria-labelledby="project-properties-title"
+		>
+			@if (selectedProject(); as project) {
+			<header class="project-properties-header">
+				<div>
+					<h2 id="project-properties-title">{{ project.name }}</h2>
+					<p class="pl-text-muted">Last updated {{ lastUpdated() }}</p>
+				</div>
+				<button
+					type="button"
+					class="project-favorite"
+					[class.is-favorite]="project.favorite"
+					[attr.aria-label]="project.favorite ? 'Remove from favorites' : 'Favorite project'"
+					[attr.aria-pressed]="project.favorite"
+					(click)="action(project.id,'favorite')"
+				>
+					<svg plIcon="favoriteProjects" [size]="20" aria-hidden="true" />
+				</button>
+			</header>
+			<pl-tabs
+				class="project-properties-tabs"
+				[items]="tabs"
+				[panel]="projectTab"
+				[(value)]="propertiesTab"
+			/>
+			<ng-template #projectTab let-tab>
+				@if (tab === 'detail') {
+				<dl class="project-details">
+					@for (detail of details(); track detail.label) {
+					<div>
+						<dt>{{ detail.label }}</dt>
+						<dd>
+							@if(detail.label==='Customer'){
+							<button
+								type="button"
+								class="customer-link"
+								[disabled]="project.archived"
+								(click)="openProjectForm(project.id)"
+							>
+								<svg
+									plIcon="profile"
+									[size]="14"
+									aria-hidden="true"
+								/>{{detail.value}}
+							</button>
+							}@else{ @if (detail.warning && project.warnings) {
+							<svg plIcon="warning" [size]="16" aria-hidden="true" /> }{{
+							detail.value }} }
+						</dd>
+					</div>
+					}
+					<div class="project-description">
+						<dt>Description</dt>
+						<dd>{{ project.description }}</dd>
+					</div>
+				</dl>
+				} @else if (tab === 'positions') {
+				<div class="project-tab-placeholder">
+					<p class="pl-label">{{ project.positions }} positions</p>
+					@if(preview.loading()){
+					<p role="status">Loading recent positions…</p>
+					}
+					<ul>
+						@for(position of preview.items();track position.id){
+						<li>
+							<a [routerLink]="['/positions',position.id,'editor']"
+								>{{position.number}} · {{position.name}}</a
+							>
+						</li>
+						}@empty{
+						<li>No active positions.</li>
+						}
+					</ul>
+				</div>
+				} @else {
+				<planicam-project-attachments
+					[projectId]="project.id"
+					[projectVersion]="project.version"
+					[archived]="project.archived"
+					(changed)="store.select(project.id)"
+				/>
+				}
+			</ng-template>
+			<div class="project-properties-footer">
+				<pl-button
+					label="Open Project"
+					size="large"
+					fluid
+					[routerLink]="['/hub/projects', project.id, 'positions']"
+				/>
+				<pl-button
+					label="Edit Project Header"
+					(pressed)="openProjectForm(project.id)"
+					[disabled]="project.archived"
+					icon="editHeaders"
+					variant="outlined"
+					severity="secondary"
+					size="large"
+					fluid
+				/>
+				<pl-button
+					[label]="project.archived ? 'Restore' : 'Archive'"
+					(pressed)="action(project.id,'archive')"
+					icon="archivedProjects"
+					variant="outlined"
+					severity="danger"
+					size="large"
+					fluid
+				/>
+			</div>
+			} @else {
+			<div class="project-properties-empty">
+				<img
+					class="project-properties-illustration"
+					src="assets/images/projects/no-project-selected.png"
+					width="1254"
+					height="1254"
+					alt=""
+				/>
+				<h2 id="project-properties-title">No projects selected yet</h2>
+				<p class="pl-body-sm pl-text-muted">
+					Select a project from the list to view its details, positions, phases,
+					warnings and more.
+				</p>
+			</div>
+			<div class="project-properties-footer">
+				<pl-button
+					label="New Project"
+					variant="outlined"
+					size="large"
+					fluid
+					(pressed)="openProjectForm()"
+				/>
+			</div>
+			}
+		</aside>
+	</pl-workspace-layout>
+</section>
+
+<planicam-project-form /><planicam-batch-assignment (changed)="store.load()" />
+<dialog #folderDialog aria-labelledby="folder-title">
+	<form (submit)="saveFolder($event)">
+		<h2 id="folder-title">
+			{{editingFolder() ? 'Edit folder' : 'New folder'}}
+		</h2>
+		<pl-input-field label="Folder name" [field]="folderFields.name" /><label
+			>Parent folder<select [formField]="folderFields.parentId">
+				<option value="">No parent</option>
+				@for (folder of folders(); track folder.id) { @if (folder.id !==
+				editingFolder()?.id) {
+				<option [value]="folder.id">{{folder.name}}</option>
+				} }
+			</select></label
+		>@if (store.error(); as error) {
+		<p role="alert">{{error.message}}</p>
+		}<pl-button
+			label="Cancel"
+			variant="outlined"
+			(pressed)="closeFolder()"
+		/><pl-button
+			label="Save folder"
+			type="submit"
+			[disabled]="folderFields().invalid() || store.saving()"
+		/>@if (editingFolder(); as folder) {
+		<pl-button
+			label="Delete folder"
+			severity="danger"
+			variant="outlined"
+			(pressed)="store.removeFolder(folder); closeFolder()"
+		/>
+		}
+	</form>
+</dialog>

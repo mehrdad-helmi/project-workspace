@@ -1,0 +1,41 @@
+[   25663ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  429387ms] [ERROR] ERROR TypeError: event.stopPropagation is not a function
+    at Popover.show (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_popover.js?v=8e3c7f0f:264:28)
+    at Popover.toggle (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_popover.js?v=8e3c7f0f:255:15)
+    at _Popover.show (http://localhost:4300/chunk-7VXUMJ63.js:230:18)
+    at _Popover.showModal (http://localhost:4300/chunk-7VXUMJ63.js:236:10)
+    at _ProjectManagementPage.folderForm (http://localhost:4300/chunk-RJQISOXS.js:924:25)
+    at ProjectManagementPage_Template_pl_button_pressed_8_listener (http://localhost:4300/chunk-RJQISOXS.js:1068:20)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6514:10)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at Button_Conditional_1_Template_button_click_0_listener (http://localhost:4300/chunk-WS3AEHT4.js:47:54) @ http://localhost:4300/@vite/client:524
+[  503175ms] [ERROR] ERROR TypeError: event.stopPropagation is not a function
+    at Popover.show (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_popover.js?v=8e3c7f0f:264:28)
+    at Popover.toggle (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_popover.js?v=8e3c7f0f:255:15)
+    at _Popover.show (http://localhost:4300/chunk-7VXUMJ63.js:230:18)
+    at _Popover.showModal (http://localhost:4300/chunk-7VXUMJ63.js:236:10)
+    at _ProjectManagementPage.folderForm (http://localhost:4300/chunk-RJQISOXS.js:924:25)
+    at ProjectManagementPage_Template_pl_button_pressed_8_listener (http://localhost:4300/chunk-RJQISOXS.js:1068:20)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6514:10)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at Button_Conditional_1_Template_button_click_0_listener (http://localhost:4300/chunk-WS3AEHT4.js:47:54) @ http://localhost:4300/@vite/client:524
+[  538025ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  540575ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  595517ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  598784ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  602141ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  603267ms] [ERROR] ERROR TypeError: event.stopPropagation is not a function
+    at Popover.show (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_popover.js?v=8e3c7f0f:264:28)
+    at Popover.toggle (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_popover.js?v=8e3c7f0f:255:15)
+    at _Popover.show (http://localhost:4300/chunk-7VXUMJ63.js:230:18)
+    at _Popover.showModal (http://localhost:4300/chunk-7VXUMJ63.js:236:10)
+    at _ProjectManagementPage.folderForm (http://localhost:4300/chunk-RJQISOXS.js:924:25)
+    at ProjectManagementPage_Template_pl_button_pressed_8_listener (http://localhost:4300/chunk-RJQISOXS.js:1068:20)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6514:10)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at Button_Conditional_1_Template_button_click_0_listener (http://localhost:4300/chunk-WS3AEHT4.js:47:54) @ http://localhost:4300/@vite/client:524
+[  616221ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  618259ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151

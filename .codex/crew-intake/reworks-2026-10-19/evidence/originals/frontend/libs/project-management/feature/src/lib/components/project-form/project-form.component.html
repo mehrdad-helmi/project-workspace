@@ -1,0 +1,272 @@
+<dialog #dialog aria-labelledby="project-form-title" (cancel)="cancel($event)">
+	@if (!created()) {
+		<form (submit)="save($event)">
+			<header>
+				<h2 id="project-form-title" class="pl-heading-md">
+					{{ editing() ? 'Edit project headers' : 'New project' }}
+				</h2>
+				<button type="button" aria-label="Close project form" (click)="close()">
+					×
+				</button>
+			</header>
+			<pl-stepper [steps]="steps" [(value)]="step" />
+			@if (formError()) {
+				<p role="alert" class="form-error">{{ formError() }}</p>
+			}
+			@if (store.error(); as error) {
+				<p role="alert" class="form-error">{{ error.message }}</p>
+			}
+			<div [hidden]="step() !== 0" class="form-grid">
+				<pl-input-field label="Project name" [field]="fields.name" />
+				@if (!editing()) {
+					<pl-input-field
+						label="Position prefix"
+						[field]="fields.positionPrefix"
+						hint="Two or three uppercase letters or digits; fixed after creation."
+					/>
+				}
+				<div>
+					<span>Customer (required)</span>
+					<p>{{ customerName() || 'No customer selected' }}</p>
+					<pl-button
+						label="Choose customer"
+						variant="outlined"
+						(pressed)="customerSelector.open()"
+					/>
+				</div>
+				<div>
+					<label for="project-folder">Folder</label
+					><select id="project-folder" [formField]="fields.folderId">
+						<option value="">No folder</option>
+						@for (folder of store.folders(); track folder.id) {
+							<option [value]="folder.id">{{ folder.name }}</option>
+						}
+					</select>
+				</div>
+				<pl-input-field
+					label="Person in charge"
+					[field]="fields.responsiblePerson"
+				/>
+				@if (!editing()) {
+					<div>
+						<label for="project-estimation-source">Estimation preset</label
+						><select
+							id="project-estimation-source"
+							[formField]="fields.estimationDataSetId"
+						>
+							<option value="">Customer default or organization default</option>
+							@for (preset of catalog.estimationDataSets(); track preset.id) {
+								<option [value]="preset.id">{{ preset.name }}</option>
+							}
+						</select>
+						<p class="pl-caption">Creates an independent project snapshot.</p>
+					</div>
+				}
+			</div>
+			<div [hidden]="step() !== 2" class="form-grid">
+				<pl-input-field label="Street" [field]="fields.street" /><pl-input-field
+					label="City"
+					[field]="fields.city"
+				/><pl-input-field
+					label="Postal code"
+					[field]="fields.postalCode"
+				/><pl-input-field label="Country" [field]="fields.country" />
+				<div class="additional-addresses">
+					<h3>Additional addresses</h3>
+					@for (address of addresses(); track $index; let index = $index) {
+						<div class="form-grid">
+							<label
+								>Address label<input
+									[value]="address.label"
+									(input)="setAddress(index, 'label', $event)" /></label
+							><label
+								>Address<textarea
+									[value]="address.value"
+									(input)="setAddress(index, 'value', $event)"
+								></textarea></label
+							><pl-button
+								label="Remove address"
+								variant="outlined"
+								(pressed)="removeAddress(index)"
+							/>
+						</div>
+					}
+					<pl-button
+						label="Add address"
+						variant="outlined"
+						(pressed)="addAddress()"
+					/>
+				</div>
+			</div>
+			<div [hidden]="step() !== 4">
+				<label
+					>Conditions<textarea
+						[formField]="fields.conditions"
+						rows="4"
+					></textarea>
+				</label>
+				<h3>Pricing adjustments</h3>
+				<p class="pl-body-sm pl-text-muted">
+					Applied in order to the running total. Caps use {{ capCurrency() }}.
+				</p>
+				<ol>
+					@for (adjustment of adjustments(); track $index; let index = $index) {
+						<li>
+							{{ adjustment.label }} · {{ adjustment.direction }}
+							{{ adjustment.percentage }}%
+							@if (adjustment.cap) {
+								(cap {{ adjustment.cap }})
+							}
+							<button
+								type="button"
+								aria-label="Move adjustment up"
+								(click)="moveAdjustment(index, -1)"
+							>
+								↑</button
+							><button
+								type="button"
+								aria-label="Move adjustment down"
+								(click)="moveAdjustment(index, 1)"
+							>
+								↓</button
+							><button type="button" (click)="removeAdjustment(index)">
+								Remove
+							</button>
+						</li>
+					}
+				</ol>
+				<div class="form-grid">
+					<pl-input-field
+						label="Adjustment label"
+						[field]="adjustmentFields.label"
+					/><label
+						>Direction<select [formField]="adjustmentFields.direction">
+							<option value="SURCHARGE">Surcharge</option>
+							<option value="DISCOUNT">Discount</option>
+						</select></label
+					><pl-input-field
+						label="Percentage"
+						unit="%"
+						[field]="adjustmentFields.percentage"
+					/><pl-input-field
+						label="Cap (optional)"
+						[unit]="capCurrency()"
+						[field]="adjustmentFields.cap"
+					/>
+				</div>
+				<pl-button
+					label="Add adjustment"
+					variant="outlined"
+					(pressed)="addAdjustment()"
+				/>
+			</div>
+			@if (step() === 1 || step() === 3 || step() === 5) {
+				<p>
+					These optional settings are available after creation. Choose “Create
+					and continue setup” to save the project details and configure them
+					here.
+				</p>
+			}
+			<footer>
+				<pl-button label="Cancel" variant="outlined" (pressed)="close()" />
+				@if (step() > 0) {
+					<pl-button label="Back" variant="outlined" (pressed)="back()" />
+				}
+				@if (step() < 5) {
+					<pl-button label="Next" variant="outlined" (pressed)="next()" />
+				}
+				@if (!editing()) {
+					<pl-button
+						label="Create and continue setup"
+						variant="outlined"
+						[disabled]="store.saving() || fields().invalid()"
+						(pressed)="createAndContinue($event)"
+					/>
+				}
+				<pl-button
+					[label]="editing() ? 'Save project' : 'Create project'"
+					type="submit"
+					[disabled]="store.saving() || fields().invalid()"
+				/>
+			</footer>
+		</form>
+	} @else if (created(); as project) {
+		<header>
+			<h2>Continue project setup</h2>
+			<pl-button label="Finish" (pressed)="finishSetup()" />
+		</header>
+		<p role="status">
+			{{ project.name }} has been created. Optional changes are saved
+			individually.
+		</p>
+		<pl-stepper [steps]="steps" [(value)]="step" />
+		@switch (step()) {
+			@case (0) {
+				<p>Project details are saved. Finish setup to return to the project.</p>
+			}
+			@case (1) {
+				<planicam-project-attachments
+					[projectId]="project.id"
+					[projectVersion]="project.version"
+				/>
+			}
+			@case (2) {
+				<p>Addresses are saved with the project details.</p>
+			}
+			@case (3) {
+				<label
+					>Preferences section<select
+						[value]="preferenceSection()"
+						(change)="preferenceSection.set($any($event.target).value)"
+					>
+						@for (
+							section of ['System', 'Colors', 'Fillings', 'Other'];
+							track section
+						) {
+							<option [value]="section">{{ section }}</option>
+						}
+					</select></label
+				>
+				<planicam-project-configuration
+					[projectId]="project.id"
+					area="preferences"
+					[section]="preferenceSection()"
+				/>
+			}
+			@case (4) {
+				<p>
+					Conditions and pricing adjustments are saved with the project details.
+				</p>
+				<label
+					>Estimation section<select
+						[value]="estimationSection()"
+						(change)="estimationSection.set($any($event.target).value)"
+					>
+						@for (
+							section of ['Basic', 'Discount/Factors', 'Special Prices'];
+							track section
+						) {
+							<option [value]="section">{{ section }}</option>
+						}
+					</select></label
+				>
+				<planicam-project-configuration
+					[projectId]="project.id"
+					area="estimation"
+					[section]="estimationSection()"
+				/>
+			}
+			@case (5) {
+				<planicam-project-configuration
+					[projectId]="project.id"
+					area="estimation"
+					section="Allocated Costs"
+				/>
+			}
+		}
+	}
+</dialog>
+<planicam-customer-selector
+	#customerSelector
+	(selected)="selectCustomer($event)"
+/>

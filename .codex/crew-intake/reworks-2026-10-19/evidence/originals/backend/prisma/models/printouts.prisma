@@ -1,0 +1,73 @@
+enum PrintoutCategory {
+	ESTIMATION
+	QUOTATION_INVOICE
+	ORDER
+	FABRICATION
+
+	@@map("printout_category")
+}
+
+enum PrintoutScope {
+	POSITIONS
+	ELEMENTS
+	PROJECT
+	PROJECT_PHASE
+	FABRICATION_BATCH
+
+	@@map("printout_scope")
+}
+
+enum PrintoutTypeStatus {
+	PLANNED
+	AVAILABLE
+	NEXT
+	DEPRECATED
+
+	@@map("printout_type_status")
+}
+
+model PrintoutType {
+	id          String             @id(map: "pk_printout_types") @default(dbgenerated("uuidv7()")) @map("id") @db.Uuid
+	code        String             @unique(map: "uq_printout_types_code") @map("code") @db.Text
+	name        String             @map("name") @db.Text
+	category    PrintoutCategory   @map("category")
+	description String?            @map("description") @db.Text
+	scope       PrintoutScope      @map("scope")
+	status      PrintoutTypeStatus @default(PLANNED) @map("status")
+
+	/// One-to-many relation between PrintoutType and GeneratedPrintout.
+	generations GeneratedPrintout[] @relation("GeneratedPrintoutPrintoutType")
+
+	@@map("printout_types")
+}
+
+model GeneratedPrintout {
+	id                String   @id(map: "pk_generated_printouts") @default(dbgenerated("uuidv7()")) @map("id") @db.Uuid
+	organizationId    String   @map("organization_id") @db.Uuid
+	printoutTypeId    String   @map("printout_type_id") @db.Uuid
+	name              String   @map("name") @db.Text
+	fileAssetId       String   @unique(map: "uq_generated_printouts_file_asset_id") @map("file_asset_id") @db.Uuid
+	generatedByUserId String   @map("generated_by_user_id") @db.Uuid
+	/// [PrintoutGenerationInputs]
+	generationInputs  Json     @map("generation_inputs") @db.JsonB
+	/// [PrintoutGenerationOptions]
+	generationOptions Json     @map("generation_options") @db.JsonB
+	createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+	/// Many-to-one relation between GeneratedPrintout and Organization.
+	organization Organization @relation("GeneratedPrintoutOrganization", fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_generated_printouts_org_id")
+
+	/// Many-to-one relation between GeneratedPrintout and PrintoutType.
+	printoutType PrintoutType @relation("GeneratedPrintoutPrintoutType", fields: [printoutTypeId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_generated_printouts_printout_type_id")
+
+	/// One-to-one relation between GeneratedPrintout and StorageFileAsset.
+	fileAsset StorageFileAsset @relation("GeneratedPrintoutFileAsset", fields: [fileAssetId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_generated_printouts_file_asset_id")
+
+	/// Many-to-one relation between GeneratedPrintout and User.
+	generatedBy User @relation("GeneratedPrintoutGeneratedBy", fields: [generatedByUserId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_generated_printouts_generated_by_user_id")
+
+	@@index([organizationId, createdAt], map: "idx_generated_printouts_org_id_created_at")
+	@@index([printoutTypeId], map: "idx_generated_printouts_printout_type_id")
+	@@index([generatedByUserId], map: "idx_generated_printouts_generated_by_user_id")
+	@@map("generated_printouts")
+}

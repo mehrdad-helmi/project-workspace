@@ -1,0 +1,112 @@
+<p>
+	Blank coefficients are unset; zero is an explicit configured value. System
+	overrides keep their own version. Unchecked operations are omitted from this
+	map.
+</p>
+<label
+	>Configuration target<select
+		(change)="changeSystem($event)"
+		[disabled]="store.saving()"
+	>
+		<option value="">Organization standard</option>
+		@for (system of catalog.systems(); track system.id) {
+			<option [value]="system.id">{{ system.name }}</option>
+		}
+	</select></label
+>
+@if (store.error(); as error) {
+	<p role="alert" class="error">
+		{{ error.message }} Your draft is retained. Reload discards this draft and
+		reads the latest version.
+	</p>
+	<pl-button
+		label="Reload and discard draft"
+		variant="outlined"
+		(pressed)="reload()"
+	/>
+}
+@if (store.loading()) {
+	<p role="status">Loading labor configuration…</p>
+}
+@if (store.record() && !store.loading() && operations().length) {
+	<form (submit)="save($event)">
+		<fieldset [disabled]="store.saving()">
+			<legend>Labor operations</legend>
+			<div class="selectors">
+				<label
+					>Map<select [value]="scope()" (change)="changeScope($event)">
+						@for (item of scopes(); track item.value) {
+							<option [value]="item.value">{{ item.label }}</option>
+						}
+					</select></label
+				>
+				<label
+					>Operation<select
+						[value]="operation()"
+						(change)="changeOperation($event)"
+					>
+						@for (item of operations(); track item.value) {
+							<option [value]="item.value">
+								{{ item['section'] }} · {{ item['group'] }} · {{ item.label }}
+							</option>
+						}
+					</select></label
+				>
+			</div>
+			@if (model().maps[scope()]?.[operation()]; as draft) {
+				<label class="enabled"
+					><input
+						type="checkbox"
+						[formField]="fields.maps[scope()][operation()].enabled"
+					/>Configure {{ selectedOperation()?.label }}</label
+				>
+				@if (draft.enabled) {
+					@if (selectedOperation()?.['kind'] === 'SIMPLE') {
+						<planicam-configuration-fields
+							[descriptors]="simpleFields"
+							[fields]="fields.maps[scope()][operation()].values"
+						/>
+					} @else {
+						@for (rule of draft.rules; track $index; let index = $index) {
+							<fieldset>
+								<legend>Rule {{ index + 1 }}</legend>
+								<planicam-configuration-fields
+									[descriptors]="ruleFields()"
+									[fields]="fields.maps[scope()][operation()].rules[index]"
+								/><pl-button
+									label="Remove rule"
+									variant="text"
+									severity="danger"
+									(pressed)="removeRule(index)"
+								/>
+							</fieldset>
+						}
+						<pl-button
+							label="Add rule"
+							variant="outlined"
+							(pressed)="addRule()"
+						/>
+					}
+				}
+			}
+			<p>
+				Catalog-specific wall connection, add-on profile, coupling and
+				bottom-configuration records are preserved. Their article selectors
+				require catalog APIs that are currently unavailable.
+			</p>
+			@if (fields().invalid()) {
+				<ul role="alert">
+					@for (error of fields().errors(); track $index) {
+						<li>{{ error.message }}</li>
+					}
+				</ul>
+			}
+			<pl-button
+				label="Save labor hours"
+				type="submit"
+				[loading]="store.saving()"
+				[disabled]="fields().invalid()"
+			/>
+		</fieldset>
+	</form>
+}

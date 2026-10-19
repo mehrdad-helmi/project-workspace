@@ -1,0 +1,135 @@
+{
+	"changes": [
+		{
+			"path": "src/modules/printouts/api/printouts.controller.ts",
+			"baseline": "dd1409b48413704e738ff29b0b613790465edb3e66ea9bdc3306c1bd741c036c",
+			"current": "5eec3717558aa07958fbca648f74f591497316c49c8cf4432c35f33d2084220c"
+		},
+		{
+			"path": "src/modules/printouts/application/printouts.service.ts",
+			"baseline": "298301bfd6e241faeceb7a2ddd1cc62421427a5eb34fd20379e04b74dfee8d1f",
+			"current": "088118ea6a67f07641a57d31f3406dbbc07c00ab038e1c1ee75c2eab20a302b2"
+		},
+		{
+			"path": "src/modules/printouts/infrastructure/printouts.repository.ts",
+			"baseline": "81f9798a6a9a5bde35cc1b7b030825a7209de6db6b711e6c93adf2a22645b992",
+			"current": "f287c8de048b6f172868554d66bd48e72d0720afc369b44e3e90745e89c4f233"
+		},
+		{
+			"path": "src/modules/printouts/printouts.module.ts",
+			"baseline": "ad4ac10bc09128065e446aec347f14761675feb76c9609a3cc8023a29e69bbfc",
+			"current": "a3141493353604a90cd54e586e5fbe6503ea94cde715b8940771c52de29bf7e7"
+		},
+		{
+			"path": "src/modules/positions/api/dto/position.dto.ts",
+			"baseline": "afb630e49d1b10ef66d0f43a0fbd02f60f1615daa97aa45338cece0d81c42d58",
+			"current": "0f8d0d1d18f2d8ad6c86cb5315d7fa685c4ebe067c8ce0f135b63a254b4e3131"
+		},
+		{
+			"path": "src/modules/positions/infrastructure/positions.repository.ts",
+			"baseline": "46287ad31e368f726355cc3a23b6286ad724d75701900238c95d7506e5f1fbae",
+			"current": "b55250e26d7c868ba92c6edd9dec1a792c1b1922eb31f644ce5828ed56323c50"
+		},
+		{
+			"path": "src/modules/positions/types/positions-repository.types.ts",
+			"baseline": "5474fc2e764cbdad77aeba45a948b5d3f735b19659db4e30e6f298ec47469bef",
+			"current": "e975533bd0bfb79f50983b42c768bf3499cf8a2b2ffdd03c4e8a093561b97b1f"
+		},
+		{
+			"path": "prisma/seeds/printouts.ts",
+			"baseline": "a1c1443c1794d5fb5cf71c29896413c2b229435a5ee0b45e3160c91615215887",
+			"current": "74ccf60125e834e268b56f1e00dbdabb6826dbec2241b7e78a83e2b2fc4f5298"
+		},
+		{
+			"path": "prisma/models/printouts.prisma",
+			"baseline": "f28a95453bf730e304496056a88620be352f4180c64b9b84a4e216d03af4213d",
+			"current": "e7d873c6ccae875ad322eda06970d04fa77a50280f91d9b6e6145f38b9e213c3"
+		},
+		{
+			"path": "package.json",
+			"baseline": "9bda33d79f5b577a2e2757b8bb99f418df3247ed73bdb02a985906080a56d1f6",
+			"current": "309e151d6af9626ef6f4ca597774acd3e64bfdcbf549d3dbd71b466d86f12eec"
+		},
+		{
+			"path": "bun.lock",
+			"baseline": "d514e4d1a987b3a0f64fccdae976d6130de41b3b870ada989fbbf5c4bdeba35c",
+			"current": "572e1c42ccbf53a0fd98848f58c158a50b9d997bf33304fefc06455edd07a9e1"
+		},
+		{
+			"path": "docs/ai/hub-api.md",
+			"baseline": "c52b3e7b86229b646e039bb204b0044ac7bc7095aaa06f2b14987958446ea677",
+			"current": "f6c06dea39e9d6ce69983dd46ab0806f8154c198cf3ff5033db7ab09a7b51d3c"
+		},
+		{
+			"path": "docs/ai/data-model-contracts.md",
+			"baseline": "8daf2db5ae37b9d29023bb864472f14210a71482966846462154753eb82914d8",
+			"current": "a39539cbb431383861bb91e068d4850e43fa255b4a20b7c23735b6590c46f74f"
+		},
+		{
+			"path": "docs/ai/domain-workflows.md",
+			"baseline": "a81432571cc8e7648c0d38f0010b36c50a009ecbd796bbaed4e3ceba90fa9675",
+			"current": "543bc59607dcb1fa62b5941bd62ef8f28d67ee86b63f712828a7bd52d1e0729a"
+		},
+		{
+			"path": "docs/ai/provisioning.md",
+			"baseline": "b0181f3b7c6ae4ee04dd1a4e352da0e7e9d6d57808abdf6d99662b4a8575bc47",
+			"current": "f5f6f7ffadd40e1e0f609cd039af2c9be49b00c1954dce0ca693bf5e8468bd88"
+		},
+		{
+			"path": "docs/ai/project-map.md",
+			"baseline": "b44b4f80ed0a3938e77c8fd1d037be9cae057ddbd7fe0970100c22a01f882870",
+			"current": "1dfcf125dd09b76e0ec416d842dc334e7643642a5916cf6f13a195156475c257"
+		},
+		{
+			"path": ".changeset/cycle1-reworks.md",
+			"baseline": null,
+			"current": "0e412e312371df3a9e4db05a1c271740cd0add1bf0fae58960641136c12f9be6"
+		},
+		{
+			"path": "src/modules/printouts/definitions/printout-definitions.ts",
+			"baseline": null,
+			"current": "ba2d13b6c9d95dd1d6ea1cb71c68f6c33fdee22f872019ff1631318d5ea068cc"
+		},
+		{
+			"path": "src/modules/printouts/types/printout-definition.contracts.ts",
+			"baseline": null,
+			"current": "b583fc7f6bde5925aa6aed1299eeaa5f255af727ee7267a918a20b123eab980a"
+		},
+		{
+			"path": "src/modules/printouts/types/printout-workflow.types.ts",
+			"baseline": null,
+			"current": "8cadb1a1bf41be90f0e44be07481e79fc09f1ae45b302897c0e36173324de298"
+		},
+		{
+			"path": "src/modules/printouts/api/dto/printout.dto.ts",
+			"baseline": null,
+			"current": "be061630a8bbbcd279d8dc094e86a00a917c52ceee2d508b39a42bac8f5bc9cc"
+		},
+		{
+			"path": "src/modules/printouts/api/dto/printout-response.dto.ts",
+			"baseline": null,
+			"current": "168d80506a893ce0920a3decf987951bb86782780aef66c81902445475fb6c05"
+		},
+		{
+			"path": "src/modules/printouts/application/printout-definition-validator.ts",
+			"baseline": null,
+			"current": "8b174999413d6025025178f53307596a23499e66518f724a931c95192440ca1c"
+		},
+		{
+			"path": "prisma/migrations/20261019090000_printout_definitions/migration.sql",
+			"baseline": null,
+			"current": "4a680847eef86ceca06dd0fbd64a144121f05bbd3ede282e669229c82a971eea"
+		},
+		{
+			"path": "test/reworks.e2e-spec.ts",
+			"baseline": null,
+			"current": "070c1c5541c8a92d1633ea44726e6ed1a6b9ec001f743faef1e5f9228dc08fa1"
+		},
+		{
+			"path": "src/infrastructure/database/prisma/prisma-json.d.ts",
+			"baseline": "2aec6e634b38b0e2074313a387fcc87df2c6e5f1f29a7d052f87b93d29be0667",
+			"current": "c7009c6c7e9e6e2546dd2c9a808356a2148f739aa1f7d490915270d2b1dea48f"
+		}
+	],
+	"outside": []
+}

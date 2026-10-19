@@ -1,0 +1,25 @@
+# hub-feature
+
+Organization settings edit reusable defaults, including full estimation roots, allocated costs, VAT, directional currency rates and labor maps. Standard/built-in identities remain protected. Labor distinguishes omitted coefficients from explicit zero, supports Always/category maps and independently versioned system overrides, and preserves catalog-specific entries. Project copies do not change automatically when organization defaults change. Configuration failures retain the draft; explicit reload discards it. Catalog-dependent article/color/filling selections remain unavailable until their lookup APIs exist.
+
+This library was generated with [Nx](https://nx.dev).
+
+## Printout catalog and selection
+
+`/hub/printouts` uses a page-scoped `HubPrintoutSelectionStore`, the stateless selection service and the app-selected Hub catalog gateway. The live catalog is the source of report names, categories, scope and literal status badges; `AVAILABLE`, `NEXT` and `PLANNED` remain unchanged. Every current entry has `canGenerate:false`. The page deliberately offers selection only and explains that generation is deferred; there is no generation request or action.
+
+Navigation preserves its original query context alongside resolved position IDs. `inputType` is `PROJECT`, `PROJECT_PHASE`, `POSITIONS`, `ELEMENTS` or `FABRICATION_BATCH`, with one UUID `inputId`. Optional comma-separated `inputIds` supports bulk position/element selections. Phase input requires its parent `projectId`; element input requires its parent `positionId` and may also carry `projectId`. Missing, malformed or unrelated parent inputs produce an inline context error instead of falling back to another selection. Without a context the page browses the catalog and lets users search/select active position inputs.
+
+Project and phase resolution reads every position page (100 per request), retaining deterministic API ordering and removing duplicate IDs. Explicit position lookups use bounded concurrency. Element resolution reads the known owning position and matches exact selected Elements; batch resolution uses its assigned Elements and deduplicates parent Positions. Archived/deleted parent records and excluded Elements are omitted where those fields apply. No engineering/catalog eligibility or generation rules are invented.
+
+Changing route context cancels pending requests and resets selections. Outcomes must match the current generation. Refreshing the same context reconciles selected reports/positions against the latest available IDs. Context and selections remain local to the page and are discarded when it closes.
+
+## Organization configuration
+
+Organization settings uses page-scoped `HubCatalogStore` and `HubConfigurationStore` with local Signal Forms. Dataset identity, currencies and VAT selection are separate from grouped canonical standard-estimation fields. Complete replacement writes cover profile options, costs, four labor rates, coating categories and existing color prices, profit and glazing; lossless financial values remain decimal strings. Discount-group adjustments, weight prices and group-based glass adjustments have repeatable rows. Existing special article prices can be edited or removed. Blank optional values are omitted; explicit zero survives serialization. Standard dataset names and built-in allocated-cost names/sectors are fixed controls; protected records cannot be removed.
+
+Labor hours owns an independent configuration store so changing its target cancels the previous target's reads. The UI reads operation names, record kinds, material choices and all seven system categories from `/hub/options`; it edits Always, each category and per-system overrides. Simple records expose all eight time coefficients. Rule rows expose work category, quantity, dimensional bounds, material, subsystem and comments. Labor time/dimension coefficients use the canonical numeric JSON type, while financial rates stay strings. Unchecked operations are omitted from the edited map; catalog-specific maps are retained. A missing system override is normalized from the API's `null` to an empty version-zero editor and its first write omits `expectedVersion`.
+
+Every existing record write retains the version read with its draft. Failed writes, including `409`, leave local fields intact. Reload explicitly discards the draft; successful writes reload persisted values. Supplier and discount-group reads use existing catalog endpoints, with cancellable supplier filtering and durable lookup errors. VAT choices use the existing organization VAT registry.
+
+The API currently has no article, color, glass/panel/rail, roll-profile or bulk-price-list lookup routes. Existing references and preference maps are preserved; the UI explains why those selections cannot be added. Special-price and coating-color rows support existing references only. Labor wall-connection/add-on/coupling/bottom-configuration maps remain preserved until their catalog selectors exist. These gaps need real catalog contracts rather than UUID inputs or fabricated supplier catalogs. No estimation or engineering formulas are implemented in these forms.

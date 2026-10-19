@@ -1,0 +1,455 @@
+[     195ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[     783ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  104186ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[  862199ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 1068436ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 1344817ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 1923314ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 2312972ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 4956551ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 4998568ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5089938ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:544:4)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105
+    at errorContext (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:463:9)
+    at Subject.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:971:3)
+    at ConfirmationService.close (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_api.js?v=8e3c7f0f:40:34)
+    at _Confirmations.dismiss (http://localhost:4300/chunk-QP6NKV6C.js:35:16)
+    at ConfirmationHost_Template_p_confirmdialog_onHide_1_listener (http://localhost:4300/chunk-QP6NKV6C.js:90:34)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6514:10) @ http://localhost:4300/@vite/client:524
+[ 5089939ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2731:22
+    at NoopNgZone.runOutsideAngular (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2697:10)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2725:8
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15) @ http://localhost:4300/@vite/client:524
+[ 5090324ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 5093070ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5326234ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5327258ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5335556ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:544:4)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105
+    at errorContext (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:463:9)
+    at Subject.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:971:3)
+    at ConfirmationService.close (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_api.js?v=8e3c7f0f:40:34)
+    at _Confirmations.dismiss (http://localhost:4300/chunk-QP6NKV6C.js:35:16)
+    at ConfirmationHost_Template_p_confirmdialog_onHide_1_listener (http://localhost:4300/chunk-QP6NKV6C.js:90:34)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6514:10) @ http://localhost:4300/@vite/client:524
+[ 5335557ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2731:22
+    at NoopNgZone.runOutsideAngular (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2697:10)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2725:8
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15) @ http://localhost:4300/@vite/client:524
+[ 5335918ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 5336810ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5336811ms] [ERROR] Failed to send error to Vite server: RangeError: Maximum call stack size exceeded
+    at Object.send (http://localhost:4300/@vite/client:444:17)
+    at Object.send (http://localhost:4300/@vite/client:900:16)
+    at Object.send (http://localhost:4300/@vite/client:307:21)
+    at Object.send (http://localhost:4300/@vite/client:385:30)
+    at sendError (http://localhost:4300/@vite/client:486:19)
+    at sendLog (http://localhost:4300/@vite/client:514:11)
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2731:22
+    at NoopNgZone.runOutsideAngular (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2697:10) @ http://localhost:4300/@vite/client:515
+[ 5337232ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/project-folders:0
+[ 5337232ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/projects/statistics:0
+[ 5394932ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5402200ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5412883ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5414738ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5414738ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5414739ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414739ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414739ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414740ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414740ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414740ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414741ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414741ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414742ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414742ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414743ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414743ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414743ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414744ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414744ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414744ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414745ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414745ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414745ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414746ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414746ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414746ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414747ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414747ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414747ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at handleUncaughtError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:4467:16)
+    at executeListenerWithErrorHandling (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6516:3)
+    at wrapListenerIn_markDirtyAndPreventDefault (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:6501:16)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3157:30)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105 @ http://localhost:4300/@vite/client:524
+[ 5414756ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3159:24)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105
+    at errorContext (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:463:9) @ http://localhost:4300/@vite/client:524
+[ 5415091ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5415100ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at [Symbol.hasInstance] (<anonymous>)
+    at sendLog (http://localhost:4300/@vite/client:516:15)
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3159:24)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13) @ http://localhost:4300/@vite/client:524
+[ 5415102ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 5416406ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/project-folders:0
+[ 5416406ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/projects/statistics:0
+[ 5417411ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/project-folders:0
+[ 5417411ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/projects/statistics:0
+[ 5420422ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/project-folders:0
+[ 5420424ms] [ERROR] Failed to load resource: the server responded with a status of 501 (Not Implemented) @ http://localhost:3000/v1/projects/statistics:0
+[ 5482844ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5492283ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5492296ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3159:24)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20)
+    at Subscriber._next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:513:20)
+    at Subscriber.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:489:13)
+    at http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:977:105
+    at errorContext (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:463:9) @ http://localhost:4300/@vite/client:524
+[ 5492644ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5492645ms] [ERROR] Failed to send error to Vite server: RangeError: Maximum call stack size exceeded
+    at Object.send (http://localhost:4300/@vite/client:900:4)
+    at Object.send (http://localhost:4300/@vite/client:307:21)
+    at Object.send (http://localhost:4300/@vite/client:385:30)
+    at sendError (http://localhost:4300/@vite/client:486:19)
+    at sendLog (http://localhost:4300/@vite/client:514:11)
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3159:24)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10) @ http://localhost:4300/@vite/client:515
+[ 5492655ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 5494971ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded @ http://localhost:4300/@vite/client:524
+[ 5494973ms] [ERROR] Failed to send error to Vite server: RangeError: Maximum call stack size exceeded
+    at Object.send (http://localhost:4300/@vite/client:307:4)
+    at Object.send (http://localhost:4300/@vite/client:385:30)
+    at sendError (http://localhost:4300/@vite/client:486:19)
+    at sendLog (http://localhost:4300/@vite/client:514:11)
+    at console.<computed> [as error] (http://localhost:4300/@vite/client:526:4)
+    at ErrorHandler.handleError (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:2717:17)
+    at OutputEmitterRef.emit (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3159:24)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:691:15)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10)
+    at ConsumerObserver.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/esm5-ChK3bs0s.js?v=b762d351:542:20) @ http://localhost:4300/@vite/client:515
+[ 5494986ms] [ERROR] ERROR RangeError: Maximum call stack size exceeded
+    at getLViewParent (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:1992:24)
+    at markAncestorsForTraversal (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:1979:12)
+    at Object.consumerMarkedDirty (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:3047:3)
+    at consumerMarkDirty (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:107:28)
+    at producerNotifyConsumers (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:95:25)
+    at signalValueChanged (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:314:2)
+    at signalSetFn (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/_resource-chunk-CMOHn4Rs.js?v=b762d351:296:3)
+    at getter.set (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:16614:4)
+    at ConfirmDialog.hide (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:692:16)
+    at Object.next (http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/primeng_confirmdialog.js?v=8e3c7f0f:633:10) @ http://localhost:4300/@vite/client:524
+[ 5501881ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5548784ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5570989ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5579117ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 5651411ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5652442ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5680742ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 5792568ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5874982ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5876241ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5924881ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5961589ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 5964144ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 6075839ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 6087933ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 6088779ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 6091656ms] [INFO] Autofocus processing was blocked because a document already has a focused element. @ http://localhost:4300/hub/fabrication-batches:0
+[ 6108853ms] [ERROR] Failed to load resource: the server responded with a status of 409 (Conflict) @ http://localhost:3000/v1/fabrication-batches/batch-1/assignments:0
+[ 6166557ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 6284539ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 6313919ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 7163160ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151
+[ 7164634ms] [LOG] Angular is running in development mode. @ http://localhost:4300/@fs/D:/Planicam/planicam-frontend/.angular/cache/22.1.6/planicam-web/vite/deps/core-BcWiqF-6.js?v=b762d351:9151

@@ -1,0 +1,28 @@
+{
+  "code": "estimation-labour-hours",
+  "definitionVersion": 2,
+  "elementIds": [
+    "01a14eb6-e63d-741a-8d0c-7615b3f50905",
+    "01a14eb6-e649-72c3-9425-f5932038c6da",
+    "01a14eb6-e660-7d99-bf09-02c2c65921f8",
+    "01a14eb6-e66b-7a9b-8439-f5d6f8548a84",
+    "01a14eb6-e689-77ee-bf47-bc4e04da8174",
+    "01a14eb6-e696-7709-8d47-896074b57a6a",
+    "01a14eb6-e696-7835-ace4-a7ab1141dd4c",
+    "01a14eb6-e696-786a-95ce-4cdaef363c35",
+    "01a14eb6-e6ac-7b25-b8e3-a7f385f7b64a",
+    "01a14eb6-e6b6-76e6-bdd9-b5c81bc986ae",
+    "01a14eb6-e6b6-77ba-9863-8b5f2129d737",
+    "01a14eb6-e6b6-77d9-a1ae-307b7b7a0382",
+    "01a14eb6-e6b6-7803-8e54-6cb6d3c9e345"
+  ],
+  "inputOptions": {
+    "sorting": "positions",
+    "phases": "hidden",
+    "labourHours": "minutes",
+    "areaTotal": false,
+    "labourCost": false,
+    "hourlyWage": false,
+    "alternativePositions": false
+  }
+}

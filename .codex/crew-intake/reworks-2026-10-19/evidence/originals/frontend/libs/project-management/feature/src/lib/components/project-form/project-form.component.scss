@@ -1,0 +1,76 @@
+dialog {
+	width: min(820px, 90vw);
+	max-height: 88vh;
+	padding: 24px;
+	border: 1px solid var(--p-content-border-color);
+	border-radius: 12px;
+	background: var(--p-content-background);
+	color: var(--p-text-color);
+}
+dialog::backdrop {
+	background: color-mix(in srgb, var(--p-mask-background) 70%, transparent);
+}
+form {
+	display: grid;
+	gap: 24px;
+}
+header,
+footer,
+nav,
+.customer-search {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+header {
+	justify-content: space-between;
+}
+footer {
+	justify-content: flex-end;
+}
+nav {
+	border-bottom: 1px solid var(--p-content-border-color);
+	padding-bottom: 12px;
+}
+nav button[aria-current] {
+	color: var(--p-primary-color);
+	font-weight: 600;
+}
+button {
+	cursor: pointer;
+}
+.form-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+.form-grid[hidden] {
+	display: none;
+}
+label {
+	display: grid;
+	gap: 8px;
+}
+input,
+select,
+textarea {
+	width: 100%;
+	border: 1px solid var(--p-content-border-color);
+	border-radius: 6px;
+	padding: 10px;
+	color: var(--p-text-color);
+	background: var(--p-form-field-background);
+	font: inherit;
+}
+.customer-search {
+	margin-top: 12px;
+}
+.form-error {
+	color: var(--p-red-600);
+}
+
+.additional-addresses {
+	grid-column: 1 / -1;
+	display: grid;
+	gap: 16px;
+}

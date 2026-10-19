@@ -1,0 +1,249 @@
+<section class="settings-page" aria-labelledby="organization-settings-title">
+	<pl-workspace-layout [showProperties]="false">
+		<pl-workspace-header
+			workspace-header
+			title="Organization settings"
+			headingId="organization-settings-title"
+			description="Reusable defaults for future projects"
+			[hasSelection]="false"
+		/>
+		<nav workspace-sidebar aria-label="Settings sections">
+			@for(item of sections;track item.id){<button
+				type="button"
+				[class.active]="section()===item.id"
+				[attr.aria-current]="section()===item.id?'page':null"
+				(click)="selectSection(item.id)"
+			>
+				{{item.label}}</button
+			>}
+		</nav>
+		<section workspace-main class="settings-main">
+			<header>
+				<h2 class="pl-heading-md">{{sectionLabel()}}</h2>
+				<p class="pl-body-sm pl-text-muted">
+					Changes affect future projects. Existing project copies retain their
+					own values.
+				</p>
+			</header>
+			@if(store.error();as error){
+			<p class="error" role="alert">
+				{{error.message}} Your draft is retained. Reload discards the draft and
+				reads the latest record.
+			</p>
+			<pl-button
+				label="Reload and discard draft"
+				variant="outlined"
+				(pressed)="reload()"
+			/>
+			}@if(store.loading()){
+			<p role="status">Loading settings…</p>
+			} @if(listing()){
+			<div class="records">
+				@for(row of store.records();track $index){
+				<article>
+					<div>
+						<h3>{{recordLabel(row)}}</h3>
+						@if(protectedRecord(row)){<span class="protected">Built-in</span
+						>}@if(section()==='costs'){
+						<p>{{row['price']}} {{row['currencyCode']}}</p>
+						}@if(section()==='vat'){
+						<p>{{row['percentage']}}%</p>
+						}@if(section()==='rates'){
+						<p>Rate: {{row['rate']}}</p>
+						}
+					</div>
+					<div class="actions">
+						<pl-button
+							label="Edit"
+							variant="outlined"
+							(pressed)="open(row)"
+						/><pl-button
+							label="Remove"
+							severity="danger"
+							variant="text"
+							[disabled]="protectedRecord(row)||store.saving()"
+							(pressed)="confirmRemoval(row)"
+						/>
+					</div>
+				</article>
+				}@empty{
+				<p>No records configured.</p>
+				}
+			</div>
+			<pl-button
+				label="Add new"
+				icon="newProject"
+				variant="outlined"
+				(pressed)="open()"
+			/>}
+			@if(showForm()&&section()!=='datasets'&&section()!=='labor'&&section()!=='filling'){
+			<form (submit)="save($event)">
+				<div class="form-grid">
+					@if(section()==='general'){<pl-input-field
+						[field]="fields.projectNumberPrefix"
+						label="Project number prefix"
+						hint="Affects future numbers only."
+					/><label
+						>Preferred currency<select
+							[formField]="fields.preferredCurrencyCode"
+						>
+							@for(currency of catalog.currencies();track currency.code){
+							<option [value]="currency.code">
+								{{currency.code}} · {{currency.name}}
+							</option>
+							}
+						</select></label
+					>} @if(section()==='costs'||section()==='vat'){<pl-input-field
+						[field]="fields.name"
+						label="Name"
+					/>@if(protectedRecord(editing())){
+					<p class="pl-caption">The built-in name is fixed.</p>
+					}} @if(section()==='costs'){<pl-input-field
+						[field]="fields.price"
+						label="Price"
+						[unit]="model().currencyCode"
+					/><label
+						>Currency<select [formField]="fields.currencyCode">
+							@for(currency of catalog.currencies();track currency.code){
+							<option [value]="currency.code">{{currency.code}}</option>
+							}
+						</select></label
+					><label
+						>Allocation basis<select [formField]="fields.allocationBasis">
+							@for(option of catalog.options()['allocationBases'];track
+							option.value){
+							<option [value]="option.value">{{option.label}}</option>
+							}
+						</select></label
+					><label
+						>Quotation display<select [formField]="fields.quotationDisplay">
+							@for(option of
+							catalog.options()['allocatedCostQuotationDisplays'];track
+							option.value){
+							<option [value]="option.value">{{option.label}}</option>
+							}
+						</select></label
+					><label
+						>Sector<select [formField]="fields.estimationSector">
+							@for(option of catalog.options()['estimationSectors'];track
+							option.value){
+							<option [value]="option.value">{{option.label}}</option>
+							}
+						</select></label
+					>} @if(section()==='vat'){<pl-input-field
+						[field]="fields.percentage"
+						label="VAT"
+						unit="%"
+					/>} @if(section()==='rates'){<label
+						>Source currency<select [formField]="fields.fromCurrencyCode">
+							@for(currency of catalog.currencies();track currency.code){
+							<option [value]="currency.code">{{currency.code}}</option>
+							}
+						</select></label
+					><label
+						>Target currency<select [formField]="fields.toCurrencyCode">
+							@for(currency of catalog.currencies();track currency.code){
+							<option [value]="currency.code">{{currency.code}}</option>
+							}
+						</select></label
+					><pl-input-field
+						[field]="fields.rate"
+						label="Target units per source unit"
+					/>
+					<p class="pl-caption">
+						Rates are directional. No inverse rate is created automatically.
+					</p>
+					} @if(section()==='system'){
+					<div class="full systems">
+						@for(system of catalog.systems();track system.id){<label
+							><input
+								type="checkbox"
+								[checked]="preferredSystems().includes(system.id)"
+								(change)="toggleSystem(system.id,$event)"
+							/>{{system.name}}</label
+						>}
+					</div>
+					} @if(section()==='other'){<label
+						>Default system<select [formField]="fields.defaultSystemId">
+							<option value="">No default system</option>
+							@for(system of catalog.systems();track system.id){
+							<option [value]="system.id">{{system.name}}</option>
+							}
+						</select></label
+					><label
+						>Apply time suggestions<select
+							[formField]="fields.applyTimeSuggestions"
+						>
+							<option value="false">No</option>
+							<option value="true">Yes</option>
+						</select></label
+					>} @if(section()==='color'){<label
+						>Finish mode<select [formField]="fields.finishMode">
+							<option value="">No default</option>
+							<option value="SINGLE_COLOR">Single color</option>
+							<option value="DUAL_COLOR">Dual color</option>
+						</select></label
+					>
+					<p>
+						Color selections require catalog color records. Existing mappings
+						are preserved.
+					</p>
+					}
+				</div>
+				@if(fields().invalid()){
+				<ul class="error" role="alert">
+					@for(error of fields().errors();track $index){
+					<li>{{error.message}}</li>
+					}
+				</ul>
+				}
+				<footer>
+					<pl-button
+						label="Save settings"
+						type="submit"
+						[loading]="store.saving()"
+						[disabled]="fields().invalid()"
+					/>
+				</footer>
+			</form>
+			} @if(section()==='filling'){
+			<p>
+				Glass, panel, and rail preferences are provisioned. Selecting catalog
+				fillings requires the corresponding catalog records.
+			</p>
+			} @if(showForm()&&section()==='datasets'){<planicam-estimation-dataset
+				[row]="editing()"
+				[saving]="store.saving()"
+				[persist]="persistDataset"
+			/>} @if(section()==='labor'){<planicam-labor-hours />}
+		</section></pl-workspace-layout
+	>
+</section>
+<dialog
+	#confirmation
+	aria-labelledby="settings-remove-title"
+	(cancel)="store.saving()?$event.preventDefault():closeConfirmation()"
+>
+	<form (submit)="remove($event)">
+		<h2 id="settings-remove-title">
+			Remove {{removalTarget()?recordLabel(removalTarget()!):'record'}}?
+		</h2>
+		<p>Existing project copies will be preserved.</p>
+		@if(store.error();as error){
+		<p class="error" role="alert">{{error.message}}</p>
+		}
+		<footer>
+			<pl-button
+				label="Cancel"
+				variant="outlined"
+				[disabled]="store.saving()"
+				(pressed)="closeConfirmation()"
+			/><pl-button
+				label="Remove"
+				type="submit"
+				severity="danger"
+				[loading]="store.saving()"
+			/>
+		</footer>
+	</form>
+</dialog>

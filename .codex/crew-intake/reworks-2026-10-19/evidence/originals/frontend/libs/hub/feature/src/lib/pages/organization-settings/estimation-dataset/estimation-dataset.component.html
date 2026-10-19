@@ -1,0 +1,94 @@
+<form (submit)="save($event)">
+	<fieldset [disabled]="saving()">
+		<legend>Estimation dataset</legend>
+		@if (protected()) {
+			<p>
+				The built-in dataset name is fixed. Its financial values remain
+				configurable.
+			</p>
+		}
+		<planicam-configuration-fields
+			[descriptors]="identity()"
+			[fields]="fields.values"
+		/>
+		@for (section of sections; track section.label) {
+			<details>
+				<summary>{{ section.label }}</summary>
+				<planicam-configuration-fields
+					[descriptors]="section.fields"
+					[fields]="fields.values"
+				/>
+			</details>
+		}
+		<label
+			>Filter available discount groups by supplier
+			<select (change)="filterGroups($event)">
+				<option value="">All accessible suppliers</option>
+				@for (supplier of catalog.suppliers(); track supplier.id) {
+					<option [value]="supplier.id">{{ supplier.name }}</option>
+				}
+			</select>
+		</label>
+		@if (catalog.groupsLoading()) {
+			<p role="status">Loading discount groups…</p>
+		}
+		@if (catalog.groupsError(); as error) {
+			<p role="alert">{{ error.message }}</p>
+		}
+		@for (table of tables(); track table.key) {
+			<details>
+				<summary>
+					{{ table.label }} ({{ model().tables[table.key].length }})
+				</summary>
+				@for (
+					row of model().tables[table.key];
+					track $index;
+					let index = $index
+				) {
+					<fieldset>
+						<legend>{{ table.label }} {{ index + 1 }}</legend>
+						<planicam-configuration-fields
+							[descriptors]="table.fields"
+							[fields]="fields.tables[table.key][index]"
+						/>
+						<pl-button
+							label="Remove row"
+							severity="danger"
+							variant="text"
+							(pressed)="remove(table.key, index)"
+						/>
+					</fieldset>
+				} @empty {
+					<p>No entries configured.</p>
+				}
+				@if (table.add) {
+					<pl-button
+						label="Add row"
+						variant="outlined"
+						(pressed)="add(table)"
+					/>
+				}
+			</details>
+		}
+		<p>
+			Article, color, roll-profile, bulk-price-list and glass catalogs are not
+			exposed by the current API. Existing references are preserved. Special
+			article and color prices can be edited or removed; adding those selections
+			requires the corresponding catalog. Glass adjustments can target an
+			accessible discount group.
+		</p>
+		@if (fields().invalid()) {
+			<ul role="alert">
+				@for (error of fields().errors(); track $index) {
+					<li>{{ error.message }}</li>
+				}
+			</ul>
+		}
+		<pl-button
+			label="Save dataset"
+			type="submit"
+			[loading]="saving()"
+			[disabled]="fields().invalid()"
+		/>
+	</fieldset>
+</form>

@@ -1,0 +1,8 @@
+{
+	"frontend": [
+		"libs/project-management/feature/src/lib/components/position-form/position-form.component.html",
+		"libs/project-management/feature/src/lib/components/position-form/position-form.component.scss",
+		"libs/hub/data-access/src/lib/printout-workflow.gateway.ts",
+		"libs/hub/feature/src/lib/components/printout-options/index.ts"
+	]
+}
