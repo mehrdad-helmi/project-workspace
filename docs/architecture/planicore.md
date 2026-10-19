@@ -4,6 +4,12 @@ Part of the [technical architecture](overview.md), revision 12 October 2026, V1 
 
 ## Definition
 
+### Temporary Hub Phase 2 implementation exception
+
+On 18 October 2026, Mehrdad explicitly approved implementing the calculation behavior needed by Hub Phase 2 in temporary TypeScript while Rust integration is pending. Keep that code pure, isolated behind the calculation boundary, and in a clearly named temporary directory. Every temporary calculation source file must start with a comment stating it must migrate to Planicore/Rust. Angular pages and NestJS must not grow parallel calculation implementations. This is a prototype exception; the Rust ownership and runtime architecture below remain the target. Document supported operations and unsupported engineering/catalog calculations explicitly.
+
+During this run, position creation also creates the first physical Element before engineering initialization. First design initialization must reuse existing Elements rather than create another Element 1.
+
 **Planicore** is Planicam's shared deterministic engineering and calculation engine.
 
 It is responsible for reusable offline-capable domain computation such as:
