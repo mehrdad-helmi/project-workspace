@@ -6,7 +6,16 @@ From the workspace:
 bun run temporary/thumbnail-server/server.ts
 ```
 
-Serves five fixed SVG placeholders at `http://127.0.0.1:7300/thumbnails/<key>.svg`. Thumbnail routes support GET and HEAD only; no thumbnail uploads or generated images. Authentication and production storage integration remain deferred. Position records retain their randomly assigned placeholder key so thumbnails stay stable. This is a local development convenience and is replaced by storage-backed thumbnails later.
+Temporary local thumbnail generation and serving on `127.0.0.1:7300`:
+
+- `POST /thumbnails/<positionId>` accepts `{ exterior, interior }`. Each drawing contains positive `width`, `height` and the existing engine's numeric `paths`; no engineering calculations run here.
+- Generates `dark_theme_exterior.svg`, `dark_theme_interior.svg`, `light_theme_exterior.svg` and `light_theme_interior.svg` under `generated/<positionId>/<revision>/`. One atomic `current.json` replacement publishes the complete set; writes serialize per position and old image sets are removed after publication.
+- `GET`/`HEAD /thumbnails/<positionId>/<variant>.svg` serves the current image without caching. `?fallback=<placeholderKey>` uses the original placeholder until first generation. Original `/thumbnails/<key>.svg` URLs still work.
+
+The editor generates on opening and after valid canonical design changes. Rapid changes coalesce for 350 ms, then requests run sequentially; superseded results cannot mark the current design ready. Save status is independent. Failures appear only beside save status and the next edit or reopening attempts generation again. Theme/view/selection/camera changes do not generate images. Hub previews select the active theme and the preview dialog selects the requested side.
+
+Generated files are ignored by Git. No authentication, backend schema changes, production storage or cross-tab version arbitration: this is disposable local development infrastructure. Set `THUMBNAIL_PORT` to override the port for isolated manual verification; the frontend uses 7300. Restart an already-running server after changing its source.
+
 
 ## Material Analysis printouts
 
