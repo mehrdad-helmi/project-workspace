@@ -1,2 +1,5 @@
 # Local, temporary recovery records for active Redhat Crew assignments.
 /.codex/crew-runs/
+/references/
+/.tmp/
+/.codex/crew-intake/*
