@@ -129,6 +129,7 @@ export async function renderMaterialAnalysis(
 		<tfoot><tr><td colspan="4">${priced.length !== lines.length ? 'Priced subtotal · unpriced articles excluded' : 'Subtotal'} <span>USD</span></td><td class="numeric">${priced.length ? money(priced.reduce((sum, line) => sum + line.total!, 0)) : lines.length ? 'Unavailable' : '0.00'}</td></tr></tfoot></table></section>`;
 		})
 		.join('');
+	const hasUnpricedArticles = report.lines.some((line) => line.total === null);
 	return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; font-src data:; style-src 'unsafe-inline'"><title>Planicam · Material analysis</title>
 	<style>
 	@font-face{font-family:Inter;src:url(data:font/woff2;base64,${font.toString('base64')}) format('woff2');font-weight:100 900}
@@ -140,6 +141,6 @@ export async function renderMaterialAnalysis(
 	</style></head><body><header><img alt="Planicam" src="data:image/svg+xml;base64,${logo.toString('base64')}"><div>Generated ${escape(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', dateStyle: 'medium', timeStyle: 'short' }).format(date))} Tehran<br>Currency USD · Demo prices</div></header>
 	<h1>Material analysis</h1><p class="intro">Articles used in ${report.positions.length} position${report.positions.length === 1 ? '' : 's'} · Quantities include active, non-excluded elements.</p>
 	<table class="scope"><colgroup><col style="width:23%"><col style="width:39%"><col style="width:26%"><col style="width:12%"></colgroup><thead><tr><th>Project</th><th>Position</th><th>Profile system</th><th class="numeric">Qty.</th></tr></thead><tbody>${report.positions.map((p) => `<tr><td>${escape(p.project)}</td><td><b>${escape(p.number)}</b> · ${escape(p.name)}<small>Saved revision ${number(p.version)}</small></td><td>${escape(p.system)}</td><td class="numeric">${number(p.quantity)}</td></tr>`).join('')}</tbody></table>
-	${sections}<div class="total"><span>Priced materials only<small>Profile and gasket prices are unavailable.</small></span><strong><small>USD</small>${money(report.pricedTotal)}</strong></div>
+	${sections}<div class="total"><span>${hasUnpricedArticles ? 'Priced materials only' : 'Demo material total'}<small>${hasUnpricedArticles ? 'Unpriced articles are excluded.' : 'All prices are fictitious demo values.'}</small></span><strong><small>USD</small>${money(report.pricedTotal)}</strong></div>
 	<div class="notes"><h2>Basis of this analysis</h2>${report.notes.map((note) => `<p>${escape(note)}</p>`).join('')}</div></body></html>`;
 }
