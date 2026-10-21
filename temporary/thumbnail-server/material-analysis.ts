@@ -66,6 +66,10 @@ export function isMaterialAnalysis(value: unknown): value is MaterialAnalysis {
 				amount(l['quantity']) &&
 				nullableAmount(l['unitPrice']) &&
 				nullableAmount(l['total']) &&
+				(l['details'] === undefined ||
+					(Array.isArray(l['details']) &&
+						l['details'].length <= 10000 &&
+						l['details'].every(text))) &&
 				typeof l['fictional'] === 'boolean',
 		) &&
 		Array.isArray(notes) &&
@@ -113,8 +117,8 @@ export async function renderMaterialAnalysis(
 	]);
 	const row = (line: MaterialLine) => `<tr>
 		<td class="article-number">${escape(line.number)}</td>
-		<td class="description">${escape(line.name)}${line.fictional ? '<span class="demo">Demo article</span>' : ''}<small>${escape(line.stock)}</small></td>
-		<td class="numeric">${number(line.quantity)}<small>${escape(line.required)}</small></td>
+		<td class="description">${escape(line.name)}${line.fictional ? '<span class="demo">Demo article</span>' : ''}<small>${escape(line.stock)}</small>${line.details?.length ? `<small>${line.details.map(escape).join('<br>')}</small>` : ''}</td>
+		<td class="numeric">${number(line.quantity)} ${line.category === 'profiles' ? 'bar' : line.category === 'glass' ? 'sheet' : 'pc'}${line.quantity === 1 ? '' : 's'}<small>${escape(line.required)}</small></td>
 		<td class="numeric">${money(line.unitPrice)}<small>${escape(line.priceUnit)}</small></td>
 		<td class="numeric">${money(line.total)}</td>
 	</tr>`;
